@@ -1,0 +1,194 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Patients — DentalCare</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+<script src="https://cdn.tailwindcss.com"></script>
+<script>tailwind.config={theme:{extend:{fontFamily:{sans:['Inter','system-ui','sans-serif']},colors:{brand:{50:'#ECFEFF',100:'#CFFAFE',200:'#A5F3FC',300:'#67E8F9',400:'#22D3EE',500:'#06B6D4',600:'#0891B2',700:'#0E7490',800:'#155E75',900:'#164E63'}}}}};</script>
+<style>html,body{font-family:'Inter',system-ui,sans-serif}.num{font-variant-numeric:tabular-nums}</style>
+</head>
+<body>
+<div id="app">
+  <div class="p-6 lg:p-8">
+    <div class="max-w-7xl mx-auto">
+
+      <div class="flex items-end justify-between mb-6 flex-wrap gap-3">
+        <div>
+          <h1 class="text-2xl font-bold tracking-tight">Patients</h1>
+          <p class="text-sm text-slate-500 mt-0.5"><span class="num">342</span> patients · <span class="text-emerald-600">8 nouveaux ce mois</span></p>
+        </div>
+        <div class="flex items-center gap-2">
+          <button class="px-3 py-2 rounded-lg border border-slate-200 bg-white text-sm font-medium text-slate-700 hover:bg-slate-50 flex items-center gap-1.5"><svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3"/></svg>Exporter</button>
+          <button class="px-3 py-2 rounded-lg bg-brand-600 text-white text-sm font-medium hover:bg-brand-700 flex items-center gap-1.5"><svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15"/></svg>Nouveau patient</button>
+        </div>
+      </div>
+
+      <div class="bg-white border border-slate-200 rounded-xl overflow-hidden">
+        <div class="p-4 border-b border-slate-200 flex flex-wrap gap-3 items-center">
+          <div class="relative flex-1 min-w-[260px] max-w-md">
+            <svg class="absolute left-3 top-2.5 w-4 h-4 text-slate-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z"/></svg>
+            <input type="text" value="bena" class="w-full pl-9 pr-3 py-2 text-sm border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-500" />
+          </div>
+          <select class="px-3 py-2 border border-slate-200 rounded-lg text-sm bg-white text-slate-700">
+            <option>Tous les patients</option><option>Actifs</option><option>Inactifs</option>
+          </select>
+          <select class="px-3 py-2 border border-slate-200 rounded-lg text-sm bg-white text-slate-700">
+            <option>Toutes les villes</option><option>Fès</option><option>Meknès</option>
+          </select>
+          <button class="ml-auto text-sm text-slate-500 hover:text-slate-700 flex items-center gap-1"><svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 3v17.25m0 0c-1.472 0-2.882.265-4.185.75M12 20.25c1.472 0 2.882.265 4.185.75M18.75 4.97A48.416 48.416 0 0012 4.5c-2.291 0-4.545.16-6.75.47m13.5 0c1.01.143 2.01.317 3 .52m-3-.52l2.62 10.726c.122.499-.106 1.028-.589 1.202a5.988 5.988 0 01-2.031.352 5.988 5.988 0 01-2.031-.352c-.483-.174-.711-.703-.59-1.202L18.75 4.971z"/></svg>3 filtres actifs</button>
+        </div>
+
+        <div class="overflow-x-auto">
+          <table class="w-full text-sm">
+            <thead class="bg-slate-50 border-b border-slate-200">
+              <tr class="text-left text-xs uppercase tracking-wider text-slate-500">
+                <th class="px-4 py-3 font-semibold"><input type="checkbox" class="rounded border-slate-300 text-brand-600" /></th>
+                <th class="px-4 py-3 font-semibold">Nom</th>
+                <th class="px-4 py-3 font-semibold">CIN</th>
+                <th class="px-4 py-3 font-semibold">Téléphone</th>
+                <th class="px-4 py-3 font-semibold">Ville</th>
+                <th class="px-4 py-3 font-semibold">Dernière visite</th>
+                <th class="px-4 py-3 font-semibold">État</th>
+                <th class="px-4 py-3"></th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-slate-100">
+              <tr class="hover:bg-slate-50 cursor-pointer" onclick="window.location='patient-detail.html'">
+                <td class="px-4 py-3"><input type="checkbox" class="rounded border-slate-300" /></td>
+                <td class="px-4 py-3">
+                  <div class="flex items-center gap-3">
+                    <div class="w-8 h-8 rounded-full bg-brand-100 text-brand-700 grid place-items-center text-xs font-semibold">AB</div>
+                    <div>
+                      <div class="font-medium">Ahmed <strong class="bg-amber-100 text-amber-900">Bena</strong>li</div>
+                      <div class="text-xs text-slate-500">38 ans · ♂</div>
+                    </div>
+                  </div>
+                </td>
+                <td class="px-4 py-3 num text-slate-600">B123456</td>
+                <td class="px-4 py-3 num text-slate-600">0612-345-678</td>
+                <td class="px-4 py-3 text-slate-600">Fès</td>
+                <td class="px-4 py-3 num text-slate-600">12/04/2026</td>
+                <td class="px-4 py-3"><span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs bg-rose-50 text-rose-700 border border-rose-200">⚠ Allergie</span></td>
+                <td class="px-4 py-3 text-right"><svg class="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5"/></svg></td>
+              </tr>
+              <tr class="hover:bg-slate-50 cursor-pointer">
+                <td class="px-4 py-3"><input type="checkbox" class="rounded border-slate-300" /></td>
+                <td class="px-4 py-3">
+                  <div class="flex items-center gap-3">
+                    <div class="w-8 h-8 rounded-full bg-emerald-100 text-emerald-700 grid place-items-center text-xs font-semibold">SB</div>
+                    <div><div class="font-medium">Salma Bouhraoua</div><div class="text-xs text-slate-500">29 ans · ♀</div></div>
+                  </div>
+                </td>
+                <td class="px-4 py-3 num text-slate-600">C789012</td>
+                <td class="px-4 py-3 num text-slate-600">0661-234-567</td>
+                <td class="px-4 py-3 text-slate-600">Fès</td>
+                <td class="px-4 py-3 num text-slate-600">08/05/2026</td>
+                <td class="px-4 py-3"><span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs bg-emerald-50 text-emerald-700 border border-emerald-200">● OK</span></td>
+                <td class="px-4 py-3 text-right"><svg class="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5"/></svg></td>
+              </tr>
+              <tr class="hover:bg-slate-50 cursor-pointer">
+                <td class="px-4 py-3"><input type="checkbox" class="rounded border-slate-300" /></td>
+                <td class="px-4 py-3">
+                  <div class="flex items-center gap-3">
+                    <div class="w-8 h-8 rounded-full bg-amber-100 text-amber-700 grid place-items-center text-xs font-semibold">KA</div>
+                    <div><div class="font-medium">Karim Amir</div><div class="text-xs text-slate-500">45 ans · ♂</div></div>
+                  </div>
+                </td>
+                <td class="px-4 py-3 num text-slate-600">D456789</td>
+                <td class="px-4 py-3 num text-slate-600">0698-765-432</td>
+                <td class="px-4 py-3 text-slate-600">Meknès</td>
+                <td class="px-4 py-3 num text-slate-600">15/05/2026</td>
+                <td class="px-4 py-3"><span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs bg-amber-50 text-amber-700 border border-amber-200">⚠ Diabète</span></td>
+                <td class="px-4 py-3 text-right"><svg class="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5"/></svg></td>
+              </tr>
+              <tr class="hover:bg-slate-50 cursor-pointer">
+                <td class="px-4 py-3"><input type="checkbox" class="rounded border-slate-300" /></td>
+                <td class="px-4 py-3">
+                  <div class="flex items-center gap-3">
+                    <div class="w-8 h-8 rounded-full bg-violet-100 text-violet-700 grid place-items-center text-xs font-semibold">FT</div>
+                    <div><div class="font-medium">Fatima Tazi</div><div class="text-xs text-slate-500">52 ans · ♀</div></div>
+                  </div>
+                </td>
+                <td class="px-4 py-3 num text-slate-600">A234567</td>
+                <td class="px-4 py-3 num text-slate-600">0623-456-789</td>
+                <td class="px-4 py-3 text-slate-600">Fès</td>
+                <td class="px-4 py-3 num text-slate-600">02/05/2026</td>
+                <td class="px-4 py-3"><span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs bg-emerald-50 text-emerald-700 border border-emerald-200">● OK</span></td>
+                <td class="px-4 py-3 text-right"><svg class="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5"/></svg></td>
+              </tr>
+              <tr class="bg-brand-50/30 hover:bg-brand-50 cursor-pointer">
+                <td class="px-4 py-3"><input type="checkbox" class="rounded border-slate-300" /></td>
+                <td class="px-4 py-3">
+                  <div class="flex items-center gap-3">
+                    <div class="w-8 h-8 rounded-full bg-sky-100 text-sky-700 grid place-items-center text-xs font-semibold">HI</div>
+                    <div>
+                      <div class="font-medium flex items-center gap-2">Hassan Idrissi <span class="text-[10px] px-1.5 py-0.5 rounded-full bg-brand-600 text-white">RDV 14:30</span></div>
+                      <div class="text-xs text-slate-500">61 ans · ♂</div>
+                    </div>
+                  </div>
+                </td>
+                <td class="px-4 py-3 num text-slate-400">—</td>
+                <td class="px-4 py-3 num text-slate-600">0677-123-456</td>
+                <td class="px-4 py-3 text-slate-600">Fès</td>
+                <td class="px-4 py-3 num text-slate-600"><span class="text-brand-700 font-medium">Aujourd'hui</span></td>
+                <td class="px-4 py-3"><span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs bg-emerald-50 text-emerald-700 border border-emerald-200">● OK</span></td>
+                <td class="px-4 py-3 text-right"><svg class="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5"/></svg></td>
+              </tr>
+              <tr class="hover:bg-slate-50 cursor-pointer">
+                <td class="px-4 py-3"><input type="checkbox" class="rounded border-slate-300" /></td>
+                <td class="px-4 py-3">
+                  <div class="flex items-center gap-3">
+                    <div class="w-8 h-8 rounded-full bg-rose-100 text-rose-700 grid place-items-center text-xs font-semibold">YF</div>
+                    <div><div class="font-medium">Yasmine El Fassi</div><div class="text-xs text-slate-500">34 ans · ♀</div></div>
+                  </div>
+                </td>
+                <td class="px-4 py-3 num text-slate-600">B345678</td>
+                <td class="px-4 py-3 num text-slate-600">0666-987-654</td>
+                <td class="px-4 py-3 text-slate-600">Rabat</td>
+                <td class="px-4 py-3 num text-slate-600">30/04/2026</td>
+                <td class="px-4 py-3"><span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs bg-emerald-50 text-emerald-700 border border-emerald-200">● OK</span></td>
+                <td class="px-4 py-3 text-right"><svg class="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5"/></svg></td>
+              </tr>
+              <tr class="hover:bg-slate-50 cursor-pointer">
+                <td class="px-4 py-3"><input type="checkbox" class="rounded border-slate-300" /></td>
+                <td class="px-4 py-3">
+                  <div class="flex items-center gap-3">
+                    <div class="w-8 h-8 rounded-full bg-indigo-100 text-indigo-700 grid place-items-center text-xs font-semibold">YR</div>
+                    <div><div class="font-medium">Younes Rachidi</div><div class="text-xs text-slate-500">27 ans · ♂</div></div>
+                  </div>
+                </td>
+                <td class="px-4 py-3 num text-slate-600">E567890</td>
+                <td class="px-4 py-3 num text-slate-600">0644-321-987</td>
+                <td class="px-4 py-3 text-slate-600">Fès</td>
+                <td class="px-4 py-3 num text-slate-600">25/03/2026</td>
+                <td class="px-4 py-3"><span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs bg-slate-100 text-slate-600 border border-slate-200">— Inactif</span></td>
+                <td class="px-4 py-3 text-right"><svg class="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5"/></svg></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="px-4 py-3 border-t border-slate-200 flex items-center justify-between text-sm">
+          <div class="text-slate-500">Affichage <span class="num font-medium text-slate-900">1-7</span> sur <span class="num font-medium text-slate-900">342</span> patients</div>
+          <div class="flex items-center gap-1">
+            <button class="p-1.5 rounded hover:bg-slate-100 text-slate-400" disabled><svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5"/></svg></button>
+            <button class="w-8 h-8 rounded bg-brand-600 text-white font-medium num">1</button>
+            <button class="w-8 h-8 rounded hover:bg-slate-100 text-slate-700 num">2</button>
+            <button class="w-8 h-8 rounded hover:bg-slate-100 text-slate-700 num">3</button>
+            <span class="px-2 text-slate-400">…</span>
+            <button class="w-8 h-8 rounded hover:bg-slate-100 text-slate-700 num">49</button>
+            <button class="p-1.5 rounded hover:bg-slate-100 text-slate-600"><svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5"/></svg></button>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+<script src="./shell.js"></script>
+<script>initShell({active:'patients'});</script>
+</body>
+</html>

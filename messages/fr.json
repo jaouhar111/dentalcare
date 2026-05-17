@@ -1,0 +1,1414 @@
+{
+  "Common": {
+    "appName": "DentalCare",
+    "tagline": "Gestion de cabinet dentaire",
+    "search": "Rechercher un patient, RDV, facture…",
+    "save": "Enregistrer",
+    "cancel": "Annuler",
+    "confirm": "Confirmer",
+    "delete": "Supprimer",
+    "edit": "Modifier",
+    "back": "Retour",
+    "loading": "Chargement…",
+    "empty": "Aucun résultat"
+  },
+  "Home": {
+    "title": "Bienvenue sur DentalCare",
+    "subtitle": "Phase 0 — fondations posées. UI, base de données et i18n trilingue prêts.",
+    "checkUi": "Chaîne UI validée",
+    "checkUiDesc": "Si vous voyez ce composant Card avec un bouton cyan et un champ focusable, alors Tailwind + shadcn + tokens de couleurs sont correctement câblés.",
+    "buttonPrimary": "Bouton primaire",
+    "buttonSecondary": "Secondaire",
+    "buttonOutline": "Outline",
+    "buttonDestructive": "Destructive",
+    "inputPlaceholder": "Rechercher un patient…",
+    "next": "Phase 0 terminée — Phase 1 (Auth + Multi-tenant) à suivre.",
+    "samplePrice": "Exemple : facture {amount}",
+    "sampleDate": "Aujourd'hui : {date}"
+  },
+  "DbCheck": {
+    "title": "Vérification base de données",
+    "description": "Lit/écrit dans la table {table} via Prisma + Neon.",
+    "ok": "🟢 Base de données OK",
+    "ko": "🔴 Erreur base de données",
+    "key": "Clé",
+    "value": "Valeur",
+    "updatedAt": "Mise à jour"
+  },
+  "LocaleSwitcher": {
+    "label": "Langue",
+    "fr": "Français",
+    "en": "English",
+    "ar": "العربية"
+  },
+  "Login": {
+    "title": "Bienvenue 👋",
+    "subtitle": "Connectez-vous à votre cabinet",
+    "tagline": "La gestion sereine de votre cabinet.",
+    "taglineDesc": "Patients, rendez-vous, dossiers médicaux, facturation, stock — tout au même endroit.",
+    "emailLabel": "Email professionnel",
+    "emailPlaceholder": "vous@cabinet.ma",
+    "passwordLabel": "Mot de passe",
+    "rememberMe": "Se souvenir de moi",
+    "forgotPassword": "Mot de passe oublié ?",
+    "submit": "Se connecter",
+    "submitLoading": "Connexion…",
+    "errors": {
+      "INVALID_INPUT": "Email ou mot de passe invalide.",
+      "INVALID_CREDENTIALS": "Email ou mot de passe incorrect.",
+      "RATE_LIMITED": "Trop de tentatives. Réessayez dans quelques minutes.",
+      "GENERIC": "Une erreur est survenue. Réessayez."
+    },
+    "footer": "© 2026 DentalCare. Conforme loi 09-08."
+  },
+  "Logout": {
+    "label": "Se déconnecter"
+  },
+  "ForgotPassword": {
+    "title": "Mot de passe oublié",
+    "subtitle": "Saisissez votre email — nous vous enverrons un lien de réinitialisation.",
+    "emailLabel": "Email",
+    "submit": "Envoyer le lien",
+    "submitLoading": "Envoi…",
+    "success": "Si un compte existe pour cette adresse, un lien vient d'être envoyé.",
+    "backToLogin": "Retour à la connexion"
+  },
+  "ResetPassword": {
+    "title": "Nouveau mot de passe",
+    "subtitle": "Choisissez un mot de passe d'au moins 8 caractères.",
+    "passwordLabel": "Nouveau mot de passe",
+    "confirmLabel": "Confirmation",
+    "submit": "Mettre à jour",
+    "submitLoading": "Mise à jour…",
+    "success": "Mot de passe mis à jour. Vous pouvez vous connecter.",
+    "errors": {
+      "INVALID_INPUT": "Données invalides.",
+      "INVALID_TOKEN": "Lien expiré ou déjà utilisé. Demandez un nouveau lien.",
+      "PASSWORD_TOO_SHORT": "Le mot de passe doit faire au moins 8 caractères.",
+      "PASSWORD_MISMATCH": "Les deux mots de passe ne correspondent pas.",
+      "GENERIC": "Une erreur est survenue. Réessayez."
+    },
+    "missingToken": "Aucun lien de réinitialisation détecté."
+  },
+  "Nav": {
+    "Pilotage": "Pilotage",
+    "Patientèle": "Patientèle",
+    "Cabinet": "Cabinet",
+    "Dashboard": "Tableau de bord",
+    "Patients": "Patients",
+    "Rendez-vous": "Rendez-vous",
+    "Liste d'attente": "Liste d'attente",
+    "Factures": "Factures",
+    "Stock": "Stock",
+    "Rappels": "Rappels",
+    "Dentistes": "Dentistes",
+    "Utilisateurs": "Utilisateurs",
+    "Traitements": "Traitements",
+    "Paramètres": "Paramètres",
+    "Registre d'audit": "Registre d'audit"
+  },
+  "Topbar": {
+    "searchPlaceholder": "Rechercher patient, RDV, facture…",
+    "openMenu": "Ouvrir le menu",
+    "notifications": "Notifications"
+  },
+  "Role": {
+    "ADMIN": "Administrateur",
+    "DENTIST": "Dentiste",
+    "RECEPTIONIST": "Réceptionniste"
+  },
+  "Patients": {
+    "title": "Patients",
+    "subtitle": "{count} patients",
+    "newThisMonth": "{count} nouveaux ce mois",
+    "new": "Nouveau patient",
+    "export": "Exporter",
+    "newAppointment": "Nouveau RDV",
+    "edit": "Modifier",
+    "delete": "Supprimer",
+    "search": "Rechercher nom, CIN, téléphone…",
+    "filters": {
+      "status": "Statut",
+      "city": "Ville",
+      "allStatuses": "Tous les patients",
+      "active": "Actifs",
+      "inactive": "Inactifs",
+      "allCities": "Toutes les villes",
+      "activeCount": "{count} filtres actifs"
+    },
+    "empty": "Aucun patient",
+    "emptyDesc": "Créez votre premier patient pour démarrer.",
+    "noResults": "Aucun résultat pour cette recherche",
+    "columns": {
+      "name": "Nom",
+      "age": "Âge",
+      "cin": "CIN",
+      "phone": "Téléphone",
+      "city": "Ville",
+      "tags": "État",
+      "lastVisit": "Dernière visite",
+      "createdAt": "Inscrit le"
+    },
+    "tags": {
+      "allergies": "Allergie",
+      "ok": "OK",
+      "inactive": "Inactif",
+      "consent": "Photos OK"
+    },
+    "pagination": {
+      "showing": "Affichage {from}-{to} sur {total}",
+      "previous": "Précédent",
+      "next": "Suivant"
+    },
+    "confirmDelete": "Supprimer ce patient ?",
+    "confirmDeleteDesc": "Le patient sera archivé (suppression douce) et caché des listes. Conformité loi 09-08 : rétention 5 ans.",
+    "deleted": "Patient supprimé.",
+    "agePattern": "{years} ans",
+    "agePatternShort": "{years} ans",
+    "gender": {
+      "MALE": "♂",
+      "FEMALE": "♀",
+      "OTHER": "—"
+    },
+    "noLastVisit": "—"
+  },
+  "PatientForm": {
+    "titleCreate": "Nouveau patient",
+    "titleEdit": "Modifier le patient",
+    "sections": {
+      "identity": "Identité",
+      "contact": "Contact",
+      "medical": "Médical",
+      "preferences": "Préférences & consentements"
+    },
+    "fields": {
+      "firstName": "Prénom",
+      "lastName": "Nom",
+      "cin": "CIN",
+      "cinHelp": "Carte d'identité (optionnel)",
+      "dob": "Date de naissance",
+      "gender": "Genre",
+      "phone": "Téléphone",
+      "phoneHelp": "Format marocain — ex. 0612 345 678",
+      "email": "Email",
+      "address": "Adresse",
+      "city": "Ville",
+      "bloodGroup": "Groupe sanguin",
+      "allergies": "Allergies",
+      "allergiesHelp": "Tapez puis Entrée pour ajouter",
+      "medicalHistory": "Antécédents médicaux",
+      "preferredChannel": "Canal de contact préféré",
+      "preferredLocale": "Langue préférée",
+      "photoConsent": "Consentement photos avant/après",
+      "photoConsentHelp": "Le patient autorise la prise de photos cliniques (avant/après traitement)."
+    },
+    "gender": {
+      "MALE": "Masculin",
+      "FEMALE": "Féminin",
+      "OTHER": "Autre"
+    },
+    "bloodGroup": {
+      "A_POSITIVE": "A+",
+      "A_NEGATIVE": "A-",
+      "B_POSITIVE": "B+",
+      "B_NEGATIVE": "B-",
+      "AB_POSITIVE": "AB+",
+      "AB_NEGATIVE": "AB-",
+      "O_POSITIVE": "O+",
+      "O_NEGATIVE": "O-"
+    },
+    "channel": {
+      "WHATSAPP": "WhatsApp",
+      "EMAIL": "Email",
+      "PHONE": "Téléphone"
+    },
+    "locale": {
+      "fr": "Français",
+      "en": "English",
+      "ar": "العربية"
+    },
+    "submit": "Enregistrer",
+    "submitLoading": "Enregistrement…",
+    "cancel": "Annuler",
+    "errors": {
+      "_form": "Données invalides.",
+      "REQUIRED": "Champ requis.",
+      "INVALID_EMAIL": "Email invalide.",
+      "INVALID_PHONE": "Numéro de téléphone marocain invalide.",
+      "INVALID_DATE": "Date invalide.",
+      "CIN_CONFLICT": "Un patient avec ce CIN existe déjà."
+    }
+  },
+  "Waitlist": {
+    "title": "Liste d'attente",
+    "subtitle": "{count} patients en attente",
+    "add": "Ajouter",
+    "remove": "Retirer",
+    "empty": "Personne en liste d'attente",
+    "emptyDesc": "Ajoutez un patient quand un créneau idéal n'est pas immédiatement disponible.",
+    "explainer": "Sur la prochaine annulation, WhatsApp est envoyé automatiquement aux candidats compatibles. Premier confirmé = créneau attribué.",
+    "columns": {
+      "patient": "Patient",
+      "dentist": "Dentiste",
+      "duration": "Durée",
+      "window": "Plage",
+      "status": "Statut",
+      "createdAt": "Inscrit"
+    },
+    "anyDentist": "N'importe quel dentiste",
+    "anyTime": "Toute la journée",
+    "morning": "Matin",
+    "afternoon": "Après-midi",
+    "noWindow": "Sans restriction",
+    "windowFrom": "À partir du {date}",
+    "windowUntil": "Jusqu'au {date}",
+    "windowBetween": "Du {from} au {to}",
+    "status": {
+      "WAITING": "En attente",
+      "PROPOSED": "Proposé",
+      "ACCEPTED": "Accepté",
+      "DECLINED": "Refusé",
+      "EXPIRED": "Expiré",
+      "CANCELLED": "Retiré"
+    },
+    "form": {
+      "title": "Ajouter à la liste d'attente",
+      "patient": "Patient",
+      "patientPlaceholder": "Rechercher un patient…",
+      "dentist": "Dentiste préféré",
+      "anyDentist": "N'importe quel dentiste",
+      "duration": "Durée souhaitée",
+      "timePref": "Plage horaire préférée",
+      "anyTime": "N'importe quelle heure",
+      "morning": "Matin (avant 13h)",
+      "afternoon": "Après-midi (à partir de 13h)",
+      "notBefore": "Pas avant le",
+      "notAfter": "Pas après le",
+      "reason": "Motif (optionnel)",
+      "reasonPlaceholder": "Ex. Détartrage, prise de RDV pour vacances…",
+      "submit": "Ajouter",
+      "submitting": "Ajout…",
+      "cancel": "Annuler"
+    }
+  },
+  "Appointments": {
+    "title": "Calendrier des rendez-vous",
+    "subtitle": "Semaine du {from} au {to} · {count} RDV programmés",
+    "subtitleDay": "{date} · {count} RDV",
+    "subtitleMonth": "{month} · {count} RDV",
+    "new": "Nouveau RDV",
+    "waitlist": "Liste d'attente",
+    "previous": "Précédent",
+    "today": "Aujourd'hui",
+    "thisMonth": "Ce mois",
+    "next": "Suivant",
+    "view": {
+      "day": "Jour",
+      "week": "Semaine",
+      "month": "Mois"
+    },
+    "days": {
+      "0": "Dim",
+      "1": "Lun",
+      "2": "Mar",
+      "3": "Mer",
+      "4": "Jeu",
+      "5": "Ven",
+      "6": "Sam"
+    },
+    "daysLong": {
+      "0": "Dimanche",
+      "1": "Lundi",
+      "2": "Mardi",
+      "3": "Mercredi",
+      "4": "Jeudi",
+      "5": "Vendredi",
+      "6": "Samedi"
+    },
+    "filters": {
+      "allDentists": "Tous les dentistes",
+      "dentists": "Dentistes"
+    },
+    "closed": "Cabinet fermé",
+    "noDentists": "Aucun dentiste actif",
+    "noDentistsDesc": "Créez d'abord un dentiste depuis Cabinet → Dentistes.",
+    "waitlistBanner": {
+      "title": "Liste d'attente automatisée (Phase 4.7+)",
+      "desc": "Sur la prochaine annulation, WhatsApp sera envoyé automatiquement aux candidats compatibles. Premier confirmé = créneau attribué.",
+      "comingSoon": "Disponible bientôt"
+    },
+    "duration": {
+      "15": "15 min",
+      "30": "30 min",
+      "45": "45 min",
+      "60": "60 min",
+      "75": "75 min",
+      "90": "90 min",
+      "120": "2 h"
+    },
+    "status": {
+      "SCHEDULED": "Programmé",
+      "CONFIRMED": "Confirmé",
+      "IN_PROGRESS": "En cours",
+      "COMPLETED": "Terminé",
+      "CANCELLED": "Annulé",
+      "NO_SHOW": "Absent",
+      "RESCHEDULE_REQUESTED": "Replanification demandée"
+    },
+    "cancelledLate": "Annulation tardive",
+    "confirmedViaToken": "Confirmé via {channel}"
+  },
+  "AppointmentForm": {
+    "titleCreate": "Nouveau rendez-vous",
+    "titleEdit": "Modifier le rendez-vous",
+    "fields": {
+      "patient": "Patient",
+      "patientPlaceholder": "Rechercher un patient…",
+      "dentist": "Dentiste",
+      "date": "Date",
+      "time": "Heure",
+      "duration": "Durée",
+      "reason": "Motif",
+      "reasonPlaceholder": "Détartrage, soin carie, …",
+      "notes": "Notes",
+      "notesPlaceholder": "Informations internes (allergies, recommandations, …)"
+    },
+    "submit": "Enregistrer",
+    "submitLoading": "Enregistrement…",
+    "cancel": "Annuler",
+    "cancelAppointment": "Annuler le RDV",
+    "errors": {
+      "_form": "Données invalides.",
+      "REQUIRED": "Champ requis.",
+      "INVALID_DATE": "Date invalide.",
+      "INVALID_DURATION": "Durée invalide.",
+      "CONFLICT": "Un autre RDV chevauche ce créneau.",
+      "OUT_OF_HOURS": "Hors des plages de travail du dentiste.",
+      "DURING_ABSENCE": "Le dentiste est absent à cette date.",
+      "PATIENT_NOT_FOUND": "Patient introuvable.",
+      "DENTIST_NOT_FOUND": "Dentiste introuvable."
+    }
+  },
+  "Toast": {
+    "appointmentCreated": "Rendez-vous créé",
+    "appointmentCreatedDesc": "Le RDV de {patient} avec Dr {dentist} a été planifié.",
+    "appointmentUpdated": "Rendez-vous mis à jour",
+    "appointmentCancelled": "Rendez-vous annulé",
+    "appointmentStatusChanged": "Statut mis à jour",
+    "patientCreated": "Patient créé",
+    "patientCreatedDesc": "{name} a été ajouté à la patientèle.",
+    "patientUpdated": "Patient mis à jour",
+    "patientUpdatedDesc": "Les modifications de {name} ont été enregistrées.",
+    "patientDeleted": "Patient supprimé",
+    "patientDeletedDesc": "{name} a été archivé (suppression douce).",
+    "dentistCreated": "Dentiste créé",
+    "dentistCreatedDesc": "Dr {name} a été ajouté.",
+    "dentistUpdated": "Dentiste mis à jour",
+    "dentistUpdatedDesc": "Les modifications de Dr {name} ont été enregistrées.",
+    "scheduleUpdated": "Horaires mis à jour",
+    "scheduleUpdatedDesc": "Les plages de travail de Dr {name} ont été enregistrées.",
+    "absenceAdded": "Absence ajoutée",
+    "absenceRemoved": "Absence retirée",
+    "error": "Une erreur est survenue",
+    "errorDesc": "Réessayez ou contactez le support."
+  },
+  "Dentists": {
+    "title": "Dentistes",
+    "subtitle": "{count} praticiens",
+    "new": "Nouveau dentiste",
+    "edit": "Modifier",
+    "activate": "Activer",
+    "deactivate": "Désactiver",
+    "active": "Actif",
+    "inactive": "Inactif",
+    "empty": "Aucun dentiste",
+    "emptyDesc": "Ajoutez votre premier praticien pour démarrer.",
+    "columns": {
+      "name": "Nom",
+      "specialty": "Spécialité",
+      "phone": "Téléphone",
+      "schedule": "Horaires",
+      "color": "Couleur",
+      "status": "État"
+    },
+    "scheduleDays": "{count} jours/sem.",
+    "noSchedule": "Aucun horaire",
+    "tabs": {
+      "info": "Infos",
+      "schedule": "Horaires",
+      "absences": "Absences"
+    }
+  },
+  "DentistForm": {
+    "titleCreate": "Nouveau dentiste",
+    "titleEdit": "Modifier le dentiste",
+    "sections": {
+      "identity": "Identité",
+      "contact": "Contact",
+      "display": "Affichage"
+    },
+    "fields": {
+      "firstName": "Prénom",
+      "lastName": "Nom",
+      "specialty": "Spécialité",
+      "specialtyHelp": "Ex. Orthodontiste, Implantologue",
+      "phone": "Téléphone",
+      "email": "Email",
+      "color": "Couleur agenda",
+      "colorHelp": "Affichée sur le calendrier des RDV pour distinguer le praticien"
+    },
+    "submit": "Enregistrer",
+    "submitLoading": "Enregistrement…",
+    "cancel": "Annuler",
+    "errors": {
+      "_form": "Données invalides.",
+      "REQUIRED": "Champ requis.",
+      "INVALID_EMAIL": "Email invalide.",
+      "INVALID_PHONE": "Numéro de téléphone marocain invalide.",
+      "INVALID_COLOR": "Couleur invalide (format #RRGGBB)."
+    }
+  },
+  "Schedule": {
+    "title": "Plages de travail hebdomadaires",
+    "subtitle": "Ajoutez une ou plusieurs plages par jour. Ex. 09:00-12:30 puis 14:00-18:00.",
+    "addRange": "Ajouter une plage",
+    "from": "De",
+    "to": "À",
+    "save": "Enregistrer les horaires",
+    "saving": "Enregistrement…",
+    "noRange": "Aucune plage",
+    "days": {
+      "0": "Dimanche",
+      "1": "Lundi",
+      "2": "Mardi",
+      "3": "Mercredi",
+      "4": "Jeudi",
+      "5": "Vendredi",
+      "6": "Samedi"
+    },
+    "errors": {
+      "INVALID_TIME": "Heure invalide (HH:MM).",
+      "RANGE_INVERTED": "L'heure de fin doit être après l'heure de début.",
+      "OVERLAPPING_RANGES": "Deux plages se chevauchent sur le même jour."
+    }
+  },
+  "Absences": {
+    "title": "Absences planifiées",
+    "subtitle": "Congés, formations, indisponibilités ponctuelles.",
+    "add": "Ajouter une absence",
+    "remove": "Retirer",
+    "empty": "Aucune absence enregistrée",
+    "fields": {
+      "startAt": "Début",
+      "endAt": "Fin",
+      "reason": "Raison",
+      "reasonPlaceholder": "Ex. Congés, formation, …"
+    },
+    "errors": {
+      "RANGE_INVERTED": "La date de fin doit être après la date de début."
+    }
+  },
+  "PatientDetail": {
+    "tabs": {
+      "info": "Infos",
+      "records": "Dossier médical",
+      "odontogram": "Odontogramme",
+      "prescriptions": "Ordonnances",
+      "appointments": "Rendez-vous",
+      "invoices": "Factures",
+      "plans": "Plans paiement"
+    },
+    "comingSoon": "Disponible dans une phase ultérieure.",
+    "channelLabel": "Canal contact",
+    "localeLabel": "Langue",
+    "consentLabel": "Photos avant/après",
+    "consentYes": "Consenties",
+    "consentNo": "Non consenties",
+    "createdLabel": "Inscrit le",
+    "patientSince": "Patient depuis",
+    "bornOn": "né(e) le",
+    "noAddress": "Adresse non renseignée",
+    "noEmail": "Email non renseigné",
+    "noMedicalHistory": "Aucun antécédent renseigné",
+    "noRecentConsultations": "Aucune consultation passée",
+    "noNextAppointment": "Aucun RDV à venir",
+    "balanceLabels": {
+      "billed": "Total facturé",
+      "paid": "Total payé",
+      "remaining": "Restant dû",
+      "overdue": "{count} échéance(s) en retard",
+      "empty": "Aucune facture émise"
+    },
+    "sections": {
+      "medicalHistory": "Antécédents médicaux",
+      "recentConsultations": "Consultations récentes",
+      "nextAppointment": "Prochain RDV",
+      "balance": "Solde patient",
+      "preferences": "Préférences"
+    },
+    "phasePlaceholder": "Disponible dès la phase {phase}.",
+    "phase4": "Rendez-vous (Phase 4)",
+    "phase5": "Dossier médical (Phase 5)",
+    "phase7": "Odontogramme (Phase 7)",
+    "phase9": "Facturation (Phase 9)",
+    "backToList": "Retour aux patients"
+  },
+  "Treatments": {
+    "title": "Catalogue des traitements",
+    "subtitle": "{count} actes · gérez les prix et la disponibilité",
+    "add": "Nouveau traitement",
+    "empty": "Aucun traitement",
+    "emptyDesc": "Ajoutez vos premiers actes pour commencer à les facturer.",
+    "columns": {
+      "code": "Code",
+      "name": "Nom",
+      "price": "Prix",
+      "duration": "Durée",
+      "requiresTooth": "Dent",
+      "status": "Statut"
+    },
+    "active": "Actif",
+    "inactive": "Inactif",
+    "toggleActive": "Activer/désactiver",
+    "edit": "Modifier",
+    "deactivate": "Désactiver",
+    "deactivateConfirm": "Désactiver ce traitement ? Il restera dans l'historique mais ne sera plus proposé.",
+    "showInactive": "Afficher inactifs",
+    "form": {
+      "titleCreate": "Nouveau traitement",
+      "titleEdit": "Modifier traitement",
+      "code": "Code",
+      "codePlaceholder": "DET, COMP1…",
+      "codeHint": "Identifiant court unique dans le cabinet",
+      "name": "Nom",
+      "namePlaceholder": "Ex. Composite simple",
+      "description": "Description",
+      "defaultPrice": "Prix par défaut",
+      "defaultDuration": "Durée (minutes)",
+      "requiresTooth": "Nécessite une dent",
+      "requiresToothHint": "Cocher pour les caries, extractions, couronnes…",
+      "color": "Couleur (odontogramme)",
+      "isActive": "Disponible dans le catalogue",
+      "sortOrder": "Ordre d'affichage",
+      "submitCreate": "Créer",
+      "submitUpdate": "Enregistrer",
+      "submitting": "Enregistrement…",
+      "cancel": "Annuler"
+    },
+    "errors": {
+      "DUPLICATE_CODE": "Ce code existe déjà",
+      "INVALID_CODE": "Code invalide (lettres, chiffres et tiret)",
+      "INVALID_COLOR": "Couleur invalide (#RRGGBB)"
+    },
+    "toast": {
+      "created": "Traitement créé",
+      "updated": "Traitement enregistré",
+      "deactivated": "Traitement désactivé"
+    }
+  },
+  "Session": {
+    "treatmentsTitle": "Traitements de la séance",
+    "addTreatment": "Ajouter un traitement",
+    "empty": "Aucun traitement enregistré pour cette séance",
+    "total": "Total séance",
+    "tooth": "Dent",
+    "surfaces": "Surfaces",
+    "noTooth": "Sans dent",
+    "noSurfaces": "—",
+    "discount": "Remise",
+    "delete": "Supprimer",
+    "deleteConfirm": "Supprimer ce traitement ?",
+    "status": {
+      "PLANNED": "Planifié",
+      "IN_PROGRESS": "En cours",
+      "COMPLETED": "Terminé",
+      "CANCELLED": "Annulé"
+    },
+    "surface": {
+      "MESIAL": "Mésiale",
+      "DISTAL": "Distale",
+      "OCCLUSAL": "Occlusale",
+      "VESTIBULAR": "Vestibulaire",
+      "LINGUAL": "Linguale",
+      "INCISAL": "Incisale"
+    },
+    "form": {
+      "catalog": "Acte du catalogue",
+      "catalogPlaceholder": "Choisir un acte…",
+      "tooth": "Dent (FDI 11-48)",
+      "toothHint": "Ex. 26 pour la 1ère molaire maxillaire gauche",
+      "surfaces": "Surfaces",
+      "status": "Statut",
+      "unitPrice": "Prix unitaire (DH)",
+      "discountType": "Type de remise",
+      "discountNone": "Aucune",
+      "discountPct": "Pourcentage",
+      "discountFixed": "Montant fixe",
+      "discountValue": "Valeur",
+      "notes": "Notes",
+      "submit": "Ajouter",
+      "submitUpdate": "Enregistrer",
+      "submitting": "Envoi…",
+      "cancel": "Annuler"
+    },
+    "errors": {
+      "TOOTH_REQUIRED": "Numéro de dent requis pour ce traitement",
+      "INVALID_TOOTH": "Numéro de dent invalide (FDI 11-48)",
+      "DISCOUNT_EXCLUSIVE": "Choisissez % OU montant fixe, pas les deux"
+    },
+    "toast": {
+      "added": "Traitement ajouté",
+      "updated": "Traitement enregistré",
+      "deleted": "Traitement supprimé"
+    }
+  },
+  "Dashboard": {
+    "greeting": "Bonjour {name} ☀",
+    "subtitle": "{date} · {clinic}",
+    "thisWeek": "Cette semaine",
+    "newAppointment": "Nouveau RDV",
+    "kpi": {
+      "revenueMonth": "CA du mois",
+      "activePatients": "Patients actifs",
+      "apptsThisWeek": "RDV cette semaine",
+      "occupancy": "Taux occupation",
+      "deltaUp": "+{n} % vs mois précédent",
+      "deltaDown": "{n} % vs mois précédent",
+      "deltaNeutral": "stable vs mois précédent",
+      "newThisMonth": "{count} nouveaux ce mois",
+      "confirmed": "✓ {n} confirmés",
+      "pending": "⏳ {n} attente"
+    },
+    "charts": {
+      "monthlyRevenue": "Chiffre d'affaires — 12 derniers mois",
+      "monthlyRevenueUnit": "en DH",
+      "topTreatments": "Top 5 traitements",
+      "noData": "Pas encore de données"
+    },
+    "today": {
+      "title": "Rendez-vous d'aujourd'hui",
+      "viewCalendar": "Voir le calendrier →",
+      "empty": "Aucun RDV aujourd'hui"
+    },
+    "alerts": {
+      "title": "Alertes",
+      "empty": "Tout est bon ✓",
+      "overduePlans": {
+        "title": "{count} plan(s) paiement en retard",
+        "detail": "{names} · Relances WhatsApp envoyées"
+      },
+      "lowStock": {
+        "title": "{count} article(s) sous seuil",
+        "detail": "{names}"
+      },
+      "recalls": {
+        "title": "{count} rappel(s) cette semaine",
+        "detail": "Détartrage 6 mois · WhatsApp prévu"
+      },
+      "openInvoices": {
+        "title": "{count} facture(s) en attente",
+        "detail": "À relancer ou encaisser"
+      }
+    },
+    "months": {
+      "0": "Jan",
+      "1": "Fév",
+      "2": "Mar",
+      "3": "Avr",
+      "4": "Mai",
+      "5": "Juin",
+      "6": "Juil",
+      "7": "Août",
+      "8": "Sep",
+      "9": "Oct",
+      "10": "Nov",
+      "11": "Déc"
+    }
+  },
+  "Users": {
+    "title": "Utilisateurs",
+    "subtitle": "{count} compte(s) actif(s)",
+    "add": "Nouvel utilisateur",
+    "empty": "Aucun utilisateur",
+    "columns": {
+      "name": "Nom",
+      "email": "Email",
+      "role": "Rôle",
+      "status": "Statut",
+      "lastLogin": "Dernière connexion"
+    },
+    "roles": {
+      "ADMIN": "Administrateur",
+      "DENTIST": "Dentiste",
+      "RECEPTIONIST": "Réceptionniste"
+    },
+    "active": "Actif",
+    "inactive": "Inactif",
+    "neverLoggedIn": "Jamais connecté",
+    "edit": "Modifier",
+    "resetPassword": "Mot de passe",
+    "form": {
+      "titleCreate": "Nouvel utilisateur",
+      "titleEdit": "Modifier l'utilisateur",
+      "titleResetPassword": "Réinitialiser le mot de passe",
+      "fullName": "Nom complet",
+      "email": "Email",
+      "role": "Rôle",
+      "password": "Mot de passe initial",
+      "passwordHint": "Au moins 8 caractères. L'utilisateur peut le changer après connexion.",
+      "newPassword": "Nouveau mot de passe",
+      "isActive": "Compte actif",
+      "submitCreate": "Créer",
+      "submitUpdate": "Enregistrer",
+      "submitReset": "Réinitialiser",
+      "submitting": "Envoi…",
+      "cancel": "Annuler"
+    },
+    "errors": {
+      "DUPLICATE_EMAIL": "Cet email est déjà utilisé",
+      "INVALID_EMAIL": "Email invalide",
+      "PASSWORD_TOO_SHORT": "Le mot de passe doit faire au moins 8 caractères",
+      "LAST_ADMIN": "Impossible de désactiver le dernier administrateur"
+    },
+    "toast": {
+      "created": "Utilisateur créé",
+      "updated": "Utilisateur enregistré",
+      "passwordReset": "Mot de passe réinitialisé"
+    }
+  },
+  "Settings": {
+    "title": "Paramètres du cabinet",
+    "subtitle": "Profil, coordonnées et préférences",
+    "sections": {
+      "clinic": "Profil du cabinet",
+      "contact": "Coordonnées",
+      "billing": "Facturation"
+    },
+    "form": {
+      "name": "Nom du cabinet",
+      "address": "Adresse",
+      "phone": "Téléphone",
+      "email": "Email",
+      "vatNumber": "N° TVA / patente",
+      "defaultLocale": "Langue par défaut",
+      "invoiceStart": "Numéro départ facture",
+      "invoiceStartHint": "Aléatoire à la création — n'affiche pas le volume réel.",
+      "submit": "Enregistrer",
+      "submitting": "Envoi…"
+    },
+    "toast": {
+      "saved": "Paramètres enregistrés"
+    }
+  },
+  "Notifications": {
+    "title": "Notifications",
+    "empty": "Aucune notification",
+    "viewAll": "Tout voir",
+    "items": {
+      "overduePlans": "{count} échéance(s) en retard",
+      "lowStock": "{count} article(s) en stock bas",
+      "recallsDue": "{count} rappel(s) cette semaine",
+      "waitlist": "{count} patient(s) en liste d'attente",
+      "openInvoices": "{count} facture(s) en retard"
+    }
+  },
+  "Recalls": {
+    "title": "Rappels patients",
+    "subtitle": "{count} rappel(s) actif(s)",
+    "empty": "Aucun rappel",
+    "emptyDesc": "Les rappels sont générés automatiquement après les détartrages, extractions et couronnes.",
+    "tabs": {
+      "OPEN": "À envoyer",
+      "PENDING": "Programmés",
+      "SENT": "Envoyés",
+      "APPOINTMENT_BOOKED": "RDV pris",
+      "DISABLED": "Désactivés",
+      "EXPIRED": "Expirés",
+      "all": "Tous"
+    },
+    "columns": {
+      "patient": "Patient",
+      "kind": "Type",
+      "dueDate": "Échéance",
+      "status": "Statut",
+      "sentAt": "Envoyé"
+    },
+    "kind": {
+      "SCALING": "Détartrage",
+      "ANNUAL_CHECKUP": "Contrôle annuel",
+      "IMPLANT_FOLLOWUP": "Suivi implant",
+      "POST_EXTRACTION": "Post-extraction",
+      "CUSTOM": "Personnalisé"
+    },
+    "status": {
+      "PENDING": "Programmé",
+      "SENT": "Envoyé",
+      "APPOINTMENT_BOOKED": "RDV pris",
+      "DISABLED": "Désactivé",
+      "EXPIRED": "Expiré"
+    },
+    "overdue": "En retard",
+    "approaching": "Bientôt",
+    "actions": {
+      "disable": "Désactiver",
+      "regenerate": "Renvoyer",
+      "new": "Nouveau rappel"
+    },
+    "disableConfirm": "Désactiver ce rappel ?",
+    "toast": {
+      "created": "Rappel créé",
+      "disabled": "Rappel désactivé",
+      "regenerated": "Rappel réactivé"
+    }
+  },
+  "CmdK": {
+    "placeholder": "Rechercher patient, RDV, facture…",
+    "shortcut": "Ctrl K",
+    "noResults": "Aucun résultat",
+    "groups": {
+      "patients": "Patients",
+      "appointments": "Rendez-vous",
+      "invoices": "Factures",
+      "stock": "Stock",
+      "actions": "Actions"
+    },
+    "actions": {
+      "newPatient": "Créer un patient",
+      "newAppointment": "Nouveau RDV",
+      "newInvoice": "Nouvelle facture",
+      "openRecalls": "Voir les rappels",
+      "openStock": "Voir le stock"
+    },
+    "loading": "Recherche…"
+  },
+  "Stock": {
+    "title": "Stock & consommables",
+    "subtitle": "{count} référence(s)",
+    "add": "Nouvel article",
+    "empty": "Aucun article en stock",
+    "emptyDesc": "Commencez par ajouter vos consommables et matériaux.",
+    "filters": {
+      "all": "Tous",
+      "low": "Stock bas",
+      "out": "Rupture",
+      "expiring": "Expire bientôt"
+    },
+    "columns": {
+      "code": "Code",
+      "name": "Article",
+      "category": "Catégorie",
+      "quantity": "Quantité",
+      "unit": "Unité",
+      "expiresAt": "Péremption",
+      "status": "État"
+    },
+    "badges": {
+      "ok": "OK",
+      "low": "Bas",
+      "out": "Rupture",
+      "expiringSoon": "Expire bientôt",
+      "expired": "Périmé"
+    },
+    "edit": "Modifier",
+    "movement": "Mouvement",
+    "viewHistory": "Voir historique",
+    "form": {
+      "titleCreate": "Nouvel article",
+      "titleEdit": "Modifier l'article",
+      "code": "Code",
+      "codePlaceholder": "GANT-S, ANES-LIDO…",
+      "name": "Nom",
+      "namePlaceholder": "Ex. Gants latex taille S",
+      "description": "Description",
+      "unit": "Unité",
+      "unitPlaceholder": "boîte, ml, paquet…",
+      "category": "Catégorie",
+      "categoryPlaceholder": "Consommables, Anesthésiques…",
+      "lowStockAt": "Seuil d'alerte",
+      "lowStockAtHint": "Le système alerte quand la quantité descend à ce seuil",
+      "expiresAt": "Péremption (lot actuel)",
+      "isActive": "Article actif",
+      "openingQuantity": "Stock initial",
+      "openingQuantityHint": "Enregistré comme mouvement OPENING",
+      "submitCreate": "Créer",
+      "submitUpdate": "Enregistrer",
+      "submitting": "Envoi…",
+      "cancel": "Annuler"
+    },
+    "movementForm": {
+      "title": "Enregistrer un mouvement",
+      "type": "Type",
+      "quantity": "Quantité",
+      "unitPrice": "Prix unitaire (DH)",
+      "unitPriceHint": "Optionnel — pour les achats",
+      "note": "Note",
+      "notePlaceholder": "Fournisseur, n° facture, patient…",
+      "recordedAt": "Date",
+      "submit": "Enregistrer",
+      "submitting": "Envoi…",
+      "cancel": "Annuler"
+    },
+    "type": {
+      "OPENING": "Stock initial",
+      "PURCHASE": "Achat",
+      "CONSUMPTION": "Consommation",
+      "ADJUSTMENT": "Ajustement",
+      "RETURN": "Retour fournisseur"
+    },
+    "history": {
+      "title": "Historique des mouvements",
+      "empty": "Aucun mouvement"
+    },
+    "errors": {
+      "DUPLICATE_CODE": "Ce code existe déjà",
+      "INVALID_CODE": "Code invalide (lettres, chiffres, tiret)",
+      "INSUFFICIENT_STOCK": "Stock insuffisant — réduisez la quantité"
+    },
+    "toast": {
+      "created": "Article ajouté",
+      "updated": "Article enregistré",
+      "movement": "Mouvement enregistré"
+    }
+  },
+  "Invoices": {
+    "title": "Factures",
+    "subtitle": "{count} facture(s)",
+    "subtitleOpen": "{count} en attente",
+    "new": "Nouvelle facture",
+    "edit": "Modifier",
+    "view": "Voir",
+    "delete": "Supprimer",
+    "empty": "Aucune facture",
+    "emptyDesc": "Émettez la première facture du patient à partir d'un traitement terminé.",
+    "tabs": {
+      "all": "Toutes",
+      "OPEN": "À régler",
+      "DRAFT": "Brouillons",
+      "PAID": "Payées",
+      "VOID": "Annulées"
+    },
+    "columns": {
+      "number": "Numéro",
+      "patient": "Patient",
+      "issuedAt": "Émise",
+      "dueDate": "Échéance",
+      "total": "Total",
+      "paid": "Payé",
+      "remaining": "Restant",
+      "status": "Statut"
+    },
+    "status": {
+      "DRAFT": "Brouillon",
+      "EMITTED": "Émise",
+      "PARTIAL": "Partiellement payée",
+      "PAID": "Payée",
+      "VOID": "Annulée"
+    },
+    "overdue": "En retard",
+    "noNumber": "—",
+    "filters": {
+      "patient": "Patient",
+      "query": "N° de facture ou nom"
+    },
+    "form": {
+      "patient": "Patient",
+      "patientPlaceholder": "Choisir un patient…",
+      "fromTreatments": "Traitements terminés à facturer",
+      "noTreatments": "Aucun traitement non facturé pour ce patient",
+      "extraLine": "Ligne supplémentaire (optionnel)",
+      "addExtraLine": "+ Ajouter une ligne",
+      "removeLine": "Retirer",
+      "description": "Description",
+      "tooth": "Dent",
+      "quantity": "Qté",
+      "unitPrice": "PU (DH)",
+      "discountType": "Remise",
+      "discountNone": "Aucune",
+      "discountPct": "%",
+      "discountFixed": "DH",
+      "discountValue": "Valeur",
+      "notes": "Notes (mentions, conditions de paiement…)",
+      "dueDate": "Échéance",
+      "submitCreate": "Créer brouillon",
+      "submitUpdate": "Enregistrer",
+      "submitting": "Envoi…",
+      "cancel": "Annuler"
+    },
+    "actions": {
+      "emit": "Émettre la facture",
+      "emitting": "Émission…",
+      "emitConfirm": "Émettre cette facture ? Cette action est irréversible : le numéro sera figé.",
+      "recordPayment": "Enregistrer paiement",
+      "void": "Annuler la facture",
+      "voidConfirm": "Annuler cette facture ? Les paiements existants ne sont pas supprimés.",
+      "print": "Imprimer / PDF",
+      "shareWhatsApp": "Envoyer WhatsApp"
+    },
+    "totals": {
+      "subtotal": "Sous-total",
+      "discount": "Remise",
+      "total": "TOTAL TTC",
+      "totalPaid": "Total payé",
+      "remaining": "Restant dû",
+      "vatNote": "TVA 0 % — actes médicaux exonérés"
+    },
+    "paymentSection": {
+      "title": "Paiements reçus",
+      "empty": "Aucun paiement enregistré",
+      "via": "via {method}",
+      "by": "par {name}",
+      "ref": "Réf. {ref}"
+    },
+    "paymentForm": {
+      "title": "Enregistrer un paiement",
+      "amount": "Montant (DH)",
+      "method": "Mode",
+      "reference": "Référence (optionnel)",
+      "referencePlaceholder": "N° chèque, transaction…",
+      "receivedAt": "Date de réception",
+      "notes": "Notes",
+      "submit": "Encaisser",
+      "submitting": "Envoi…"
+    },
+    "method": {
+      "CASH": "Espèces",
+      "CARD": "Carte",
+      "BANK_TRANSFER": "Virement",
+      "CHECK": "Chèque",
+      "OTHER": "Autre"
+    },
+    "voidDialog": {
+      "title": "Annuler la facture",
+      "reason": "Motif d'annulation",
+      "reasonPlaceholder": "Erreur de saisie, etc.",
+      "submit": "Confirmer l'annulation",
+      "cancel": "Garder"
+    },
+    "errors": {
+      "OVERPAYMENT": "Le montant dépasse le restant dû",
+      "EMPTY_INVOICE": "Impossible d'émettre une facture sans lignes",
+      "NOT_EDITABLE": "Seuls les brouillons sont modifiables",
+      "ALREADY_EMITTED": "La facture a déjà été émise",
+      "ALREADY_VOID": "La facture est déjà annulée",
+      "PAID_NOT_VOIDABLE": "Une facture entièrement payée ne peut pas être annulée"
+    },
+    "toast": {
+      "created": "Brouillon créé",
+      "updated": "Facture mise à jour",
+      "emitted": "Facture {number} émise",
+      "paymentRecorded": "Paiement enregistré",
+      "paymentDeleted": "Paiement supprimé",
+      "voided": "Facture annulée",
+      "lineRemoved": "Ligne retirée"
+    },
+    "doc": {
+      "title": "FACTURE",
+      "patient": "Patient",
+      "cin": "CIN",
+      "phone": "Téléphone",
+      "dob": "Né(e) le",
+      "emittedAt": "Émise le",
+      "dueDate": "Échéance",
+      "lineDescription": "Description",
+      "qty": "Qté",
+      "unitPrice": "PU",
+      "lineTotal": "Total",
+      "vatNote": "TVA 0 % — Actes médicaux exonérés (art. 91 CGI)",
+      "footer": "Document généré par DentalCare"
+    },
+    "plan": {
+      "title": "Plan de paiement échelonné",
+      "subtitle": "{count} échéances mensuelles · Créé le {date}",
+      "subtitleWithDown": "{count} échéances · Acompte {down} · Créé le {date}",
+      "noPlan": "Aucun plan de paiement actif",
+      "createCTA": "Créer un plan",
+      "overdueChip": "⚠ {count} échéance(s) en retard",
+      "cancelled": "Plan annulé",
+      "completed": "Plan terminé",
+      "active": "Actif",
+      "remindersHint": "Relances auto WhatsApp : J-3 (rappel) · J+1 (retard)",
+      "remainingOnPlan": "Restant dû sur le plan",
+      "cashIn": "Encaisser",
+      "cancelPlan": "Annuler le plan",
+      "cancelConfirm": "Annuler ce plan ? Les échéances non payées ne seront plus dues.",
+      "installment": "Échéance {n}/{total}",
+      "due": "Échéance",
+      "amount": "Montant",
+      "status": "Statut",
+      "paidVia": "✓ Payé ({method}) — {date}",
+      "comingUp": "○ À venir",
+      "lateBy": "⚠ En retard ({days} j)",
+      "cancelledLine": "○ Annulée",
+      "form": {
+        "title": "Créer un plan de paiement",
+        "installments": "Nombre d'échéances",
+        "startDate": "Première échéance",
+        "downPayment": "Acompte initial (optionnel)",
+        "notes": "Notes",
+        "submit": "Créer le plan",
+        "submitting": "Création…",
+        "cancel": "Annuler"
+      },
+      "errors": {
+        "INVOICE_NOT_PAYABLE": "La facture doit être émise avant de créer un plan",
+        "PLAN_EXISTS": "Cette facture a déjà un plan de paiement",
+        "NOTHING_TO_PLAN": "La facture est déjà soldée"
+      },
+      "toast": {
+        "created": "Plan de paiement créé",
+        "cancelled": "Plan annulé"
+      }
+    }
+  },
+  "Prescriptions": {
+    "title": "Ordonnances",
+    "subtitle": "{count} ordonnance(s) émise(s)",
+    "add": "Nouvelle ordonnance",
+    "edit": "Modifier",
+    "view": "Voir",
+    "print": "Imprimer",
+    "share": "Partager",
+    "delete": "Supprimer",
+    "deleteConfirm": "Supprimer cette ordonnance ?",
+    "empty": "Aucune ordonnance",
+    "emptyDesc": "Émettez la première ordonnance du patient.",
+    "issuedOn": "Émise le {date}",
+    "issuedBy": "Par Dr {name}",
+    "items": "{count} médicament(s)",
+    "form": {
+      "titleCreate": "Nouvelle ordonnance",
+      "titleEdit": "Modifier ordonnance",
+      "dentist": "Prescripteur",
+      "locale": "Langue de l'ordonnance",
+      "items": "Médicaments",
+      "addItem": "+ Ajouter un médicament",
+      "removeItem": "Retirer",
+      "drug": "Médicament + dosage",
+      "drugPlaceholder": "Ex. Amoxicilline 500 mg",
+      "dosage": "Posologie",
+      "dosagePlaceholder": "1 gélule",
+      "frequency": "Fréquence",
+      "frequencyPlaceholder": "3 fois par jour",
+      "duration": "Durée",
+      "durationPlaceholder": "7 jours",
+      "instructions": "Instructions",
+      "instructionsPlaceholder": "à prendre au repas",
+      "notes": "Notes générales (allergies, précautions…)",
+      "notesPlaceholder": "Ex. Allergie pénicilline — éviter amoxicilline",
+      "submitCreate": "Émettre",
+      "submitUpdate": "Enregistrer",
+      "submitting": "Envoi…",
+      "cancel": "Annuler"
+    },
+    "errors": {
+      "REQUIRED": "Au moins un médicament est requis",
+      "DENTIST_NOT_FOUND": "Prescripteur introuvable"
+    },
+    "toast": {
+      "created": "Ordonnance émise",
+      "updated": "Ordonnance enregistrée",
+      "deleted": "Ordonnance supprimée"
+    },
+    "doc": {
+      "title": "ORDONNANCE",
+      "patient": "Patient",
+      "dob": "Né(e) le",
+      "cin": "CIN",
+      "phone": "Téléphone",
+      "dentist": "Dr",
+      "issuedAt": "Émise le",
+      "instructions": "Instructions complémentaires",
+      "signature": "Signature et cachet",
+      "footer": "Document généré par DentalCare"
+    }
+  },
+  "Odontogram": {
+    "title": "Odontogramme",
+    "subtitle": "Notation FDI · 32 dents permanentes",
+    "lastUpdate": "Dernière mise à jour {date} par {name}",
+    "noEntries": "Aucune annotation pour ce patient",
+    "modes": {
+      "read": "Lecture",
+      "edit": "Édition"
+    },
+    "anatomy": {
+      "right": "DROITE",
+      "left": "GAUCHE",
+      "maxillary": "MAXILLAIRE",
+      "mandibular": "MANDIBULAIRE"
+    },
+    "panel": {
+      "selectTooth": "Cliquez sur une dent",
+      "selectToothDesc": "Sélectionnez une dent dans le schéma pour voir sa condition et son historique.",
+      "selected": "Dent sélectionnée",
+      "currentCondition": "Condition actuelle",
+      "noEntry": "Aucune annotation",
+      "surfaces": "Surfaces concernées",
+      "history": "Historique dent {tooth}",
+      "noHistory": "Aucun historique",
+      "since": "depuis {date}"
+    },
+    "condition": {
+      "HEALTHY": "Saine",
+      "CARIES": "Carie",
+      "FILLING": "Plombage",
+      "CROWN": "Couronne",
+      "IMPLANT": "Implant",
+      "MISSING": "Absente",
+      "TO_EXTRACT": "À extraire",
+      "DEVITALIZED": "Dévitalisée",
+      "FRACTURE": "Fracture",
+      "PROSTHESIS": "Prothèse"
+    },
+    "surface": {
+      "MESIAL": "Més.",
+      "DISTAL": "Dist.",
+      "OCCLUSAL": "Occl.",
+      "VESTIBULAR": "Vest.",
+      "LINGUAL": "Ling.",
+      "INCISAL": "Inc."
+    },
+    "toothName": {
+      "11": "Incisive centrale sup. droite",
+      "12": "Incisive latérale sup. droite",
+      "13": "Canine sup. droite",
+      "14": "1ère prémolaire sup. droite",
+      "15": "2ème prémolaire sup. droite",
+      "16": "1ère molaire sup. droite",
+      "17": "2ème molaire sup. droite",
+      "18": "Dent de sagesse sup. droite",
+      "21": "Incisive centrale sup. gauche",
+      "22": "Incisive latérale sup. gauche",
+      "23": "Canine sup. gauche",
+      "24": "1ère prémolaire sup. gauche",
+      "25": "2ème prémolaire sup. gauche",
+      "26": "1ère molaire sup. gauche",
+      "27": "2ème molaire sup. gauche",
+      "28": "Dent de sagesse sup. gauche",
+      "31": "Incisive centrale inf. gauche",
+      "32": "Incisive latérale inf. gauche",
+      "33": "Canine inf. gauche",
+      "34": "1ère prémolaire inf. gauche",
+      "35": "2ème prémolaire inf. gauche",
+      "36": "1ère molaire inf. gauche",
+      "37": "2ème molaire inf. gauche",
+      "38": "Dent de sagesse inf. gauche",
+      "41": "Incisive centrale inf. droite",
+      "42": "Incisive latérale inf. droite",
+      "43": "Canine inf. droite",
+      "44": "1ère prémolaire inf. droite",
+      "45": "2ème prémolaire inf. droite",
+      "46": "1ère molaire inf. droite",
+      "47": "2ème molaire inf. droite",
+      "48": "Dent de sagesse inf. droite"
+    },
+    "actions": {
+      "record": "Enregistrer la condition",
+      "plan": "Planifier traitement",
+      "planSelected": "Planifier pour {count} dents",
+      "delete": "Supprimer cette entrée",
+      "deleteConfirm": "Supprimer cette annotation ? Elle ne pourra pas être récupérée.",
+      "cancel": "Annuler"
+    },
+    "form": {
+      "condition": "Condition",
+      "surfaces": "Surfaces affectées",
+      "note": "Note (optionnel)",
+      "notePlaceholder": "Détails cliniques, profondeur, etc.",
+      "submit": "Enregistrer",
+      "submitting": "Enregistrement…"
+    },
+    "plan": {
+      "title": "Plan de traitement proposé",
+      "subtitle": "{count} dents sélectionnées",
+      "noProposal": "Aucune proposition (aucune dent annotée parmi la sélection).",
+      "rationale": "Suggéré",
+      "tooth": "Dent",
+      "manual": "À choisir",
+      "manualHint": "Aucune correspondance dans le catalogue — choisis un acte ou retire cette ligne",
+      "total": "Total estimé",
+      "commit": "Créer {count} traitements planifiés",
+      "remove": "Retirer",
+      "close": "Fermer"
+    },
+    "toast": {
+      "saved": "Annotation enregistrée",
+      "deleted": "Annotation supprimée",
+      "planned": "{count} traitement(s) planifié(s)"
+    },
+    "errors": {
+      "INVALID_TOOTH": "Numéro de dent invalide",
+      "HEALTHY_HAS_NO_SURFACES": "Une dent saine n'a pas de surfaces",
+      "NO_VALID_ITEMS": "Aucun acte valide à créer"
+    }
+  },
+  "Records": {
+    "title": "Dossier médical",
+    "subtitle": "Notes, radiographies et photos avant/après",
+    "sessionNotesTitle": "Notes cliniques de la séance",
+    "viewFullRecord": "Voir le dossier complet",
+    "filters": {
+      "all": "Tout",
+      "notes": "Notes",
+      "radiographs": "Radios",
+      "photos": "Photos"
+    },
+    "empty": "Aucune entrée pour le moment",
+    "emptyDesc": "Ajoutez une note, une radiographie ou une photo pour démarrer le dossier.",
+    "addNote": "Ajouter une note",
+    "addRadiograph": "Importer une radiographie",
+    "addPhoto": "Importer une photo",
+    "noteAuthor": "par {name}",
+    "uploaderBy": "Importée par {name}",
+    "consentRequired": "Le consentement photo n'a pas été donné — modifiez la fiche patient pour l'activer.",
+    "viewLarger": "Voir en grand",
+    "delete": "Supprimer",
+    "deleteConfirm": "Supprimer cette entrée ?",
+    "stage": {
+      "BEFORE": "Avant",
+      "DURING": "Pendant",
+      "AFTER": "Après"
+    },
+    "kind": {
+      "PANORAMIC": "Panoramique",
+      "PERIAPICAL": "Périapicale",
+      "BITEWING": "Bite-wing",
+      "CEPHALOMETRIC": "Téléradiographie",
+      "CBCT": "CBCT 3D",
+      "OCCLUSAL": "Occlusale",
+      "OTHER": "Autre"
+    },
+    "form": {
+      "title": "Titre (optionnel)",
+      "body": "Texte de la note",
+      "bodyPlaceholder": "Observations cliniques, plan de traitement, recommandations…",
+      "kind": "Type de radio",
+      "stage": "Étape",
+      "takenAt": "Date du cliché",
+      "caption": "Légende (optionnel)",
+      "captionPlaceholder": "Ex. Cas n°23 — molaire 26",
+      "file": "Fichier image",
+      "fileHint": "JPG, PNG ou WebP — 8 Mo max",
+      "note": "Note (optionnel)",
+      "submitNote": "Enregistrer la note",
+      "submitRadio": "Importer",
+      "submitPhoto": "Importer",
+      "submitting": "Envoi…",
+      "cancel": "Annuler"
+    },
+    "errors": {
+      "FILE_REQUIRED": "Sélectionnez un fichier image",
+      "FILE_TOO_LARGE": "Fichier trop volumineux (max 8 Mo)",
+      "FILE_TYPE_NOT_ALLOWED": "Format non supporté (JPG, PNG, WebP, HEIC)",
+      "PHOTO_CONSENT_REQUIRED": "Le consentement photo doit être activé sur la fiche patient"
+    },
+    "toast": {
+      "noteAdded": "Note ajoutée",
+      "noteDeleted": "Note supprimée",
+      "radioAdded": "Radiographie importée",
+      "radioDeleted": "Radiographie supprimée",
+      "photoAdded": "Photo importée",
+      "photoDeleted": "Photo supprimée"
+    }
+  }
+}

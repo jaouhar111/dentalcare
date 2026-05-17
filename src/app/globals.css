@@ -1,0 +1,248 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+
+@custom-variant dark (&:is(.dark *));
+
+@theme inline {
+  --font-sans: var(--font-inter);
+  --font-mono: ui-monospace, SFMono-Regular, Menlo, monospace;
+
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+
+  --color-success: var(--success);
+  --color-warning: var(--warning);
+  --color-info: var(--info);
+
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+}
+
+:root {
+  --radius: 0.625rem;
+
+  --background: oklch(1 0 0);
+  --foreground: oklch(0.13 0.028 261.692);
+
+  --card: oklch(1 0 0);
+  --card-foreground: oklch(0.13 0.028 261.692);
+
+  --popover: oklch(1 0 0);
+  --popover-foreground: oklch(0.13 0.028 261.692);
+
+  /* primary = cyan-600 #0891B2 — DentalCare brand */
+  --primary: oklch(0.6 0.118 220);
+  --primary-foreground: oklch(0.985 0 0);
+
+  --secondary: oklch(0.967 0.001 286.375);
+  --secondary-foreground: oklch(0.21 0.034 264.665);
+
+  --muted: oklch(0.967 0.001 286.375);
+  --muted-foreground: oklch(0.552 0.014 252);
+
+  --accent: oklch(0.65 0.16 145);
+  --accent-foreground: oklch(0.985 0 0);
+
+  --destructive: oklch(0.577 0.245 27.325);
+  --destructive-foreground: oklch(0.985 0 0);
+
+  --success: oklch(0.65 0.16 145);
+  --warning: oklch(0.769 0.188 70.08);
+  --info: oklch(0.7 0.155 220);
+
+  --border: oklch(0.92 0.004 257);
+  --input: oklch(0.92 0.004 257);
+  --ring: oklch(0.6 0.118 220);
+}
+
+.dark {
+  --background: oklch(0.13 0.028 261.692);
+  --foreground: oklch(0.985 0 0);
+
+  --card: oklch(0.21 0.034 264.665);
+  --card-foreground: oklch(0.985 0 0);
+
+  --popover: oklch(0.21 0.034 264.665);
+  --popover-foreground: oklch(0.985 0 0);
+
+  --primary: oklch(0.78 0.13 200);
+  --primary-foreground: oklch(0.13 0.028 261.692);
+
+  --secondary: oklch(0.278 0.033 256.848);
+  --secondary-foreground: oklch(0.985 0 0);
+
+  --muted: oklch(0.278 0.033 256.848);
+  --muted-foreground: oklch(0.708 0.022 252);
+
+  --accent: oklch(0.72 0.18 145);
+  --accent-foreground: oklch(0.13 0.028 261.692);
+
+  --destructive: oklch(0.704 0.191 22.216);
+  --destructive-foreground: oklch(0.985 0 0);
+
+  --border: oklch(1 0 0 / 10%);
+  --input: oklch(1 0 0 / 15%);
+  --ring: oklch(0.78 0.13 200);
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-background text-foreground;
+    font-family: var(--font-sans), system-ui, sans-serif;
+    font-feature-settings:
+      "rlig" 1,
+      "calt" 1;
+  }
+  .num {
+    font-variant-numeric: tabular-nums;
+  }
+}
+
+/* ─── Sonner toast custom theme ──────────────────────────────────────────
+   The `.cn-toast` class is applied via `toastOptions.classNames` from the
+   Toaster component. We override Sonner's defaults to render a card with a
+   colored accent bar on the leading edge + a rounded icon chip. */
+[data-sonner-toaster] .cn-toast {
+  position: relative;
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  padding: 0.875rem 1rem 0.875rem 1.25rem;
+  background-color: var(--popover);
+  color: var(--popover-foreground);
+  border: 1px solid var(--border);
+  border-radius: 0.75rem;
+  box-shadow:
+    0 1px 2px rgb(0 0 0 / 0.04),
+    0 8px 24px -4px rgb(0 0 0 / 0.08),
+    0 0 0 1px rgb(0 0 0 / 0.02);
+  overflow: hidden;
+}
+[data-sonner-toaster] .cn-toast::before {
+  content: "";
+  position: absolute;
+  inset-inline-start: 0;
+  inset-block: 0;
+  width: 4px;
+  background-color: var(--muted-foreground);
+}
+[data-sonner-toaster] .cn-toast[data-type="success"]::before {
+  background-color: #10b981; /* emerald-500 */
+}
+[data-sonner-toaster] .cn-toast[data-type="error"]::before {
+  background-color: #f43f5e; /* rose-500 */
+}
+[data-sonner-toaster] .cn-toast[data-type="warning"]::before {
+  background-color: #f59e0b; /* amber-500 */
+}
+[data-sonner-toaster] .cn-toast[data-type="info"]::before,
+[data-sonner-toaster] .cn-toast[data-type="default"]::before {
+  background-color: var(--primary);
+}
+[data-sonner-toaster] .cn-toast[data-type="loading"]::before {
+  background: linear-gradient(180deg, var(--primary) 0%, transparent 100%);
+}
+[data-sonner-toaster] .cn-toast-icon {
+  display: grid;
+  place-items: center;
+  width: 2rem;
+  height: 2rem;
+  flex-shrink: 0;
+  border-radius: 9999px;
+  margin: 0;
+}
+[data-sonner-toaster] .cn-toast[data-type="success"] .cn-toast-icon {
+  background-color: rgb(16 185 129 / 0.12);
+  color: #047857; /* emerald-700 */
+}
+[data-sonner-toaster] .cn-toast[data-type="error"] .cn-toast-icon {
+  background-color: rgb(244 63 94 / 0.12);
+  color: #be123c; /* rose-700 */
+}
+[data-sonner-toaster] .cn-toast[data-type="warning"] .cn-toast-icon {
+  background-color: rgb(245 158 11 / 0.15);
+  color: #b45309; /* amber-700 */
+}
+[data-sonner-toaster] .cn-toast[data-type="info"] .cn-toast-icon,
+[data-sonner-toaster] .cn-toast[data-type="loading"] .cn-toast-icon {
+  background-color: rgb(8 145 178 / 0.12);
+  color: var(--primary);
+}
+[data-sonner-toaster] .cn-toast-title {
+  font-weight: 600;
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+}
+[data-sonner-toaster] .cn-toast-description {
+  color: var(--muted-foreground);
+  font-size: 0.8125rem;
+  line-height: 1.125rem;
+  margin-top: 0.125rem;
+}
+[data-sonner-toaster] .cn-toast-action {
+  background-color: var(--primary);
+  color: var(--primary-foreground);
+  border-radius: 0.375rem;
+  padding: 0.25rem 0.75rem;
+  font-size: 0.75rem;
+  font-weight: 500;
+}
+[data-sonner-toaster] .cn-toast-close {
+  border-radius: 0.375rem;
+  background-color: transparent;
+  color: var(--muted-foreground);
+  border: 1px solid var(--border);
+}
+.dark [data-sonner-toaster] .cn-toast {
+  box-shadow:
+    0 1px 2px rgb(0 0 0 / 0.3),
+    0 8px 24px -4px rgb(0 0 0 / 0.4);
+}
+
+/* Print rules — used by the prescription print/preview page. The dashboard
+   chrome (sidebar, topbar, toasts) is hidden at print time so only the
+   article prints. */
+@media print {
+  aside,
+  [data-app-topbar],
+  [data-sonner-toaster] {
+    display: none !important;
+  }
+  main {
+    overflow: visible !important;
+  }
+  html,
+  body {
+    background: white !important;
+  }
+}

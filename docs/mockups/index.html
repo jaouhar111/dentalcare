@@ -1,0 +1,180 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>DentalCare — Mockups</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+  tailwind.config = {
+    theme: {
+      extend: {
+        fontFamily: { sans: ['Inter', 'system-ui', 'sans-serif'] },
+        colors: {
+          brand: {
+            50:  '#ECFEFF',
+            100: '#CFFAFE',
+            200: '#A5F3FC',
+            300: '#67E8F9',
+            400: '#22D3EE',
+            500: '#06B6D4',
+            600: '#0891B2', // primary
+            700: '#0E7490',
+            800: '#155E75',
+            900: '#164E63',
+            950: '#083344',
+          },
+        },
+      },
+    },
+  };
+</script>
+<style>html, body { font-family: 'Inter', system-ui, sans-serif; }</style>
+</head>
+<body class="bg-slate-50 text-slate-900">
+  <div class="max-w-6xl mx-auto px-6 py-12">
+    <header class="flex items-center gap-3 mb-10">
+      <svg viewBox="0 0 64 64" class="w-12 h-12 text-brand-600" fill="currentColor"><path d="M32 5C22 5 14 10 12 21C10 32 13 42 17 51L19 56C20 58 23 58 24 56L26 49C27 46 29 44 32 44C35 44 37 46 38 49L40 56C41 58 44 58 45 56L47 51C51 42 54 32 52 21C50 10 42 5 32 5Z"/><circle cx="25" cy="20" r="3.5" fill="#fff" fill-opacity="0.35"/></svg>
+      <div>
+        <h1 class="text-3xl font-bold tracking-tight">Dental<span class="text-brand-600">Care</span> — Mockups</h1>
+        <p class="text-slate-500 text-sm mt-1">Aperçu visuel HTML avant la phase de développement. Tailwind CDN, Inter, palette cyan-600. Trilingue FR/EN/AR (RTL).</p>
+      </div>
+    </header>
+
+    <section class="mb-10">
+      <h2 class="text-lg font-semibold mb-4">Système</h2>
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+
+        <a href="login.html" class="group bg-white border border-slate-200 rounded-xl p-5 hover:shadow-md hover:border-brand-300 transition">
+          <div class="aspect-video bg-gradient-to-br from-brand-50 to-white rounded-lg mb-3 flex items-center justify-center border border-slate-100">
+            <svg class="w-10 h-10 text-brand-600" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 5.25a3 3 0 013 3m3 0a6 6 0 01-7.029 5.912c-.563-.097-1.159.026-1.563.43L10.5 17.25H8.25v2.25H6v2.25H2.25v-2.818c0-.597.237-1.17.659-1.591l6.499-6.499c.404-.404.527-1 .43-1.563A6 6 0 1121.75 8.25z"/></svg>
+          </div>
+          <div class="font-semibold group-hover:text-brand-700">Login</div>
+          <div class="text-sm text-slate-500">Authentification trilingue</div>
+        </a>
+
+        <a href="dashboard.html" class="group bg-white border border-slate-200 rounded-xl p-5 hover:shadow-md hover:border-brand-300 transition">
+          <div class="aspect-video bg-gradient-to-br from-brand-50 to-white rounded-lg mb-3 flex items-center justify-center border border-slate-100">
+            <svg class="w-10 h-10 text-brand-600" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3.75 3v11.25A2.25 2.25 0 006 16.5h2.25M3.75 3h-1.5m1.5 0h16.5m0 0h1.5m-1.5 0v11.25A2.25 2.25 0 0118 16.5h-2.25m-7.5 0h7.5m-7.5 0l-1 3m8.5-3l1 3m0 0l.5 1.5m-.5-1.5h-9.5m0 0l-.5 1.5M9 11.25v1.5M12 9v3.75m3-6v6"/></svg>
+          </div>
+          <div class="font-semibold group-hover:text-brand-700">Dashboard</div>
+          <div class="text-sm text-slate-500">KPIs, graphes, alertes (admin)</div>
+        </a>
+
+        <a href="patients.html" class="group bg-white border border-slate-200 rounded-xl p-5 hover:shadow-md hover:border-brand-300 transition">
+          <div class="aspect-video bg-gradient-to-br from-brand-50 to-white rounded-lg mb-3 flex items-center justify-center border border-slate-100">
+            <svg class="w-10 h-10 text-brand-600" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19.128a9.38 9.38 0 002.625.372 9.337 9.337 0 004.121-.952 4.125 4.125 0 00-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.106A12.318 12.318 0 018.624 21c-2.331 0-4.512-.645-6.374-1.766l-.001-.109a6.375 6.375 0 0111.964-3.07M12 6.375a3.375 3.375 0 11-6.75 0 3.375 3.375 0 016.75 0zm8.25 2.25a2.625 2.625 0 11-5.25 0 2.625 2.625 0 015.25 0z"/></svg>
+          </div>
+          <div class="font-semibold group-hover:text-brand-700">Liste patients</div>
+          <div class="text-sm text-slate-500">Table, recherche, pagination</div>
+        </a>
+
+        <a href="patient-detail.html" class="group bg-white border border-slate-200 rounded-xl p-5 hover:shadow-md hover:border-brand-300 transition">
+          <div class="aspect-video bg-gradient-to-br from-brand-50 to-white rounded-lg mb-3 flex items-center justify-center border border-slate-100">
+            <svg class="w-10 h-10 text-brand-600" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M17.982 18.725A7.488 7.488 0 0012 15.75a7.488 7.488 0 00-5.982 2.975m11.963 0a9 9 0 10-11.963 0m11.963 0A8.966 8.966 0 0112 21a8.966 8.966 0 01-5.982-2.275M15 9.75a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+          </div>
+          <div class="font-semibold group-hover:text-brand-700">Fiche patient</div>
+          <div class="text-sm text-slate-500">Header + onglets + dossier</div>
+        </a>
+
+        <a href="appointments.html" class="group bg-white border border-slate-200 rounded-xl p-5 hover:shadow-md hover:border-brand-300 transition">
+          <div class="aspect-video bg-gradient-to-br from-brand-50 to-white rounded-lg mb-3 flex items-center justify-center border border-slate-100">
+            <svg class="w-10 h-10 text-brand-600" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 012.25-2.25h13.5A2.25 2.25 0 0121 7.5v11.25m-18 0A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75m-18 0v-7.5A2.25 2.25 0 015.25 9h13.5A2.25 2.25 0 0121 11.25v7.5"/></svg>
+          </div>
+          <div class="font-semibold group-hover:text-brand-700">Calendrier RDV</div>
+          <div class="text-sm text-slate-500">FullCalendar, multi-dentistes</div>
+        </a>
+
+        <a href="odontogram.html" class="group bg-white border border-slate-200 rounded-xl p-5 hover:shadow-md hover:border-brand-300 transition">
+          <div class="aspect-video bg-gradient-to-br from-brand-50 to-white rounded-lg mb-3 flex items-center justify-center border border-slate-100">
+            <svg viewBox="0 0 64 64" class="w-12 h-12 text-brand-600" fill="currentColor"><path d="M32 5C22 5 14 10 12 21C10 32 13 42 17 51L19 56C20 58 23 58 24 56L26 49C27 46 29 44 32 44C35 44 37 46 38 49L40 56C41 58 44 58 45 56L47 51C51 42 54 32 52 21C50 10 42 5 32 5Z"/></svg>
+          </div>
+          <div class="font-semibold group-hover:text-brand-700">Odontogramme</div>
+          <div class="text-sm text-slate-500">SVG cliquable 32 dents FDI</div>
+        </a>
+
+        <a href="invoice.html" class="group bg-white border border-slate-200 rounded-xl p-5 hover:shadow-md hover:border-brand-300 transition">
+          <div class="aspect-video bg-gradient-to-br from-brand-50 to-white rounded-lg mb-3 flex items-center justify-center border border-slate-100">
+            <svg class="w-10 h-10 text-brand-600" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12h3.75M9 15h3.75M9 18h3.75m3 .75H18a2.25 2.25 0 002.25-2.25V6.108c0-1.135-.845-2.098-1.976-2.192a48.424 48.424 0 00-1.123-.08m-5.801 0c-.065.21-.1.433-.1.664 0 .414.336.75.75.75h4.5a.75.75 0 00.75-.75 2.25 2.25 0 00-.1-.664m-5.8 0A2.251 2.251 0 0113.5 2.25H15c1.012 0 1.867.668 2.15 1.586m-5.8 0c-.376.023-.75.05-1.124.08C9.095 4.01 8.25 4.973 8.25 6.108V8.25m0 0H4.875c-.621 0-1.125.504-1.125 1.125v11.25c0 .621.504 1.125 1.125 1.125h9.75c.621 0 1.125-.504 1.125-1.125V9.375c0-.621-.504-1.125-1.125-1.125H8.25z"/></svg>
+          </div>
+          <div class="font-semibold group-hover:text-brand-700">Facture + plan paiement</div>
+          <div class="text-sm text-slate-500">Échéancier WhatsApp</div>
+        </a>
+
+        <a href="mobile-rtl.html" class="group bg-white border border-slate-200 rounded-xl p-5 hover:shadow-md hover:border-brand-300 transition">
+          <div class="aspect-video bg-gradient-to-br from-brand-50 to-white rounded-lg mb-3 flex items-center justify-center border border-slate-100">
+            <svg class="w-10 h-10 text-brand-600" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M10.5 1.5H8.25A2.25 2.25 0 006 3.75v16.5a2.25 2.25 0 002.25 2.25h7.5A2.25 2.25 0 0018 20.25V3.75a2.25 2.25 0 00-2.25-2.25H13.5m-3 0V3h3V1.5m-3 0h3m-3 18.75h3"/></svg>
+          </div>
+          <div class="font-semibold group-hover:text-brand-700">Mobile + Arabic RTL</div>
+          <div class="text-sm text-slate-500">Vue téléphone bilingue</div>
+        </a>
+
+      </div>
+    </section>
+
+    <section class="mb-10">
+      <h2 class="text-lg font-semibold mb-4">Palette</h2>
+      <div class="bg-white border border-slate-200 rounded-xl p-6">
+        <div class="grid grid-cols-5 sm:grid-cols-10 gap-2 mb-4">
+          <div class="text-center"><div class="aspect-square rounded-lg bg-brand-50 border border-slate-200"></div><div class="text-[10px] text-slate-500 mt-1">50</div></div>
+          <div class="text-center"><div class="aspect-square rounded-lg bg-brand-100"></div><div class="text-[10px] text-slate-500 mt-1">100</div></div>
+          <div class="text-center"><div class="aspect-square rounded-lg bg-brand-200"></div><div class="text-[10px] text-slate-500 mt-1">200</div></div>
+          <div class="text-center"><div class="aspect-square rounded-lg bg-brand-300"></div><div class="text-[10px] text-slate-500 mt-1">300</div></div>
+          <div class="text-center"><div class="aspect-square rounded-lg bg-brand-400"></div><div class="text-[10px] text-slate-500 mt-1">400</div></div>
+          <div class="text-center"><div class="aspect-square rounded-lg bg-brand-500"></div><div class="text-[10px] text-slate-500 mt-1">500</div></div>
+          <div class="text-center"><div class="aspect-square rounded-lg bg-brand-600 ring-2 ring-offset-2 ring-brand-600"></div><div class="text-[10px] text-brand-700 mt-1 font-semibold">600 ★</div></div>
+          <div class="text-center"><div class="aspect-square rounded-lg bg-brand-700"></div><div class="text-[10px] text-slate-500 mt-1">700</div></div>
+          <div class="text-center"><div class="aspect-square rounded-lg bg-brand-800"></div><div class="text-[10px] text-slate-500 mt-1">800</div></div>
+          <div class="text-center"><div class="aspect-square rounded-lg bg-brand-900"></div><div class="text-[10px] text-slate-500 mt-1">900</div></div>
+        </div>
+        <div class="grid grid-cols-2 sm:grid-cols-5 gap-3 text-sm">
+          <div class="flex items-center gap-2"><div class="w-5 h-5 rounded bg-brand-600"></div><span>Primary <span class="text-slate-400">#0891B2</span></span></div>
+          <div class="flex items-center gap-2"><div class="w-5 h-5 rounded bg-emerald-600"></div><span>Success <span class="text-slate-400">#059669</span></span></div>
+          <div class="flex items-center gap-2"><div class="w-5 h-5 rounded bg-amber-500"></div><span>Warning <span class="text-slate-400">#F59E0B</span></span></div>
+          <div class="flex items-center gap-2"><div class="w-5 h-5 rounded bg-rose-600"></div><span>Danger <span class="text-slate-400">#E11D48</span></span></div>
+          <div class="flex items-center gap-2"><div class="w-5 h-5 rounded bg-sky-500"></div><span>Info <span class="text-slate-400">#0EA5E9</span></span></div>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <h2 class="text-lg font-semibold mb-4">Composants</h2>
+      <div class="bg-white border border-slate-200 rounded-xl p-6 space-y-4">
+
+        <div class="flex flex-wrap items-center gap-3">
+          <button class="px-4 py-2 rounded-lg bg-brand-600 text-white text-sm font-medium hover:bg-brand-700 transition">Primary</button>
+          <button class="px-4 py-2 rounded-lg border border-slate-200 bg-white text-slate-900 text-sm font-medium hover:bg-slate-50 transition">Secondary</button>
+          <button class="px-4 py-2 rounded-lg text-slate-700 text-sm font-medium hover:bg-slate-100 transition">Ghost</button>
+          <button class="px-4 py-2 rounded-lg bg-rose-600 text-white text-sm font-medium hover:bg-rose-700 transition">Destructive</button>
+          <button disabled class="px-4 py-2 rounded-lg bg-slate-200 text-slate-400 text-sm font-medium cursor-not-allowed">Disabled</button>
+        </div>
+
+        <div class="flex flex-wrap items-center gap-2">
+          <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium bg-emerald-50 text-emerald-700 border border-emerald-200">● Confirmé</span>
+          <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium bg-amber-50 text-amber-700 border border-amber-200">⏳ En attente</span>
+          <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium bg-rose-50 text-rose-700 border border-rose-200">✕ Annulé</span>
+          <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium bg-brand-50 text-brand-700 border border-brand-200">★ Nouveau</span>
+          <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium bg-slate-100 text-slate-700 border border-slate-200">Brouillon</span>
+        </div>
+
+        <div class="flex items-center gap-3">
+          <input type="text" placeholder="Rechercher patient..." class="flex-1 max-w-sm px-3 py-2 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-brand-500" />
+          <select class="px-3 py-2 border border-slate-200 rounded-lg text-sm bg-white">
+            <option>Tous les dentistes</option>
+            <option>Dr Karim Benali</option>
+            <option>Dr Salma Idrissi</option>
+          </select>
+        </div>
+
+      </div>
+    </section>
+
+    <footer class="mt-12 pt-6 border-t border-slate-200 text-sm text-slate-500 text-center">
+      Mockups statiques générés le 12/05/2026 — préfiguration UI avant T0.1 (init Next.js)
+    </footer>
+  </div>
+</body>
+</html>

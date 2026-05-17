@@ -1,0 +1,10 @@
+node_modules
+.next
+.turbo
+out
+build
+dist
+public
+docs/mockups
+pnpm-lock.yaml
+*.md

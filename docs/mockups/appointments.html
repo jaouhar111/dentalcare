@@ -1,0 +1,130 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8" /><meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Rendez-vous — DentalCare</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+<script src="https://cdn.tailwindcss.com"></script>
+<script>tailwind.config={theme:{extend:{fontFamily:{sans:['Inter','system-ui','sans-serif']},colors:{brand:{50:'#ECFEFF',100:'#CFFAFE',200:'#A5F3FC',300:'#67E8F9',400:'#22D3EE',500:'#06B6D4',600:'#0891B2',700:'#0E7490',800:'#155E75',900:'#164E63'}}}}};</script>
+<style>html,body{font-family:'Inter',system-ui,sans-serif}.num{font-variant-numeric:tabular-nums}.event{border-left:3px solid;padding:6px 8px;border-radius:6px;font-size:11px;line-height:1.3}</style>
+</head>
+<body>
+<div id="app">
+  <div class="p-6 lg:p-8">
+    <div class="max-w-[1400px] mx-auto">
+
+      <div class="flex items-end justify-between mb-6 flex-wrap gap-3">
+        <div>
+          <h1 class="text-2xl font-bold tracking-tight">Calendrier des rendez-vous</h1>
+          <p class="text-sm text-slate-500 mt-0.5">Semaine du 18 au 23 mai 2026 · 47 RDV programmés</p>
+        </div>
+        <div class="flex items-center gap-2">
+          <button class="px-3 py-2 rounded-lg border border-slate-200 bg-white text-sm font-medium text-slate-700 hover:bg-slate-50 flex items-center gap-1.5"><svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6.042A8.967 8.967 0 006 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 016 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 016-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0018 18a8.967 8.967 0 00-6 2.292"/></svg>Liste d'attente <span class="ml-1 px-1.5 py-0.5 rounded-full bg-amber-100 text-amber-800 text-xs num">4</span></button>
+          <button class="px-3 py-2 rounded-lg bg-brand-600 text-white text-sm font-medium hover:bg-brand-700 flex items-center gap-1.5"><svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15"/></svg>Nouveau RDV</button>
+        </div>
+      </div>
+
+      <!-- Controls -->
+      <div class="bg-white border border-slate-200 rounded-xl p-3 mb-4 flex flex-wrap items-center gap-3">
+        <div class="flex items-center gap-1 border border-slate-200 rounded-lg overflow-hidden">
+          <button class="px-3 py-1.5 text-sm text-slate-600 hover:bg-slate-50"><svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5"/></svg></button>
+          <button class="px-3 py-1.5 text-sm text-slate-700 hover:bg-slate-50 border-x border-slate-200">Aujourd'hui</button>
+          <button class="px-3 py-1.5 text-sm text-slate-600 hover:bg-slate-50"><svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5"/></svg></button>
+        </div>
+        <div class="font-semibold tracking-tight">18 — 23 mai 2026</div>
+        <div class="ml-auto flex items-center gap-2">
+          <div class="flex items-center bg-slate-100 rounded-lg p-0.5">
+            <button class="px-3 py-1 text-xs font-medium text-slate-600 rounded">Jour</button>
+            <button class="px-3 py-1 text-xs font-medium bg-white text-slate-900 rounded shadow-sm">Semaine</button>
+            <button class="px-3 py-1 text-xs font-medium text-slate-600 rounded">Mois</button>
+          </div>
+          <div class="flex items-center gap-2 ml-3">
+            <label class="flex items-center gap-1.5 text-xs"><span class="w-3 h-3 rounded-sm bg-brand-500"></span>Dr Karim</label>
+            <label class="flex items-center gap-1.5 text-xs"><span class="w-3 h-3 rounded-sm bg-emerald-500"></span>Dr Salma</label>
+            <label class="flex items-center gap-1.5 text-xs"><span class="w-3 h-3 rounded-sm bg-violet-500"></span>Dr Younes</label>
+          </div>
+        </div>
+      </div>
+
+      <!-- Calendar grid -->
+      <div class="bg-white border border-slate-200 rounded-xl overflow-hidden">
+
+        <!-- Days header -->
+        <div class="grid grid-cols-[60px_repeat(6,minmax(0,1fr))] border-b border-slate-200 bg-slate-50">
+          <div></div>
+          <div class="px-3 py-2 text-center border-l border-slate-200"><div class="text-xs text-slate-500">Lun</div><div class="text-sm font-semibold num">18</div></div>
+          <div class="px-3 py-2 text-center border-l border-slate-200"><div class="text-xs text-slate-500">Mar</div><div class="text-sm font-semibold num">19</div></div>
+          <div class="px-3 py-2 text-center border-l border-slate-200"><div class="text-xs text-slate-500">Mer</div><div class="text-sm font-semibold num">20</div></div>
+          <div class="px-3 py-2 text-center border-l border-slate-200 bg-brand-50"><div class="text-xs text-brand-700 font-medium">Jeu</div><div class="text-sm font-bold text-brand-700 num">21 ●</div></div>
+          <div class="px-3 py-2 text-center border-l border-slate-200"><div class="text-xs text-slate-500">Ven</div><div class="text-sm font-semibold num">22</div></div>
+          <div class="px-3 py-2 text-center border-l border-slate-200"><div class="text-xs text-slate-500">Sam</div><div class="text-sm font-semibold num">23</div></div>
+        </div>
+
+        <!-- Body -->
+        <div class="relative" style="height:680px">
+          <div class="grid grid-cols-[60px_repeat(6,minmax(0,1fr))] absolute inset-0">
+
+            <!-- Time gutter -->
+            <div class="border-r border-slate-200 text-right pr-2 text-xs text-slate-400 pt-2 space-y-[68px]">
+              <div class="num">08:00</div><div class="num">09:00</div><div class="num">10:00</div><div class="num">11:00</div><div class="num">12:00</div><div class="num">13:00</div><div class="num">14:00</div><div class="num">15:00</div><div class="num">16:00</div>
+            </div>
+
+            <!-- Day columns -->
+            <div class="border-l border-slate-200 p-1 space-y-1 relative" style="background:repeating-linear-gradient(transparent 0 80px,#f1f5f9 80px 81px)">
+              <div class="event bg-brand-50 border-brand-500 text-brand-900" style="margin-top:0"><div class="font-semibold">08:00 · Bennali A.</div><div class="text-brand-700">Détartrage · Dr K.</div></div>
+              <div class="event bg-emerald-50 border-emerald-500 text-emerald-900" style="margin-top:90px"><div class="font-semibold">10:00 · Tazi F.</div><div class="text-emerald-700">Nettoyage · Dr S.</div></div>
+              <div class="event bg-brand-50 border-brand-500 text-brand-900" style="margin-top:90px"><div class="font-semibold">12:00 · Amir K.</div><div class="text-brand-700">Carie · Dr K.</div></div>
+              <div class="event bg-violet-50 border-violet-500 text-violet-900" style="margin-top:155px;height:130px"><div class="font-semibold">15:00 · Idrissi H.</div><div class="text-violet-700">Ortho consult · Dr Y.</div><div class="text-violet-700">90 min</div></div>
+            </div>
+
+            <div class="border-l border-slate-200 p-1 space-y-1 relative" style="background:repeating-linear-gradient(transparent 0 80px,#f1f5f9 80px 81px)">
+              <div class="event bg-emerald-50 border-emerald-500 text-emerald-900" style="margin-top:80px"><div class="font-semibold">09:00 · Tazi F.</div><div class="text-emerald-700">Implant · Dr S.</div><div class="text-emerald-700">90 min</div></div>
+              <div class="event bg-brand-50 border-brand-500 text-brand-900" style="margin-top:80px"><div class="font-semibold">13:00 · El Fassi Y.</div><div class="text-brand-700">Blanchiment · Dr K.</div></div>
+              <div class="event bg-rose-50 border-rose-500 text-rose-900 opacity-70" style="margin-top:90px"><div class="font-semibold line-through">15:30 · Hassan</div><div class="text-rose-700">Annulé J-2</div></div>
+            </div>
+
+            <div class="border-l border-slate-200 p-1 space-y-1 relative" style="background:repeating-linear-gradient(transparent 0 80px,#f1f5f9 80px 81px)">
+              <div class="event bg-brand-50 border-brand-500 text-brand-900" style="margin-top:80px"><div class="font-semibold">09:00 · Bouhraoua S.</div><div class="text-brand-700">Nettoyage · Dr K.</div></div>
+              <div class="event bg-emerald-50 border-emerald-500 text-emerald-900" style="margin-top:160px;height:130px"><div class="font-semibold">11:30 · Rachidi Y.</div><div class="text-emerald-700">Extraction · Dr S.</div><div class="text-emerald-700">75 min</div></div>
+            </div>
+
+            <!-- Today highlighted -->
+            <div class="border-l border-brand-200 p-1 space-y-1 relative bg-brand-50/30" style="background:repeating-linear-gradient(rgb(236 254 255 / 0.3) 0 80px,#ecfeff 80px 81px)">
+              <div class="event bg-violet-50 border-violet-500 text-violet-900" style="margin-top:0"><div class="font-semibold">08:00 · Bennali A.</div><div class="text-violet-700">Couronne · Dr Y.</div></div>
+              <div class="event bg-brand-50 border-brand-500 text-brand-900" style="margin-top:90px"><div class="font-semibold">10:00 · Amir K.</div><div class="text-brand-700">Suivi · Dr K.</div></div>
+              <div class="event bg-emerald-50 border-emerald-500 text-emerald-900" style="margin-top:155px;height:90px"><div class="font-semibold">12:30 · Tazi F.</div><div class="text-emerald-700">Contrôle · Dr S.</div></div>
+            </div>
+
+            <div class="border-l border-slate-200 p-1 space-y-1 relative" style="background:repeating-linear-gradient(transparent 0 80px,#f1f5f9 80px 81px)">
+              <div class="event bg-brand-50 border-brand-500 text-brand-900" style="margin-top:0;height:130px"><div class="font-semibold">08:00 · Idrissi H.</div><div class="text-brand-700">Pose implant · Dr K.</div><div class="text-brand-700">90 min</div></div>
+              <div class="event bg-emerald-50 border-emerald-500 text-emerald-900" style="margin-top:145px"><div class="font-semibold">11:00 · El Fassi Y.</div><div class="text-emerald-700">Suivi ortho · Dr S.</div></div>
+              <div class="event bg-violet-50 border-violet-500 text-violet-900" style="margin-top:90px"><div class="font-semibold">14:00 · Amir K.</div><div class="text-violet-700">Suivi · Dr Y.</div></div>
+            </div>
+
+            <div class="border-l border-slate-200 p-1 space-y-1 relative" style="background:repeating-linear-gradient(transparent 0 80px,#f1f5f9 80px 81px)">
+              <div class="event bg-brand-50 border-brand-500 text-brand-900" style="margin-top:80px"><div class="font-semibold">09:00 · Bennali A.</div><div class="text-brand-700">Extraction · Dr K.</div></div>
+              <div class="absolute left-0 right-0 top-[260px] bottom-[80px] bg-slate-100/70 grid place-items-center text-xs text-slate-500 font-medium" style="background:repeating-linear-gradient(45deg,rgba(148,163,184,0.1) 0 6px,transparent 6px 12px)">Cabinet fermé après-midi</div>
+            </div>
+
+          </div>
+        </div>
+      </div>
+
+      <!-- Waitlist hint -->
+      <div class="mt-4 bg-amber-50 border border-amber-200 rounded-lg p-4 flex items-start gap-3">
+        <svg class="w-5 h-5 text-amber-600 mt-0.5 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6.042A8.967 8.967 0 006 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 016 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 016-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0018 18a8.967 8.967 0 00-6 2.292"/></svg>
+        <div class="flex-1 text-sm">
+          <div class="font-medium text-amber-900">4 patients en liste d'attente</div>
+          <div class="text-amber-700 mt-0.5">Sur la prochaine annulation, WhatsApp envoyé automatiquement aux candidats compatibles. Premier confirmé = créneau attribué.</div>
+        </div>
+        <button class="text-sm font-medium text-amber-900 hover:underline">Voir la liste →</button>
+      </div>
+
+    </div>
+  </div>
+</div>
+<script src="./shell.js"></script>
+<script>initShell({active:'appointments'});</script>
+</body>
+</html>

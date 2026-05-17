@@ -1,0 +1,312 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Dashboard — DentalCare</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+  tailwind.config = { theme: { extend: { fontFamily: { sans: ['Inter','system-ui','sans-serif'] }, colors: { brand: { 50:'#ECFEFF',100:'#CFFAFE',200:'#A5F3FC',300:'#67E8F9',400:'#22D3EE',500:'#06B6D4',600:'#0891B2',700:'#0E7490',800:'#155E75',900:'#164E63' } } } } };
+</script>
+<style>
+  html,body{font-family:'Inter',system-ui,sans-serif}
+  .num{font-variant-numeric:tabular-nums}
+</style>
+</head>
+<body class="bg-slate-50 text-slate-900">
+
+<div class="flex h-screen overflow-hidden">
+
+  <!-- Sidebar -->
+  <aside class="hidden md:flex w-60 flex-col bg-white border-r border-slate-200">
+    <div class="h-14 px-4 flex items-center gap-2 border-b border-slate-200">
+      <svg viewBox="0 0 64 64" class="w-7 h-7 text-brand-600" fill="currentColor"><path d="M32 5C22 5 14 10 12 21C10 32 13 42 17 51L19 56C20 58 23 58 24 56L26 49C27 46 29 44 32 44C35 44 37 46 38 49L40 56C41 58 44 58 45 56L47 51C51 42 54 32 52 21C50 10 42 5 32 5Z"/></svg>
+      <span class="font-bold tracking-tight">Dental<span class="text-brand-600">Care</span></span>
+    </div>
+    <nav class="flex-1 overflow-y-auto p-3 text-sm">
+      <div class="text-xs uppercase tracking-wider text-slate-400 px-3 mt-2 mb-1">Pilotage</div>
+      <a href="dashboard.html" class="flex items-center gap-3 px-3 py-2 rounded-lg bg-brand-50 text-brand-700 font-medium">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3.75 3v11.25A2.25 2.25 0 006 16.5h2.25M3.75 3h-1.5m1.5 0h16.5m0 0h1.5m-1.5 0v11.25A2.25 2.25 0 0118 16.5h-2.25m-7.5 0h7.5m-7.5 0l-1 3m8.5-3l1 3"/></svg>
+        Tableau de bord
+      </a>
+      <div class="text-xs uppercase tracking-wider text-slate-400 px-3 mt-4 mb-1">Patientèle</div>
+      <a href="patients.html" class="flex items-center justify-between gap-3 px-3 py-2 rounded-lg text-slate-700 hover:bg-slate-100">
+        <span class="flex items-center gap-3"><svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19.128a9.38 9.38 0 002.625.372 9.337 9.337 0 004.121-.952 4.125 4.125 0 00-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.106A12.318 12.318 0 018.624 21c-2.331 0-4.512-.645-6.374-1.766l-.001-.109a6.375 6.375 0 0111.964-3.07M12 6.375a3.375 3.375 0 11-6.75 0 3.375 3.375 0 016.75 0zm8.25 2.25a2.625 2.625 0 11-5.25 0 2.625 2.625 0 015.25 0z"/></svg>Patients</span>
+        <span class="text-xs text-slate-400 num">342</span>
+      </a>
+      <a href="appointments.html" class="flex items-center justify-between gap-3 px-3 py-2 rounded-lg text-slate-700 hover:bg-slate-100">
+        <span class="flex items-center gap-3"><svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 012.25-2.25h13.5A2.25 2.25 0 0121 7.5v11.25"/></svg>Rendez-vous</span>
+        <span class="text-xs px-1.5 py-0.5 rounded-full bg-amber-50 text-amber-700 num">16</span>
+      </a>
+      <a href="#" class="flex items-center gap-3 px-3 py-2 rounded-lg text-slate-700 hover:bg-slate-100">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6.042A8.967 8.967 0 006 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 016 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 016-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0018 18a8.967 8.967 0 00-6 2.292"/></svg>
+        Liste d'attente
+      </a>
+      <a href="patient-detail.html" class="flex items-center gap-3 px-3 py-2 rounded-lg text-slate-700 hover:bg-slate-100">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m6.75 12L12 18m0 0l-3-2.625M12 18V9"/></svg>
+        Dossiers médicaux
+      </a>
+      <a href="odontogram.html" class="flex items-center gap-3 px-3 py-2 rounded-lg text-slate-700 hover:bg-slate-100">
+        <svg viewBox="0 0 64 64" class="w-4 h-4" fill="currentColor"><path d="M32 5C22 5 14 10 12 21C10 32 13 42 17 51L19 56C20 58 23 58 24 56L26 49C27 46 29 44 32 44C35 44 37 46 38 49L40 56C41 58 44 58 45 56L47 51C51 42 54 32 52 21C50 10 42 5 32 5Z"/></svg>
+        Odontogramme
+      </a>
+      <div class="text-xs uppercase tracking-wider text-slate-400 px-3 mt-4 mb-1">Finance</div>
+      <a href="invoice.html" class="flex items-center justify-between gap-3 px-3 py-2 rounded-lg text-slate-700 hover:bg-slate-100">
+        <span class="flex items-center gap-3"><svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12h3.75M9 15h3.75M9 18h3.75m3 .75H18a2.25 2.25 0 002.25-2.25V6.108c0-1.135-.845-2.098-1.976-2.192a48.424 48.424 0 00-1.123-.08m-5.801 0c-.065.21-.1.433-.1.664 0 .414.336.75.75.75h4.5a.75.75 0 00.75-.75 2.25 2.25 0 00-.1-.664"/></svg>Factures</span>
+        <span class="text-xs px-1.5 py-0.5 rounded-full bg-rose-50 text-rose-700 num">2</span>
+      </a>
+      <a href="#" class="flex items-center gap-3 px-3 py-2 rounded-lg text-slate-700 hover:bg-slate-100">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M2.25 8.25h19.5M2.25 9h19.5m-16.5 5.25h6m-6 2.25h3m-3.75 3h15a2.25 2.25 0 002.25-2.25V6.75A2.25 2.25 0 0019.5 4.5h-15a2.25 2.25 0 00-2.25 2.25v10.5A2.25 2.25 0 004.5 19.5z"/></svg>
+        Plans paiement
+      </a>
+      <div class="text-xs uppercase tracking-wider text-slate-400 px-3 mt-4 mb-1">Cabinet</div>
+      <a href="#" class="flex items-center justify-between gap-3 px-3 py-2 rounded-lg text-slate-700 hover:bg-slate-100">
+        <span class="flex items-center gap-3"><svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3.75 12h16.5m-16.5 3.75h16.5M3.75 19.5h16.5M5.625 4.5h12.75a1.875 1.875 0 010 3.75H5.625a1.875 1.875 0 010-3.75z"/></svg>Stock</span>
+        <span class="text-xs px-1.5 py-0.5 rounded-full bg-amber-50 text-amber-700 num">3</span>
+      </a>
+      <a href="#" class="flex items-center gap-3 px-3 py-2 rounded-lg text-slate-700 hover:bg-slate-100">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M14.857 17.082a23.848 23.848 0 005.454-1.31A8.967 8.967 0 0118 9.75v-.7V9A6 6 0 006 9v.75a8.967 8.967 0 01-2.312 6.022c1.733.64 3.56 1.085 5.455 1.31m5.714 0a24.255 24.255 0 01-5.714 0m5.714 0a3 3 0 11-5.714 0"/></svg>
+        Recalls
+      </a>
+      <a href="#" class="flex items-center gap-3 px-3 py-2 rounded-lg text-slate-700 hover:bg-slate-100">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z"/></svg>
+        Utilisateurs
+      </a>
+      <a href="#" class="flex items-center gap-3 px-3 py-2 rounded-lg text-slate-700 hover:bg-slate-100">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9.594 3.94c.09-.542.56-.94 1.11-.94h2.593c.55 0 1.02.398 1.11.94l.213 1.281c.063.374.313.686.645.87.074.04.147.083.22.127.324.196.72.257 1.075.124l1.217-.456a1.125 1.125 0 011.37.49l1.296 2.247a1.125 1.125 0 01-.26 1.431l-1.003.827c-.293.24-.438.613-.431.992a6.759 6.759 0 010 .255c-.007.378.138.75.43.99l1.005.828c.424.35.534.954.26 1.43l-1.298 2.247a1.125 1.125 0 01-1.369.491l-1.217-.456c-.355-.133-.75-.072-1.076.124a6.57 6.57 0 01-.22.128c-.331.183-.581.495-.644.869l-.213 1.28c-.09.543-.56.941-1.11.941h-2.594c-.55 0-1.02-.398-1.11-.94l-.213-1.281c-.062-.374-.312-.686-.644-.87a6.52 6.52 0 01-.22-.127c-.325-.196-.72-.257-1.076-.124l-1.217.456a1.125 1.125 0 01-1.369-.49l-1.297-2.247a1.125 1.125 0 01.26-1.431l1.004-.827c.292-.24.437-.613.43-.992a6.932 6.932 0 010-.255c.007-.378-.138-.75-.43-.99l-1.004-.828a1.125 1.125 0 01-.26-1.43l1.297-2.247a1.125 1.125 0 011.37-.491l1.216.456c.356.133.751.072 1.076-.124.072-.044.146-.087.22-.128.332-.183.582-.495.644-.869l.214-1.281z"/></svg>
+        Paramètres
+      </a>
+    </nav>
+    <div class="p-3 border-t border-slate-200">
+      <div class="flex items-center gap-3 px-2 py-2">
+        <div class="w-8 h-8 rounded-full bg-brand-100 text-brand-700 grid place-items-center text-sm font-semibold">KB</div>
+        <div class="flex-1 min-w-0">
+          <div class="text-sm font-medium truncate">Dr Karim Benali</div>
+          <div class="text-xs text-slate-500">Dentiste · Admin</div>
+        </div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- Main column -->
+  <div class="flex-1 flex flex-col overflow-hidden">
+    <!-- Topbar -->
+    <header class="h-14 bg-white border-b border-slate-200 flex items-center gap-3 px-4 lg:px-6">
+      <button class="md:hidden p-1.5 rounded hover:bg-slate-100"><svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5"/></svg></button>
+      <div class="flex-1 max-w-xl relative">
+        <svg class="absolute left-3 top-2.5 w-4 h-4 text-slate-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z"/></svg>
+        <input type="text" placeholder="Rechercher patient, RDV, facture..." class="w-full pl-9 pr-16 py-2 text-sm bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-brand-500" />
+        <kbd class="absolute right-2 top-2 text-[10px] px-1.5 py-0.5 bg-white border border-slate-200 rounded text-slate-500 font-mono">⌘K</kbd>
+      </div>
+      <button class="relative p-1.5 rounded hover:bg-slate-100">
+        <svg class="w-5 h-5 text-slate-600" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M14.857 17.082a23.848 23.848 0 005.454-1.31A8.967 8.967 0 0118 9.75v-.7V9A6 6 0 006 9v.75a8.967 8.967 0 01-2.312 6.022c1.733.64 3.56 1.085 5.455 1.31m5.714 0a24.255 24.255 0 01-5.714 0m5.714 0a3 3 0 11-5.714 0"/></svg>
+        <span class="absolute top-0.5 right-1 w-2 h-2 rounded-full bg-rose-500"></span>
+      </button>
+      <div class="flex items-center gap-1 text-xs">
+        <button class="px-2 py-1 rounded text-brand-700 font-semibold bg-brand-50">FR</button>
+        <button class="px-2 py-1 rounded text-slate-400 hover:bg-slate-100">EN</button>
+        <button class="px-2 py-1 rounded text-slate-400 hover:bg-slate-100">ع</button>
+      </div>
+      <div class="w-8 h-8 rounded-full bg-brand-100 text-brand-700 grid place-items-center text-sm font-semibold">KB</div>
+    </header>
+
+    <!-- Page content -->
+    <main class="flex-1 overflow-y-auto p-6 lg:p-8">
+      <div class="max-w-7xl mx-auto">
+
+        <!-- Header -->
+        <div class="flex items-end justify-between mb-6 flex-wrap gap-3">
+          <div>
+            <h1 class="text-2xl font-bold tracking-tight">Bonjour Dr Karim ☀</h1>
+            <p class="text-sm text-slate-500 mt-0.5">Lundi 18 mai 2026 · Cabinet DentalCare Fès</p>
+          </div>
+          <div class="flex items-center gap-2">
+            <button class="px-3 py-2 rounded-lg border border-slate-200 bg-white text-sm font-medium text-slate-700 hover:bg-slate-50">Cette semaine</button>
+            <button class="px-3 py-2 rounded-lg bg-brand-600 text-white text-sm font-medium hover:bg-brand-700 flex items-center gap-1.5">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15"/></svg>
+              Nouveau RDV
+            </button>
+          </div>
+        </div>
+
+        <!-- KPI cards -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+          <div class="bg-white border border-slate-200 rounded-xl p-5">
+            <div class="flex items-center justify-between">
+              <div class="text-xs uppercase tracking-wider text-slate-500">CA du mois</div>
+              <div class="w-8 h-8 rounded-lg bg-brand-50 text-brand-600 grid place-items-center"><svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6v12m-3-2.818l.879.659c1.171.879 3.07.879 4.242 0 1.172-.879 1.172-2.303 0-3.182C13.536 12.219 12.768 12 12 12c-2.21 0-4-1.79-4-4s1.79-4 4-4 4 1.79 4 4"/></svg></div>
+            </div>
+            <div class="text-3xl font-bold tracking-tight num mt-2">125 420 <span class="text-base font-medium text-slate-400">DH</span></div>
+            <div class="text-xs text-emerald-600 mt-1 flex items-center gap-1"><svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20"><path d="M10 3l7 7h-4v7H7v-7H3l7-7z"/></svg> +12 % vs mois précédent</div>
+          </div>
+          <div class="bg-white border border-slate-200 rounded-xl p-5">
+            <div class="flex items-center justify-between">
+              <div class="text-xs uppercase tracking-wider text-slate-500">Patients actifs</div>
+              <div class="w-8 h-8 rounded-lg bg-emerald-50 text-emerald-600 grid place-items-center"><svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19.128a9.38 9.38 0 002.625.372 9.337 9.337 0 004.121-.952 4.125 4.125 0 00-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.106A12.318 12.318 0 018.624 21c-2.331 0-4.512-.645-6.374-1.766l-.001-.109a6.375 6.375 0 0111.964-3.07M12 6.375a3.375 3.375 0 11-6.75 0 3.375 3.375 0 016.75 0z"/></svg></div>
+            </div>
+            <div class="text-3xl font-bold tracking-tight num mt-2">342</div>
+            <div class="text-xs text-emerald-600 mt-1 flex items-center gap-1"><svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20"><path d="M10 3l7 7h-4v7H7v-7H3l7-7z"/></svg> 8 nouveaux ce mois</div>
+          </div>
+          <div class="bg-white border border-slate-200 rounded-xl p-5">
+            <div class="flex items-center justify-between">
+              <div class="text-xs uppercase tracking-wider text-slate-500">RDV cette semaine</div>
+              <div class="w-8 h-8 rounded-lg bg-sky-50 text-sky-600 grid place-items-center"><svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 012.25-2.25h13.5A2.25 2.25 0 0121 7.5v11.25"/></svg></div>
+            </div>
+            <div class="text-3xl font-bold tracking-tight num mt-2">47</div>
+            <div class="text-xs text-slate-500 mt-1 flex items-center gap-3"><span class="text-emerald-600">✓ 31 confirmés</span> <span class="text-amber-600">⏳ 16 attente</span></div>
+          </div>
+          <div class="bg-white border border-slate-200 rounded-xl p-5">
+            <div class="flex items-center justify-between">
+              <div class="text-xs uppercase tracking-wider text-slate-500">Taux occupation</div>
+              <div class="w-8 h-8 rounded-lg bg-amber-50 text-amber-600 grid place-items-center"><svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z"/></svg></div>
+            </div>
+            <div class="text-3xl font-bold tracking-tight num mt-2">78 <span class="text-base font-medium text-slate-400">%</span></div>
+            <div class="w-full bg-slate-100 rounded-full h-1.5 mt-2"><div class="bg-brand-600 h-1.5 rounded-full" style="width:78%"></div></div>
+          </div>
+        </div>
+
+        <!-- Charts row -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-4 mb-6">
+
+          <!-- Bar chart placeholder -->
+          <div class="bg-white border border-slate-200 rounded-xl p-5 lg:col-span-2">
+            <div class="flex items-center justify-between mb-4">
+              <h3 class="font-semibold">Chiffre d'affaires — 12 derniers mois</h3>
+              <div class="text-xs text-slate-500">en DH</div>
+            </div>
+            <div class="flex items-end gap-2 h-40 px-1">
+              <div class="flex-1 flex flex-col items-center"><div class="w-full bg-brand-200 rounded-t" style="height:35%"></div><div class="text-[10px] text-slate-400 mt-1">Jun</div></div>
+              <div class="flex-1 flex flex-col items-center"><div class="w-full bg-brand-300 rounded-t" style="height:42%"></div><div class="text-[10px] text-slate-400 mt-1">Jul</div></div>
+              <div class="flex-1 flex flex-col items-center"><div class="w-full bg-brand-300 rounded-t" style="height:55%"></div><div class="text-[10px] text-slate-400 mt-1">Aug</div></div>
+              <div class="flex-1 flex flex-col items-center"><div class="w-full bg-brand-400 rounded-t" style="height:50%"></div><div class="text-[10px] text-slate-400 mt-1">Sep</div></div>
+              <div class="flex-1 flex flex-col items-center"><div class="w-full bg-brand-400 rounded-t" style="height:65%"></div><div class="text-[10px] text-slate-400 mt-1">Oct</div></div>
+              <div class="flex-1 flex flex-col items-center"><div class="w-full bg-brand-500 rounded-t" style="height:60%"></div><div class="text-[10px] text-slate-400 mt-1">Nov</div></div>
+              <div class="flex-1 flex flex-col items-center"><div class="w-full bg-brand-500 rounded-t" style="height:72%"></div><div class="text-[10px] text-slate-400 mt-1">Déc</div></div>
+              <div class="flex-1 flex flex-col items-center"><div class="w-full bg-brand-600 rounded-t" style="height:68%"></div><div class="text-[10px] text-slate-400 mt-1">Jan</div></div>
+              <div class="flex-1 flex flex-col items-center"><div class="w-full bg-brand-600 rounded-t" style="height:75%"></div><div class="text-[10px] text-slate-400 mt-1">Fév</div></div>
+              <div class="flex-1 flex flex-col items-center"><div class="w-full bg-brand-700 rounded-t" style="height:82%"></div><div class="text-[10px] text-slate-400 mt-1">Mar</div></div>
+              <div class="flex-1 flex flex-col items-center"><div class="w-full bg-brand-700 rounded-t" style="height:88%"></div><div class="text-[10px] text-slate-400 mt-1">Avr</div></div>
+              <div class="flex-1 flex flex-col items-center"><div class="w-full bg-brand-800 rounded-t" style="height:95%"></div><div class="text-[10px] text-brand-700 mt-1 font-semibold">Mai</div></div>
+            </div>
+          </div>
+
+          <!-- Top treatments -->
+          <div class="bg-white border border-slate-200 rounded-xl p-5">
+            <h3 class="font-semibold mb-4">Top 5 traitements</h3>
+            <ul class="space-y-3 text-sm">
+              <li>
+                <div class="flex justify-between mb-1"><span>Nettoyage</span><span class="text-slate-400 num">32 %</span></div>
+                <div class="bg-slate-100 rounded-full h-1.5"><div class="bg-brand-600 h-1.5 rounded-full" style="width:32%"></div></div>
+              </li>
+              <li>
+                <div class="flex justify-between mb-1"><span>Soin carie</span><span class="text-slate-400 num">24 %</span></div>
+                <div class="bg-slate-100 rounded-full h-1.5"><div class="bg-brand-500 h-1.5 rounded-full" style="width:24%"></div></div>
+              </li>
+              <li>
+                <div class="flex justify-between mb-1"><span>Couronne</span><span class="text-slate-400 num">14 %</span></div>
+                <div class="bg-slate-100 rounded-full h-1.5"><div class="bg-brand-400 h-1.5 rounded-full" style="width:14%"></div></div>
+              </li>
+              <li>
+                <div class="flex justify-between mb-1"><span>Implant</span><span class="text-slate-400 num">11 %</span></div>
+                <div class="bg-slate-100 rounded-full h-1.5"><div class="bg-brand-300 h-1.5 rounded-full" style="width:11%"></div></div>
+              </li>
+              <li>
+                <div class="flex justify-between mb-1"><span>Extraction</span><span class="text-slate-400 num">9 %</span></div>
+                <div class="bg-slate-100 rounded-full h-1.5"><div class="bg-brand-200 h-1.5 rounded-full" style="width:9%"></div></div>
+              </li>
+            </ul>
+          </div>
+
+        </div>
+
+        <!-- Alerts + today -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
+
+          <div class="bg-white border border-slate-200 rounded-xl p-5 lg:col-span-2">
+            <div class="flex items-center justify-between mb-4">
+              <h3 class="font-semibold">Rendez-vous d'aujourd'hui</h3>
+              <a href="appointments.html" class="text-xs text-brand-700 hover:underline">Voir le calendrier →</a>
+            </div>
+            <ul class="divide-y divide-slate-100">
+              <li class="flex items-center gap-4 py-3">
+                <div class="w-12 text-center"><div class="text-sm font-semibold text-slate-900 num">09:00</div><div class="text-[10px] text-slate-400">30 min</div></div>
+                <div class="flex-1 min-w-0">
+                  <div class="font-medium truncate">Fatima Tazi</div>
+                  <div class="text-xs text-slate-500">Implant dentaire · Dr Karim Benali</div>
+                </div>
+                <span class="text-xs px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200">● Confirmé</span>
+              </li>
+              <li class="flex items-center gap-4 py-3">
+                <div class="w-12 text-center"><div class="text-sm font-semibold text-slate-900 num">09:30</div><div class="text-[10px] text-slate-400">30 min</div></div>
+                <div class="flex-1 min-w-0">
+                  <div class="font-medium truncate">Salma Bouhraoua</div>
+                  <div class="text-xs text-slate-500">Nettoyage · Dr Salma Idrissi</div>
+                </div>
+                <span class="text-xs px-2 py-0.5 rounded-full bg-amber-50 text-amber-700 border border-amber-200">⏳ En attente</span>
+              </li>
+              <li class="flex items-center gap-4 py-3">
+                <div class="w-12 text-center"><div class="text-sm font-semibold text-slate-900 num">10:00</div><div class="text-[10px] text-slate-400">45 min</div></div>
+                <div class="flex-1 min-w-0">
+                  <div class="font-medium truncate">Ahmed Bennali</div>
+                  <div class="text-xs text-slate-500">Couronne céramique · Dr Karim Benali</div>
+                </div>
+                <span class="text-xs px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200">● Confirmé</span>
+              </li>
+              <li class="flex items-center gap-4 py-3">
+                <div class="w-12 text-center"><div class="text-sm font-semibold text-slate-900 num">11:00</div><div class="text-[10px] text-slate-400">15 min</div></div>
+                <div class="flex-1 min-w-0">
+                  <div class="font-medium truncate">Karim Amir</div>
+                  <div class="text-xs text-slate-500">Extraction · Dr Karim Benali</div>
+                </div>
+                <span class="text-xs px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200">● Confirmé</span>
+              </li>
+              <li class="flex items-center gap-4 py-3">
+                <div class="w-12 text-center"><div class="text-sm font-semibold text-slate-900 num">14:30</div><div class="text-[10px] text-slate-400">60 min</div></div>
+                <div class="flex-1 min-w-0">
+                  <div class="font-medium truncate">Hassan Idrissi</div>
+                  <div class="text-xs text-slate-500">Consultation orthodontie · Dr Salma Idrissi</div>
+                </div>
+                <span class="text-xs px-2 py-0.5 rounded-full bg-rose-50 text-rose-700 border border-rose-200">✕ Annulé</span>
+              </li>
+            </ul>
+          </div>
+
+          <div class="bg-white border border-slate-200 rounded-xl p-5">
+            <h3 class="font-semibold mb-4">Alertes</h3>
+            <ul class="space-y-3 text-sm">
+              <li class="flex items-start gap-3 p-3 rounded-lg bg-rose-50 border border-rose-100">
+                <svg class="w-4 h-4 text-rose-600 mt-0.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z"/></svg>
+                <div>
+                  <div class="font-medium text-rose-900">2 plans paiement en retard</div>
+                  <div class="text-xs text-rose-700 mt-0.5">Bennali, Tazi · Relances WhatsApp envoyées</div>
+                </div>
+              </li>
+              <li class="flex items-start gap-3 p-3 rounded-lg bg-amber-50 border border-amber-100">
+                <svg class="w-4 h-4 text-amber-600 mt-0.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3.75 12h16.5m-16.5 3.75h16.5M3.75 19.5h16.5M5.625 4.5h12.75a1.875 1.875 0 010 3.75H5.625a1.875 1.875 0 010-3.75z"/></svg>
+                <div>
+                  <div class="font-medium text-amber-900">3 articles sous seuil</div>
+                  <div class="text-xs text-amber-700 mt-0.5">Aiguilles, gants, composite</div>
+                </div>
+              </li>
+              <li class="flex items-start gap-3 p-3 rounded-lg bg-brand-50 border border-brand-100">
+                <svg class="w-4 h-4 text-brand-600 mt-0.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M14.857 17.082a23.848 23.848 0 005.454-1.31A8.967 8.967 0 0118 9.75V9A6 6 0 006 9v.75a8.967 8.967 0 01-2.312 6.022c1.733.64 3.56 1.085 5.455 1.31"/></svg>
+                <div>
+                  <div class="font-medium text-brand-900">5 recalls dus cette semaine</div>
+                  <div class="text-xs text-brand-700 mt-0.5">Détartrage 6 mois · WhatsApp prévu jeudi</div>
+                </div>
+              </li>
+            </ul>
+          </div>
+
+        </div>
+
+      </div>
+    </main>
+  </div>
+</div>
+
+</body>
+</html>

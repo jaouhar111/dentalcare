@@ -1,0 +1,191 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8" /><meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Odontogramme — Ahmed Bennali</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+<script src="https://cdn.tailwindcss.com"></script>
+<script>tailwind.config={theme:{extend:{fontFamily:{sans:['Inter','system-ui','sans-serif']},colors:{brand:{50:'#ECFEFF',100:'#CFFAFE',200:'#A5F3FC',300:'#67E8F9',400:'#22D3EE',500:'#06B6D4',600:'#0891B2',700:'#0E7490',800:'#155E75',900:'#164E63'}}}}};</script>
+<style>
+  html,body{font-family:'Inter',system-ui,sans-serif}.num{font-variant-numeric:tabular-nums}
+  .tooth{cursor:pointer;transition:transform .15s ease,filter .15s ease}
+  .tooth:hover{transform:translateY(-2px);filter:drop-shadow(0 2px 4px rgba(8,145,178,0.3))}
+  .tooth.selected{filter:drop-shadow(0 0 0 3px #0891B2)}
+  .tooth-label{font-size:10px;font-weight:600;fill:#64748b;text-anchor:middle;pointer-events:none}
+</style>
+</head>
+<body>
+<div id="app">
+  <div class="p-6 lg:p-8">
+    <div class="max-w-7xl mx-auto">
+
+      <a href="patient-detail.html" class="inline-flex items-center gap-1.5 text-sm text-slate-500 hover:text-slate-900 mb-4"><svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5"/></svg>Retour à la fiche patient</a>
+
+      <div class="flex items-end justify-between mb-6 flex-wrap gap-3">
+        <div>
+          <h1 class="text-2xl font-bold tracking-tight">Odontogramme — Ahmed Bennali</h1>
+          <p class="text-sm text-slate-500 mt-0.5"><span class="num">38 ans</span> · Dernière mise à jour <span class="num">12/04/2026</span> par Dr Karim</p>
+        </div>
+        <div class="flex items-center gap-2">
+          <div class="flex items-center bg-slate-100 rounded-lg p-0.5">
+            <button class="px-3 py-1 text-xs font-medium text-slate-600 rounded">Lecture</button>
+            <button class="px-3 py-1 text-xs font-medium bg-white text-slate-900 rounded shadow-sm">Édition ●</button>
+          </div>
+          <button class="px-3 py-2 rounded-lg border border-slate-200 bg-white text-sm font-medium text-slate-700 hover:bg-slate-50">Historique</button>
+          <button class="px-3 py-2 rounded-lg bg-brand-600 text-white text-sm font-medium hover:bg-brand-700 flex items-center gap-1.5"><svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15"/></svg>Plan de traitement</button>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+
+        <!-- Chart -->
+        <div class="lg:col-span-2 bg-white border border-slate-200 rounded-xl p-6">
+
+          <svg viewBox="0 0 720 380" class="w-full">
+            <!-- Median labels -->
+            <text x="360" y="20" text-anchor="middle" font-size="11" font-weight="600" fill="#64748b">DROITE</text>
+            <text x="200" y="200" text-anchor="end" font-size="11" font-weight="600" fill="#0891B2">MAXILLAIRE</text>
+            <text x="200" y="220" text-anchor="end" font-size="11" font-weight="600" fill="#0891B2">MANDIBULAIRE</text>
+            <line x1="360" y1="30" x2="360" y2="350" stroke="#cbd5e1" stroke-dasharray="2 3" stroke-width="1"/>
+
+            <!-- MAXILLARY: 18 17 16 15 14 13 12 11 | 21 22 23 24 25 26 27 28 -->
+            <!-- Right side (18 → 11) -->
+            <g transform="translate(40,40)">
+              <g class="tooth"><rect x="0" y="0" width="36" height="48" rx="6" fill="#cbd5e1"/><text class="tooth-label" x="18" y="68">18</text><text x="18" y="28" text-anchor="middle" font-size="14" fill="white" font-weight="bold">○</text></g>
+              <g class="tooth" transform="translate(40,0)"><rect x="0" y="0" width="36" height="48" rx="6" fill="#10b981"/><text class="tooth-label" x="18" y="68">17</text><text x="18" y="28" text-anchor="middle" font-size="14" fill="white" font-weight="bold">●</text></g>
+              <g class="tooth" transform="translate(80,0)"><rect x="0" y="0" width="36" height="48" rx="6" fill="#10b981"/><text class="tooth-label" x="18" y="68">16</text></g>
+              <g class="tooth selected" transform="translate(120,0)">
+                <rect x="-2" y="-2" width="40" height="52" rx="8" fill="none" stroke="#0891B2" stroke-width="3"/>
+                <rect x="0" y="0" width="36" height="48" rx="6" fill="#f43f5e"/>
+                <text class="tooth-label" x="18" y="68" fill="#0891B2" font-weight="700">15 ★</text>
+                <text x="18" y="28" text-anchor="middle" font-size="14" fill="white" font-weight="bold">▲</text>
+              </g>
+              <g class="tooth" transform="translate(160,0)"><rect x="0" y="0" width="36" height="48" rx="6" fill="#10b981"/><text class="tooth-label" x="18" y="68">14</text></g>
+              <g class="tooth" transform="translate(200,0)"><rect x="0" y="0" width="36" height="48" rx="6" fill="#10b981"/><text class="tooth-label" x="18" y="68">13</text></g>
+              <g class="tooth" transform="translate(240,0)"><rect x="0" y="0" width="36" height="48" rx="6" fill="#10b981"/><text class="tooth-label" x="18" y="68">12</text></g>
+              <g class="tooth" transform="translate(280,0)"><rect x="0" y="0" width="36" height="48" rx="6" fill="#10b981"/><text class="tooth-label" x="18" y="68">11</text></g>
+            </g>
+            <!-- Left side (21 → 28) -->
+            <g transform="translate(360,40)">
+              <g class="tooth"><rect x="0" y="0" width="36" height="48" rx="6" fill="#10b981"/><text class="tooth-label" x="18" y="68">21</text></g>
+              <g class="tooth" transform="translate(40,0)"><rect x="0" y="0" width="36" height="48" rx="6" fill="#10b981"/><text class="tooth-label" x="18" y="68">22</text></g>
+              <g class="tooth" transform="translate(80,0)"><rect x="0" y="0" width="36" height="48" rx="6" fill="#10b981"/><text class="tooth-label" x="18" y="68">23</text></g>
+              <g class="tooth" transform="translate(120,0)"><rect x="0" y="0" width="36" height="48" rx="6" fill="#10b981"/><text class="tooth-label" x="18" y="68">24</text></g>
+              <g class="tooth" transform="translate(160,0)"><rect x="0" y="0" width="36" height="48" rx="6" fill="#10b981"/><text class="tooth-label" x="18" y="68">25</text></g>
+              <g class="tooth" transform="translate(200,0)"><rect x="0" y="0" width="36" height="48" rx="6" fill="#0ea5e9"/><text class="tooth-label" x="18" y="68">26</text><text x="18" y="28" text-anchor="middle" font-size="14" fill="white" font-weight="bold">■</text></g>
+              <g class="tooth" transform="translate(240,0)"><rect x="0" y="0" width="36" height="48" rx="6" fill="#10b981"/><text class="tooth-label" x="18" y="68">27</text></g>
+              <g class="tooth" transform="translate(280,0)"><rect x="0" y="0" width="36" height="48" rx="6" fill="#cbd5e1"/><text class="tooth-label" x="18" y="68">28</text><text x="18" y="28" text-anchor="middle" font-size="14" fill="white" font-weight="bold">○</text></g>
+            </g>
+
+            <!-- MANDIBULAR: 48 47 46 45 44 43 42 41 | 31 32 33 34 35 36 37 38 -->
+            <g transform="translate(40,210)">
+              <g class="tooth"><rect x="0" y="0" width="36" height="48" rx="6" fill="#cbd5e1"/><text class="tooth-label" x="18" y="68">48</text><text x="18" y="28" text-anchor="middle" font-size="14" fill="white" font-weight="bold">○</text></g>
+              <g class="tooth" transform="translate(40,0)"><rect x="0" y="0" width="36" height="48" rx="6" fill="#10b981"/><text class="tooth-label" x="18" y="68">47</text></g>
+              <g class="tooth" transform="translate(80,0)"><rect x="0" y="0" width="36" height="48" rx="6" fill="#10b981"/><text class="tooth-label" x="18" y="68">46</text></g>
+              <g class="tooth" transform="translate(120,0)"><rect x="0" y="0" width="36" height="48" rx="6" fill="#10b981"/><text class="tooth-label" x="18" y="68">45</text></g>
+              <g class="tooth" transform="translate(160,0)"><rect x="0" y="0" width="36" height="48" rx="6" fill="#10b981"/><text class="tooth-label" x="18" y="68">44</text></g>
+              <g class="tooth" transform="translate(200,0)"><rect x="0" y="0" width="36" height="48" rx="6" fill="#10b981"/><text class="tooth-label" x="18" y="68">43</text></g>
+              <g class="tooth" transform="translate(240,0)"><rect x="0" y="0" width="36" height="48" rx="6" fill="#10b981"/><text class="tooth-label" x="18" y="68">42</text></g>
+              <g class="tooth" transform="translate(280,0)"><rect x="0" y="0" width="36" height="48" rx="6" fill="#10b981"/><text class="tooth-label" x="18" y="68">41</text></g>
+            </g>
+            <g transform="translate(360,210)">
+              <g class="tooth"><rect x="0" y="0" width="36" height="48" rx="6" fill="#10b981"/><text class="tooth-label" x="18" y="68">31</text></g>
+              <g class="tooth" transform="translate(40,0)"><rect x="0" y="0" width="36" height="48" rx="6" fill="#10b981"/><text class="tooth-label" x="18" y="68">32</text></g>
+              <g class="tooth" transform="translate(80,0)"><rect x="0" y="0" width="36" height="48" rx="6" fill="#10b981"/><text class="tooth-label" x="18" y="68">33</text></g>
+              <g class="tooth" transform="translate(120,0)"><rect x="0" y="0" width="36" height="48" rx="6" fill="#10b981"/><text class="tooth-label" x="18" y="68">34</text></g>
+              <g class="tooth" transform="translate(160,0)"><rect x="0" y="0" width="36" height="48" rx="6" fill="#10b981"/><text class="tooth-label" x="18" y="68">35</text></g>
+              <g class="tooth" transform="translate(200,0)"><rect x="0" y="0" width="36" height="48" rx="6" fill="#8b5cf6"/><text class="tooth-label" x="18" y="68">36</text><text x="18" y="28" text-anchor="middle" font-size="14" fill="white" font-weight="bold">⬢</text></g>
+              <g class="tooth" transform="translate(240,0)"><rect x="0" y="0" width="36" height="48" rx="6" fill="#10b981"/><text class="tooth-label" x="18" y="68">37</text></g>
+              <g class="tooth" transform="translate(280,0)"><rect x="0" y="0" width="36" height="48" rx="6" fill="#64748b"/><text class="tooth-label" x="18" y="68">38</text><text x="18" y="28" text-anchor="middle" font-size="14" fill="white" font-weight="bold">◐</text></g>
+            </g>
+
+            <text x="40" y="370" font-size="10" fill="#94a3b8">Notation FDI · 32 dents permanentes</text>
+            <text x="700" y="370" text-anchor="end" font-size="10" fill="#94a3b8">★ = dent sélectionnée</text>
+          </svg>
+
+          <!-- Legend -->
+          <div class="mt-6 grid grid-cols-2 sm:grid-cols-5 gap-2 text-xs">
+            <div class="flex items-center gap-1.5"><span class="w-4 h-4 rounded grid place-items-center bg-emerald-500 text-white font-bold text-[10px]">●</span>Saine</div>
+            <div class="flex items-center gap-1.5"><span class="w-4 h-4 rounded grid place-items-center bg-rose-500 text-white font-bold text-[10px]">▲</span>Carie</div>
+            <div class="flex items-center gap-1.5"><span class="w-4 h-4 rounded grid place-items-center bg-sky-500 text-white font-bold text-[10px]">■</span>Plombage</div>
+            <div class="flex items-center gap-1.5"><span class="w-4 h-4 rounded grid place-items-center bg-amber-500 text-white font-bold text-[10px]">◆</span>Couronne</div>
+            <div class="flex items-center gap-1.5"><span class="w-4 h-4 rounded grid place-items-center bg-violet-500 text-white font-bold text-[10px]">⬢</span>Implant</div>
+            <div class="flex items-center gap-1.5"><span class="w-4 h-4 rounded grid place-items-center bg-slate-300 text-white font-bold text-[10px]">○</span>Absente</div>
+            <div class="flex items-center gap-1.5"><span class="w-4 h-4 rounded grid place-items-center bg-rose-700 text-white font-bold text-[10px]">✕</span>À extraire</div>
+            <div class="flex items-center gap-1.5"><span class="w-4 h-4 rounded grid place-items-center bg-slate-500 text-white font-bold text-[10px]">◐</span>Dévitalisée</div>
+            <div class="flex items-center gap-1.5"><span class="w-4 h-4 rounded grid place-items-center bg-orange-500 text-white font-bold text-[10px]">⚡</span>Fracture</div>
+            <div class="flex items-center gap-1.5"><span class="w-4 h-4 rounded grid place-items-center bg-indigo-500 text-white font-bold text-[10px]">◢</span>Prothèse</div>
+          </div>
+        </div>
+
+        <!-- Tooth detail panel -->
+        <div class="space-y-4">
+          <div class="bg-white border border-slate-200 rounded-xl p-5">
+            <div class="flex items-center justify-between">
+              <div>
+                <div class="text-xs uppercase tracking-wider text-slate-500">Dent sélectionnée</div>
+                <div class="text-2xl font-bold tracking-tight num mt-0.5">15 <span class="text-sm font-normal text-slate-500">Prémolaire supérieure droite</span></div>
+              </div>
+              <div class="w-12 h-12 rounded-lg bg-rose-500 text-white grid place-items-center text-2xl font-bold">▲</div>
+            </div>
+
+            <div class="mt-4">
+              <div class="text-xs uppercase tracking-wider text-slate-500 mb-2">Condition actuelle</div>
+              <div class="px-3 py-2 rounded-lg bg-rose-50 border border-rose-200 text-rose-900 text-sm font-medium">▲ Carie (depuis 12/04/2026)</div>
+            </div>
+
+            <div class="mt-4">
+              <div class="text-xs uppercase tracking-wider text-slate-500 mb-2">Surfaces concernées</div>
+              <div class="grid grid-cols-5 gap-1.5">
+                <button class="px-2 py-1.5 rounded text-xs border border-rose-300 bg-rose-100 text-rose-800 font-medium">Occl.</button>
+                <button class="px-2 py-1.5 rounded text-xs border border-slate-200 text-slate-500 hover:bg-slate-50">Més.</button>
+                <button class="px-2 py-1.5 rounded text-xs border border-rose-300 bg-rose-100 text-rose-800 font-medium">Dist.</button>
+                <button class="px-2 py-1.5 rounded text-xs border border-slate-200 text-slate-500 hover:bg-slate-50">Vest.</button>
+                <button class="px-2 py-1.5 rounded text-xs border border-slate-200 text-slate-500 hover:bg-slate-50">Ling.</button>
+              </div>
+            </div>
+
+            <div class="mt-4 flex gap-2">
+              <button class="flex-1 px-3 py-2 rounded-lg bg-brand-600 text-white text-sm font-medium hover:bg-brand-700">Planifier traitement</button>
+              <button class="px-3 py-2 rounded-lg border border-slate-200 bg-white text-slate-700 hover:bg-slate-50"><svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12c0 1.268-.63 2.39-1.593 3.068a3.745 3.745 0 01-1.043 3.296 3.745 3.745 0 01-3.296 1.043A3.745 3.745 0 0112 21c-1.268 0-2.39-.63-3.068-1.593a3.746 3.746 0 01-3.296-1.043 3.745 3.745 0 01-1.043-3.296A3.745 3.745 0 013 12c0-1.268.63-2.39 1.593-3.068a3.745 3.745 0 011.043-3.296 3.746 3.746 0 013.296-1.043A3.746 3.746 0 0112 3c1.268 0 2.39.63 3.068 1.593a3.746 3.746 0 013.296 1.043 3.746 3.746 0 011.043 3.296A3.745 3.745 0 0121 12z"/></svg></button>
+            </div>
+          </div>
+
+          <div class="bg-white border border-slate-200 rounded-xl p-5">
+            <div class="text-xs uppercase tracking-wider text-slate-500 mb-3">Historique dent 15</div>
+            <ul class="space-y-3 text-sm">
+              <li class="flex gap-3">
+                <div class="w-1 rounded bg-rose-500 shrink-0"></div>
+                <div>
+                  <div class="font-medium">▲ Carie diagnostiquée</div>
+                  <div class="text-xs text-slate-500 num">12/04/2026 · Dr Karim</div>
+                </div>
+              </li>
+              <li class="flex gap-3">
+                <div class="w-1 rounded bg-sky-500 shrink-0"></div>
+                <div>
+                  <div class="font-medium">■ Plombage occlusal</div>
+                  <div class="text-xs text-slate-500 num">22/11/2025 · Dr Salma · 380 DH</div>
+                </div>
+              </li>
+              <li class="flex gap-3">
+                <div class="w-1 rounded bg-emerald-500 shrink-0"></div>
+                <div>
+                  <div class="font-medium">● Première consultation</div>
+                  <div class="text-xs text-slate-500 num">14/02/2019</div>
+                </div>
+              </li>
+            </ul>
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+  </div>
+</div>
+<script src="./shell.js"></script>
+<script>initShell({active:'odontogram'});</script>
+</body>
+</html>

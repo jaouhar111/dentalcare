@@ -1,0 +1,204 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8" /><meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Mobile + Arabe RTL — DentalCare</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Noto+Sans+Arabic:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+<script src="https://cdn.tailwindcss.com"></script>
+<script>tailwind.config={theme:{extend:{fontFamily:{sans:['Inter','system-ui','sans-serif'],arabic:['Noto Sans Arabic','sans-serif']},colors:{brand:{50:'#ECFEFF',100:'#CFFAFE',200:'#A5F3FC',300:'#67E8F9',400:'#22D3EE',500:'#06B6D4',600:'#0891B2',700:'#0E7490',800:'#155E75',900:'#164E63'}}}}};</script>
+<style>
+  html,body{font-family:'Inter',system-ui,sans-serif;background:#f1f5f9}
+  .num{font-variant-numeric:tabular-nums}
+  .ar{font-family:'Noto Sans Arabic','Inter',system-ui,sans-serif}
+  .phone{width:375px;height:760px;border-radius:38px;border:8px solid #0f172a;box-shadow:0 30px 60px -20px rgba(15,23,42,0.4),inset 0 1px 0 rgba(255,255,255,0.1);overflow:hidden;position:relative;background:white}
+  .notch{position:absolute;top:0;left:50%;transform:translateX(-50%);width:110px;height:22px;background:#0f172a;border-radius:0 0 16px 16px;z-index:50}
+</style>
+</head>
+<body class="min-h-screen p-6 lg:p-12 bg-slate-100">
+  <div class="max-w-7xl mx-auto">
+
+    <header class="mb-8 flex items-center justify-between flex-wrap gap-3">
+      <div>
+        <a href="index.html" class="inline-flex items-center gap-1.5 text-sm text-slate-500 hover:text-slate-900 mb-2"><svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5"/></svg>Retour aux mockups</a>
+        <h1 class="text-2xl font-bold tracking-tight">Vue mobile · français + arabe RTL</h1>
+        <p class="text-sm text-slate-500 mt-0.5">Le même dashboard réceptionniste rendu en deux locales. Direction inversée automatiquement en AR.</p>
+      </div>
+    </header>
+
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-16 justify-items-center">
+
+      <!-- FR Mobile -->
+      <div>
+        <div class="text-center mb-3 text-sm font-medium text-slate-600">🇫🇷 Français · <span class="text-slate-400">375 × 760</span></div>
+        <div class="phone">
+          <div class="notch"></div>
+          <div class="h-full overflow-y-auto pb-16">
+
+            <header class="pt-8 pb-3 px-4 flex items-center justify-between border-b border-slate-200 bg-white sticky top-0 z-10">
+              <button class="p-1.5 rounded hover:bg-slate-100"><svg class="w-5 h-5 text-slate-700" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5"/></svg></button>
+              <div class="flex items-center gap-1.5"><svg viewBox="0 0 64 64" class="w-5 h-5 text-brand-600" fill="currentColor"><path d="M32 5C22 5 14 10 12 21C10 32 13 42 17 51L19 56C20 58 23 58 24 56L26 49C27 46 29 44 32 44C35 44 37 46 38 49L40 56C41 58 44 58 45 56L47 51C51 42 54 32 52 21C50 10 42 5 32 5Z"/></svg><span class="font-bold text-sm">Dental<span class="text-brand-600">Care</span></span></div>
+              <div class="relative">
+                <svg class="w-5 h-5 text-slate-700" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M14.857 17.082a23.848 23.848 0 005.454-1.31A8.967 8.967 0 0118 9.75V9A6 6 0 006 9v.75a8.967 8.967 0 01-2.312 6.022c1.733.64 3.56 1.085 5.455 1.31"/></svg>
+                <span class="absolute -top-0.5 -right-0.5 w-2 h-2 rounded-full bg-rose-500"></span>
+              </div>
+            </header>
+
+            <div class="px-4 py-4">
+              <div class="text-lg font-bold tracking-tight">Salut Fatima ☀</div>
+              <div class="text-xs text-slate-500 num">Lundi 18 mai 2026</div>
+            </div>
+
+            <div class="px-4 space-y-3">
+              <div class="bg-white border border-slate-200 rounded-xl p-4">
+                <div class="text-xs uppercase tracking-wider text-slate-500">RDV aujourd'hui</div>
+                <div class="text-3xl font-bold tracking-tight num mt-1">12</div>
+                <div class="flex gap-3 text-xs mt-1">
+                  <span class="text-emerald-700">✓ 8 confirmés</span>
+                  <span class="text-amber-700">⏳ 4 attente</span>
+                </div>
+              </div>
+              <div class="bg-white border border-slate-200 rounded-xl p-4 flex items-center justify-between">
+                <div>
+                  <div class="text-xs uppercase tracking-wider text-slate-500">À appeler</div>
+                  <div class="text-xl font-bold num mt-0.5">4 patients</div>
+                </div>
+                <svg class="w-5 h-5 text-slate-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5"/></svg>
+              </div>
+
+              <h2 class="text-xs uppercase tracking-wider text-slate-500 mt-4 mb-2">Prochains RDV</h2>
+
+              <div class="bg-white border border-slate-200 rounded-xl p-4">
+                <div class="flex items-start gap-3">
+                  <div class="text-right shrink-0"><div class="text-sm font-bold num">09:00</div><div class="text-[10px] text-slate-400">30 min</div></div>
+                  <div class="flex-1 min-w-0">
+                    <div class="font-medium">Fatima Tazi</div>
+                    <div class="text-xs text-slate-500">Implant · Dr Karim</div>
+                  </div>
+                  <span class="text-[10px] px-1.5 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200">● Confirmé</span>
+                </div>
+              </div>
+              <div class="bg-white border border-slate-200 rounded-xl p-4">
+                <div class="flex items-start gap-3">
+                  <div class="text-right shrink-0"><div class="text-sm font-bold num">09:30</div><div class="text-[10px] text-slate-400">30 min</div></div>
+                  <div class="flex-1 min-w-0">
+                    <div class="font-medium">Salma Bouhraoua</div>
+                    <div class="text-xs text-slate-500">Nettoyage · Dr Salma</div>
+                  </div>
+                  <span class="text-[10px] px-1.5 py-0.5 rounded-full bg-amber-50 text-amber-700 border border-amber-200">⏳ Attente</span>
+                </div>
+              </div>
+              <div class="bg-white border border-slate-200 rounded-xl p-4">
+                <div class="flex items-start gap-3">
+                  <div class="text-right shrink-0"><div class="text-sm font-bold num">10:00</div><div class="text-[10px] text-slate-400">45 min</div></div>
+                  <div class="flex-1 min-w-0">
+                    <div class="font-medium">Ahmed Bennali</div>
+                    <div class="text-xs text-slate-500">Couronne · Dr Karim</div>
+                  </div>
+                  <span class="text-[10px] px-1.5 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200">● Confirmé</span>
+                </div>
+              </div>
+
+            </div>
+
+          </div>
+          <nav class="absolute bottom-0 left-0 right-0 h-14 bg-white border-t border-slate-200 grid grid-cols-5">
+            <button class="flex flex-col items-center justify-center gap-0.5 text-brand-700"><svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M11.47 3.84a.75.75 0 011.06 0l8.69 8.69a.75.75 0 101.06-1.06l-8.689-8.69a2.25 2.25 0 00-3.182 0l-8.69 8.69a.75.75 0 001.061 1.06l8.69-8.69z"/><path d="M12 5.432l8.159 8.159c.03.03.06.058.091.086v6.198c0 1.035-.84 1.875-1.875 1.875H15a.75.75 0 01-.75-.75v-4.5a.75.75 0 00-.75-.75h-3a.75.75 0 00-.75.75V21a.75.75 0 01-.75.75H5.625a1.875 1.875 0 01-1.875-1.875v-6.198a2.29 2.29 0 00.091-.086L12 5.43z"/></svg><span class="text-[10px] font-medium">Accueil</span></button>
+            <button class="flex flex-col items-center justify-center gap-0.5 text-slate-500"><svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 012.25-2.25h13.5A2.25 2.25 0 0121 7.5v11.25"/></svg><span class="text-[10px]">RDV</span></button>
+            <button class="flex flex-col items-center justify-center gap-0.5 text-slate-500"><svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19.128a9.38 9.38 0 002.625.372 9.337 9.337 0 004.121-.952 4.125 4.125 0 00-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07"/></svg><span class="text-[10px]">Patients</span></button>
+            <button class="flex flex-col items-center justify-center gap-0.5 text-slate-500"><svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12h3.75M9 15h3.75M9 18h3.75m3 .75H18a2.25 2.25 0 002.25-2.25V6.108"/></svg><span class="text-[10px]">Factures</span></button>
+            <button class="flex flex-col items-center justify-center gap-0.5 text-slate-500"><svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0z"/></svg><span class="text-[10px]">Profil</span></button>
+          </nav>
+        </div>
+      </div>
+
+      <!-- AR Mobile (RTL) -->
+      <div>
+        <div class="text-center mb-3 text-sm font-medium text-slate-600">🇲🇦 العربية · RTL · <span class="text-slate-400">375 × 760</span></div>
+        <div class="phone ar" dir="rtl">
+          <div class="notch"></div>
+          <div class="h-full overflow-y-auto pb-16">
+
+            <header class="pt-8 pb-3 px-4 flex items-center justify-between border-b border-slate-200 bg-white sticky top-0 z-10">
+              <button class="p-1.5 rounded hover:bg-slate-100"><svg class="w-5 h-5 text-slate-700" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5"/></svg></button>
+              <div class="flex items-center gap-1.5"><svg viewBox="0 0 64 64" class="w-5 h-5 text-brand-600" fill="currentColor"><path d="M32 5C22 5 14 10 12 21C10 32 13 42 17 51L19 56C20 58 23 58 24 56L26 49C27 46 29 44 32 44C35 44 37 46 38 49L40 56C41 58 44 58 45 56L47 51C51 42 54 32 52 21C50 10 42 5 32 5Z"/></svg><span class="font-bold text-sm">Dental<span class="text-brand-600">Care</span></span></div>
+              <div class="relative">
+                <svg class="w-5 h-5 text-slate-700" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M14.857 17.082a23.848 23.848 0 005.454-1.31A8.967 8.967 0 0118 9.75V9A6 6 0 006 9v.75a8.967 8.967 0 01-2.312 6.022c1.733.64 3.56 1.085 5.455 1.31"/></svg>
+                <span class="absolute -top-0.5 -left-0.5 w-2 h-2 rounded-full bg-rose-500"></span>
+              </div>
+            </header>
+
+            <div class="px-4 py-4">
+              <div class="text-lg font-bold tracking-tight">مرحبًا فاطمة ☀</div>
+              <div class="text-xs text-slate-500 num">الإثنين 18 ماي 2026</div>
+            </div>
+
+            <div class="px-4 space-y-3">
+              <div class="bg-white border border-slate-200 rounded-xl p-4">
+                <div class="text-xs uppercase tracking-wider text-slate-500">مواعيد اليوم</div>
+                <div class="text-3xl font-bold tracking-tight num mt-1">12</div>
+                <div class="flex gap-3 text-xs mt-1">
+                  <span class="text-emerald-700">✓ 8 مؤكدة</span>
+                  <span class="text-amber-700">⏳ 4 بانتظار</span>
+                </div>
+              </div>
+              <div class="bg-white border border-slate-200 rounded-xl p-4 flex items-center justify-between">
+                <div>
+                  <div class="text-xs uppercase tracking-wider text-slate-500">للاتصال</div>
+                  <div class="text-xl font-bold num mt-0.5">4 مرضى</div>
+                </div>
+                <svg class="w-5 h-5 text-slate-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5"/></svg>
+              </div>
+
+              <h2 class="text-xs uppercase tracking-wider text-slate-500 mt-4 mb-2">المواعيد المقبلة</h2>
+
+              <div class="bg-white border border-slate-200 rounded-xl p-4">
+                <div class="flex items-start gap-3">
+                  <div class="text-left shrink-0"><div class="text-sm font-bold num">09:00</div><div class="text-[10px] text-slate-400">30 دقيقة</div></div>
+                  <div class="flex-1 min-w-0">
+                    <div class="font-medium">فاطمة الطازي</div>
+                    <div class="text-xs text-slate-500">زرع · د. كريم</div>
+                  </div>
+                  <span class="text-[10px] px-1.5 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200 whitespace-nowrap">● مؤكد</span>
+                </div>
+              </div>
+              <div class="bg-white border border-slate-200 rounded-xl p-4">
+                <div class="flex items-start gap-3">
+                  <div class="text-left shrink-0"><div class="text-sm font-bold num">09:30</div><div class="text-[10px] text-slate-400">30 دقيقة</div></div>
+                  <div class="flex-1 min-w-0">
+                    <div class="font-medium">سلمى بوهراوة</div>
+                    <div class="text-xs text-slate-500">تنظيف · د. سلمى</div>
+                  </div>
+                  <span class="text-[10px] px-1.5 py-0.5 rounded-full bg-amber-50 text-amber-700 border border-amber-200 whitespace-nowrap">⏳ بانتظار</span>
+                </div>
+              </div>
+              <div class="bg-white border border-slate-200 rounded-xl p-4">
+                <div class="flex items-start gap-3">
+                  <div class="text-left shrink-0"><div class="text-sm font-bold num">10:00</div><div class="text-[10px] text-slate-400">45 دقيقة</div></div>
+                  <div class="flex-1 min-w-0">
+                    <div class="font-medium">أحمد بناني</div>
+                    <div class="text-xs text-slate-500">تاج · د. كريم</div>
+                  </div>
+                  <span class="text-[10px] px-1.5 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200 whitespace-nowrap">● مؤكد</span>
+                </div>
+              </div>
+
+            </div>
+
+          </div>
+          <nav class="absolute bottom-0 left-0 right-0 h-14 bg-white border-t border-slate-200 grid grid-cols-5">
+            <button class="flex flex-col items-center justify-center gap-0.5 text-brand-700"><svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M11.47 3.84a.75.75 0 011.06 0l8.69 8.69a.75.75 0 101.06-1.06l-8.689-8.69a2.25 2.25 0 00-3.182 0l-8.69 8.69a.75.75 0 001.061 1.06l8.69-8.69z"/><path d="M12 5.432l8.159 8.159c.03.03.06.058.091.086v6.198c0 1.035-.84 1.875-1.875 1.875H15a.75.75 0 01-.75-.75v-4.5a.75.75 0 00-.75-.75h-3a.75.75 0 00-.75.75V21a.75.75 0 01-.75.75H5.625a1.875 1.875 0 01-1.875-1.875v-6.198a2.29 2.29 0 00.091-.086L12 5.43z"/></svg><span class="text-[10px] font-medium">الرئيسية</span></button>
+            <button class="flex flex-col items-center justify-center gap-0.5 text-slate-500"><svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 012.25-2.25h13.5A2.25 2.25 0 0121 7.5v11.25"/></svg><span class="text-[10px]">المواعيد</span></button>
+            <button class="flex flex-col items-center justify-center gap-0.5 text-slate-500"><svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19.128a9.38 9.38 0 002.625.372 9.337 9.337 0 004.121-.952 4.125 4.125 0 00-7.533-2.493"/></svg><span class="text-[10px]">المرضى</span></button>
+            <button class="flex flex-col items-center justify-center gap-0.5 text-slate-500"><svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12h3.75M9 15h3.75M9 18h3.75"/></svg><span class="text-[10px]">الفواتير</span></button>
+            <button class="flex flex-col items-center justify-center gap-0.5 text-slate-500"><svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0z"/></svg><span class="text-[10px]">الحساب</span></button>
+          </nav>
+        </div>
+      </div>
+
+    </div>
+
+    <p class="text-center text-xs text-slate-400 mt-10">Direction CSS inversée automatiquement via <code class="font-mono bg-slate-200 px-1 rounded">dir="rtl"</code>. Notch et bottom-nav identiques. Icônes inversées (← devient →).</p>
+  </div>
+</body>
+</html>

@@ -1,0 +1,1411 @@
+{
+  "Common": {
+    "appName": "DentalCare",
+    "tagline": "Dental practice management",
+    "search": "Search patient, appointment, invoice…",
+    "save": "Save",
+    "cancel": "Cancel",
+    "confirm": "Confirm",
+    "delete": "Delete",
+    "edit": "Edit",
+    "back": "Back",
+    "loading": "Loading…",
+    "empty": "No results"
+  },
+  "Home": {
+    "title": "Welcome to DentalCare",
+    "subtitle": "Phase 0 — foundations in place. UI, database and trilingual i18n ready.",
+    "checkUi": "UI pipeline validated",
+    "checkUiDesc": "If you see this Card with a cyan button and a focusable input, then Tailwind + shadcn + color tokens are wired correctly.",
+    "buttonPrimary": "Primary button",
+    "buttonSecondary": "Secondary",
+    "buttonOutline": "Outline",
+    "buttonDestructive": "Destructive",
+    "inputPlaceholder": "Search a patient…",
+    "next": "Phase 0 done — Phase 1 (Auth + Multi-tenant) up next.",
+    "samplePrice": "Sample: invoice {amount}",
+    "sampleDate": "Today: {date}"
+  },
+  "DbCheck": {
+    "title": "Database check",
+    "description": "Reads/writes the {table} table via Prisma + Neon.",
+    "ok": "🟢 Database OK",
+    "ko": "🔴 Database error",
+    "key": "Key",
+    "value": "Value",
+    "updatedAt": "Updated at"
+  },
+  "LocaleSwitcher": {
+    "label": "Language",
+    "fr": "Français",
+    "en": "English",
+    "ar": "العربية"
+  },
+  "Login": {
+    "title": "Welcome 👋",
+    "subtitle": "Sign in to your clinic",
+    "tagline": "Run your clinic with peace of mind.",
+    "taglineDesc": "Patients, appointments, medical records, billing, stock — all in one place.",
+    "emailLabel": "Work email",
+    "emailPlaceholder": "you@clinic.ma",
+    "passwordLabel": "Password",
+    "rememberMe": "Remember me",
+    "forgotPassword": "Forgot password?",
+    "submit": "Sign in",
+    "submitLoading": "Signing in…",
+    "errors": {
+      "INVALID_INPUT": "Invalid email or password.",
+      "INVALID_CREDENTIALS": "Incorrect email or password.",
+      "RATE_LIMITED": "Too many attempts. Try again in a few minutes.",
+      "GENERIC": "Something went wrong. Please try again."
+    },
+    "footer": "© 2026 DentalCare. Compliant with law 09-08."
+  },
+  "Logout": {
+    "label": "Sign out"
+  },
+  "ForgotPassword": {
+    "title": "Forgot password",
+    "subtitle": "Enter your email and we'll send you a reset link.",
+    "emailLabel": "Email",
+    "submit": "Send link",
+    "submitLoading": "Sending…",
+    "success": "If an account exists for this email, a link has been sent.",
+    "backToLogin": "Back to sign in"
+  },
+  "ResetPassword": {
+    "title": "New password",
+    "subtitle": "Pick a password of at least 8 characters.",
+    "passwordLabel": "New password",
+    "confirmLabel": "Confirm",
+    "submit": "Update password",
+    "submitLoading": "Updating…",
+    "success": "Password updated. You can sign in now.",
+    "errors": {
+      "INVALID_INPUT": "Invalid input.",
+      "INVALID_TOKEN": "Link expired or already used. Request a new one.",
+      "PASSWORD_TOO_SHORT": "Password must be at least 8 characters.",
+      "PASSWORD_MISMATCH": "Passwords do not match.",
+      "GENERIC": "Something went wrong. Try again."
+    },
+    "missingToken": "No reset link detected."
+  },
+  "Nav": {
+    "Pilotage": "Overview",
+    "Patientèle": "Patients",
+    "Cabinet": "Clinic",
+    "Dashboard": "Dashboard",
+    "Patients": "Patients",
+    "Rendez-vous": "Appointments",
+    "Liste d'attente": "Waitlist",
+    "Factures": "Invoices",
+    "Stock": "Stock",
+    "Rappels": "Recalls",
+    "Dentistes": "Dentists",
+    "Utilisateurs": "Users",
+    "Traitements": "Treatments",
+    "Paramètres": "Settings",
+    "Registre d'audit": "Audit log"
+  },
+  "Topbar": {
+    "searchPlaceholder": "Search patient, appointment, invoice…",
+    "openMenu": "Open menu",
+    "notifications": "Notifications"
+  },
+  "Role": {
+    "ADMIN": "Administrator",
+    "DENTIST": "Dentist",
+    "RECEPTIONIST": "Receptionist"
+  },
+  "Patients": {
+    "title": "Patients",
+    "subtitle": "{count} patients",
+    "newThisMonth": "{count} new this month",
+    "new": "New patient",
+    "export": "Export",
+    "newAppointment": "New appointment",
+    "edit": "Edit",
+    "delete": "Delete",
+    "search": "Search name, ID, phone…",
+    "filters": {
+      "status": "Status",
+      "city": "City",
+      "allStatuses": "All patients",
+      "active": "Active",
+      "inactive": "Inactive",
+      "allCities": "All cities",
+      "activeCount": "{count} active filters"
+    },
+    "empty": "No patients yet",
+    "emptyDesc": "Create your first patient to get started.",
+    "noResults": "No results for this search",
+    "columns": {
+      "name": "Name",
+      "age": "Age",
+      "cin": "ID",
+      "phone": "Phone",
+      "city": "City",
+      "tags": "Status",
+      "lastVisit": "Last visit",
+      "createdAt": "Registered"
+    },
+    "tags": {
+      "allergies": "Allergy",
+      "ok": "OK",
+      "inactive": "Inactive",
+      "consent": "Photos OK"
+    },
+    "pagination": {
+      "showing": "Showing {from}-{to} of {total}",
+      "previous": "Previous",
+      "next": "Next"
+    },
+    "confirmDelete": "Delete this patient?",
+    "confirmDeleteDesc": "The patient will be soft-deleted and hidden from lists. Law 09-08 compliance: 5-year retention.",
+    "deleted": "Patient deleted.",
+    "agePattern": "{years} y/o",
+    "agePatternShort": "{years} y/o",
+    "gender": {
+      "MALE": "♂",
+      "FEMALE": "♀",
+      "OTHER": "—"
+    },
+    "noLastVisit": "—"
+  },
+  "PatientForm": {
+    "titleCreate": "New patient",
+    "titleEdit": "Edit patient",
+    "sections": {
+      "identity": "Identity",
+      "contact": "Contact",
+      "medical": "Medical",
+      "preferences": "Preferences & consents"
+    },
+    "fields": {
+      "firstName": "First name",
+      "lastName": "Last name",
+      "cin": "ID number",
+      "cinHelp": "National ID card (optional)",
+      "dob": "Date of birth",
+      "gender": "Gender",
+      "phone": "Phone",
+      "phoneHelp": "Moroccan format — e.g. 0612 345 678",
+      "email": "Email",
+      "address": "Address",
+      "city": "City",
+      "bloodGroup": "Blood group",
+      "allergies": "Allergies",
+      "allergiesHelp": "Type and press Enter to add",
+      "medicalHistory": "Medical history",
+      "preferredChannel": "Preferred contact channel",
+      "preferredLocale": "Preferred language",
+      "photoConsent": "Consent to before/after photos",
+      "photoConsentHelp": "The patient authorizes clinical photos (before/after treatment)."
+    },
+    "gender": {
+      "MALE": "Male",
+      "FEMALE": "Female",
+      "OTHER": "Other"
+    },
+    "bloodGroup": {
+      "A_POSITIVE": "A+",
+      "A_NEGATIVE": "A-",
+      "B_POSITIVE": "B+",
+      "B_NEGATIVE": "B-",
+      "AB_POSITIVE": "AB+",
+      "AB_NEGATIVE": "AB-",
+      "O_POSITIVE": "O+",
+      "O_NEGATIVE": "O-"
+    },
+    "channel": {
+      "WHATSAPP": "WhatsApp",
+      "EMAIL": "Email",
+      "PHONE": "Phone"
+    },
+    "locale": {
+      "fr": "Français",
+      "en": "English",
+      "ar": "العربية"
+    },
+    "submit": "Save",
+    "submitLoading": "Saving…",
+    "cancel": "Cancel",
+    "errors": {
+      "_form": "Invalid data.",
+      "REQUIRED": "Required.",
+      "INVALID_EMAIL": "Invalid email.",
+      "INVALID_PHONE": "Invalid Moroccan phone number.",
+      "INVALID_DATE": "Invalid date.",
+      "CIN_CONFLICT": "A patient with this ID already exists."
+    }
+  },
+  "Waitlist": {
+    "title": "Waitlist",
+    "subtitle": "{count} patients waiting",
+    "add": "Add",
+    "remove": "Remove",
+    "empty": "No one on the waitlist",
+    "emptyDesc": "Add a patient when their preferred slot isn't immediately available.",
+    "explainer": "On the next cancellation, WhatsApp is sent automatically to matching candidates. First to confirm gets the slot.",
+    "columns": {
+      "patient": "Patient",
+      "dentist": "Dentist",
+      "duration": "Duration",
+      "window": "Window",
+      "status": "Status",
+      "createdAt": "Added"
+    },
+    "anyDentist": "Any dentist",
+    "anyTime": "Any time",
+    "morning": "Morning",
+    "afternoon": "Afternoon",
+    "noWindow": "No restriction",
+    "windowFrom": "From {date}",
+    "windowUntil": "Until {date}",
+    "windowBetween": "From {from} to {to}",
+    "status": {
+      "WAITING": "Waiting",
+      "PROPOSED": "Proposed",
+      "ACCEPTED": "Accepted",
+      "DECLINED": "Declined",
+      "EXPIRED": "Expired",
+      "CANCELLED": "Removed"
+    },
+    "form": {
+      "title": "Add to waitlist",
+      "patient": "Patient",
+      "patientPlaceholder": "Search a patient…",
+      "dentist": "Preferred dentist",
+      "anyDentist": "Any dentist",
+      "duration": "Wanted duration",
+      "timePref": "Preferred time of day",
+      "anyTime": "Any time",
+      "morning": "Morning (before 1pm)",
+      "afternoon": "Afternoon (from 1pm)",
+      "notBefore": "Not before",
+      "notAfter": "Not after",
+      "reason": "Reason (optional)",
+      "reasonPlaceholder": "e.g. Cleaning before vacation…",
+      "submit": "Add",
+      "submitting": "Adding…",
+      "cancel": "Cancel"
+    }
+  },
+  "Appointments": {
+    "title": "Appointment calendar",
+    "subtitle": "Week of {from} to {to} · {count} appointments",
+    "subtitleDay": "{date} · {count} appointments",
+    "subtitleMonth": "{month} · {count} appointments",
+    "new": "New appointment",
+    "waitlist": "Waitlist",
+    "previous": "Previous",
+    "today": "Today",
+    "thisMonth": "This month",
+    "next": "Next",
+    "view": {
+      "day": "Day",
+      "week": "Week",
+      "month": "Month"
+    },
+    "days": {
+      "0": "Sun",
+      "1": "Mon",
+      "2": "Tue",
+      "3": "Wed",
+      "4": "Thu",
+      "5": "Fri",
+      "6": "Sat"
+    },
+    "daysLong": {
+      "0": "Sunday",
+      "1": "Monday",
+      "2": "Tuesday",
+      "3": "Wednesday",
+      "4": "Thursday",
+      "5": "Friday",
+      "6": "Saturday"
+    },
+    "filters": {
+      "allDentists": "All dentists",
+      "dentists": "Dentists"
+    },
+    "closed": "Closed",
+    "noDentists": "No active dentist",
+    "noDentistsDesc": "Create a dentist first from Clinic → Dentists.",
+    "waitlistBanner": {
+      "title": "Automated waitlist (Phase 4.7+)",
+      "desc": "On the next cancellation, WhatsApp will be sent to compatible candidates. First to confirm gets the slot.",
+      "comingSoon": "Coming soon"
+    },
+    "duration": {
+      "15": "15 min",
+      "30": "30 min",
+      "45": "45 min",
+      "60": "1 h",
+      "75": "1 h 15",
+      "90": "1 h 30",
+      "120": "2 h"
+    },
+    "status": {
+      "SCHEDULED": "Scheduled",
+      "CONFIRMED": "Confirmed",
+      "IN_PROGRESS": "In progress",
+      "COMPLETED": "Completed",
+      "CANCELLED": "Cancelled",
+      "NO_SHOW": "No-show",
+      "RESCHEDULE_REQUESTED": "Reschedule requested"
+    },
+    "cancelledLate": "Late cancellation",
+    "confirmedViaToken": "Confirmed via {channel}"
+  },
+  "AppointmentForm": {
+    "titleCreate": "New appointment",
+    "titleEdit": "Edit appointment",
+    "fields": {
+      "patient": "Patient",
+      "patientPlaceholder": "Search a patient…",
+      "dentist": "Dentist",
+      "date": "Date",
+      "time": "Time",
+      "duration": "Duration",
+      "reason": "Reason",
+      "reasonPlaceholder": "Cleaning, cavity, …",
+      "notes": "Notes",
+      "notesPlaceholder": "Internal notes (allergies, recommendations, …)"
+    },
+    "submit": "Save",
+    "submitLoading": "Saving…",
+    "cancel": "Cancel",
+    "cancelAppointment": "Cancel appointment",
+    "errors": {
+      "_form": "Invalid data.",
+      "REQUIRED": "Required.",
+      "INVALID_DATE": "Invalid date.",
+      "INVALID_DURATION": "Invalid duration.",
+      "CONFLICT": "Another appointment overlaps this slot.",
+      "OUT_OF_HOURS": "Outside the dentist's working hours.",
+      "DURING_ABSENCE": "The dentist is absent on this date.",
+      "PATIENT_NOT_FOUND": "Patient not found.",
+      "DENTIST_NOT_FOUND": "Dentist not found."
+    }
+  },
+  "Toast": {
+    "appointmentCreated": "Appointment created",
+    "appointmentCreatedDesc": "{patient}'s appointment with Dr {dentist} has been scheduled.",
+    "appointmentUpdated": "Appointment updated",
+    "appointmentCancelled": "Appointment cancelled",
+    "appointmentStatusChanged": "Status updated",
+    "patientCreated": "Patient created",
+    "patientCreatedDesc": "{name} has been added to your patients.",
+    "patientUpdated": "Patient updated",
+    "patientUpdatedDesc": "Changes to {name} have been saved.",
+    "patientDeleted": "Patient deleted",
+    "patientDeletedDesc": "{name} has been archived (soft-deleted).",
+    "dentistCreated": "Dentist created",
+    "dentistCreatedDesc": "Dr {name} has been added.",
+    "dentistUpdated": "Dentist updated",
+    "dentistUpdatedDesc": "Changes to Dr {name} have been saved.",
+    "scheduleUpdated": "Schedule updated",
+    "scheduleUpdatedDesc": "Dr {name}'s working hours have been saved.",
+    "absenceAdded": "Absence added",
+    "absenceRemoved": "Absence removed",
+    "error": "Something went wrong",
+    "errorDesc": "Try again or contact support."
+  },
+  "Dentists": {
+    "title": "Dentists",
+    "subtitle": "{count} practitioners",
+    "new": "New dentist",
+    "edit": "Edit",
+    "activate": "Activate",
+    "deactivate": "Deactivate",
+    "active": "Active",
+    "inactive": "Inactive",
+    "empty": "No dentists",
+    "emptyDesc": "Add your first practitioner to get started.",
+    "columns": {
+      "name": "Name",
+      "specialty": "Specialty",
+      "phone": "Phone",
+      "schedule": "Schedule",
+      "color": "Color",
+      "status": "Status"
+    },
+    "scheduleDays": "{count} days/wk",
+    "noSchedule": "No schedule",
+    "tabs": {
+      "info": "Info",
+      "schedule": "Schedule",
+      "absences": "Absences"
+    }
+  },
+  "DentistForm": {
+    "titleCreate": "New dentist",
+    "titleEdit": "Edit dentist",
+    "sections": {
+      "identity": "Identity",
+      "contact": "Contact",
+      "display": "Display"
+    },
+    "fields": {
+      "firstName": "First name",
+      "lastName": "Last name",
+      "specialty": "Specialty",
+      "specialtyHelp": "e.g. Orthodontist, Implantologist",
+      "phone": "Phone",
+      "email": "Email",
+      "color": "Calendar color",
+      "colorHelp": "Shown on the appointments calendar to distinguish practitioners"
+    },
+    "submit": "Save",
+    "submitLoading": "Saving…",
+    "cancel": "Cancel",
+    "errors": {
+      "_form": "Invalid data.",
+      "REQUIRED": "Required.",
+      "INVALID_EMAIL": "Invalid email.",
+      "INVALID_PHONE": "Invalid Moroccan phone number.",
+      "INVALID_COLOR": "Invalid color (format #RRGGBB)."
+    }
+  },
+  "Schedule": {
+    "title": "Weekly working hours",
+    "subtitle": "Add one or more ranges per day. e.g. 09:00-12:30 then 14:00-18:00.",
+    "addRange": "Add range",
+    "from": "From",
+    "to": "To",
+    "save": "Save schedule",
+    "saving": "Saving…",
+    "noRange": "No range",
+    "days": {
+      "0": "Sunday",
+      "1": "Monday",
+      "2": "Tuesday",
+      "3": "Wednesday",
+      "4": "Thursday",
+      "5": "Friday",
+      "6": "Saturday"
+    },
+    "errors": {
+      "INVALID_TIME": "Invalid time (HH:MM).",
+      "RANGE_INVERTED": "End time must be after start time.",
+      "OVERLAPPING_RANGES": "Two ranges overlap on the same day."
+    }
+  },
+  "Absences": {
+    "title": "Planned absences",
+    "subtitle": "Holidays, training, punctual unavailability.",
+    "add": "Add absence",
+    "remove": "Remove",
+    "empty": "No absences recorded",
+    "fields": {
+      "startAt": "Start",
+      "endAt": "End",
+      "reason": "Reason",
+      "reasonPlaceholder": "e.g. Holiday, training, …"
+    },
+    "errors": {
+      "RANGE_INVERTED": "End date must be after start date."
+    }
+  },
+  "PatientDetail": {
+    "tabs": {
+      "info": "Info",
+      "records": "Medical records",
+      "odontogram": "Odontogram",
+      "prescriptions": "Prescriptions",
+      "appointments": "Appointments",
+      "invoices": "Invoices",
+      "plans": "Payment plans"
+    },
+    "comingSoon": "Available in a later phase.",
+    "channelLabel": "Contact channel",
+    "localeLabel": "Language",
+    "consentLabel": "Before/after photos",
+    "consentYes": "Consented",
+    "consentNo": "Not consented",
+    "createdLabel": "Registered on",
+    "patientSince": "Patient since",
+    "bornOn": "born on",
+    "noAddress": "No address",
+    "noEmail": "No email",
+    "noMedicalHistory": "No medical history recorded",
+    "noRecentConsultations": "No past consultations",
+    "noNextAppointment": "No upcoming appointment",
+    "balanceLabels": {
+      "billed": "Total billed",
+      "paid": "Total paid",
+      "remaining": "Remaining",
+      "overdue": "{count} overdue installment(s)",
+      "empty": "No invoices yet"
+    },
+    "sections": {
+      "medicalHistory": "Medical history",
+      "recentConsultations": "Recent consultations",
+      "nextAppointment": "Next appointment",
+      "balance": "Patient balance",
+      "preferences": "Preferences"
+    },
+    "phasePlaceholder": "Available from phase {phase}.",
+    "phase4": "Appointments (Phase 4)",
+    "phase5": "Medical records (Phase 5)",
+    "phase7": "Odontogram (Phase 7)",
+    "phase9": "Billing (Phase 9)",
+    "backToList": "Back to patients"
+  },
+  "Treatments": {
+    "title": "Treatment catalog",
+    "subtitle": "{count} treatments · manage prices and availability",
+    "add": "New treatment",
+    "empty": "No treatments yet",
+    "emptyDesc": "Add your first acts to start billing them.",
+    "columns": {
+      "code": "Code",
+      "name": "Name",
+      "price": "Price",
+      "duration": "Duration",
+      "requiresTooth": "Tooth",
+      "status": "Status"
+    },
+    "active": "Active",
+    "inactive": "Inactive",
+    "toggleActive": "Activate/deactivate",
+    "edit": "Edit",
+    "deactivate": "Deactivate",
+    "deactivateConfirm": "Deactivate this treatment? It will remain in history but won't appear in pickers.",
+    "showInactive": "Show inactive",
+    "form": {
+      "titleCreate": "New treatment",
+      "titleEdit": "Edit treatment",
+      "code": "Code",
+      "codePlaceholder": "DET, COMP1…",
+      "codeHint": "Short identifier unique to this clinic",
+      "name": "Name",
+      "namePlaceholder": "e.g. Single-surface composite",
+      "description": "Description",
+      "defaultPrice": "Default price",
+      "defaultDuration": "Duration (minutes)",
+      "requiresTooth": "Requires a tooth",
+      "requiresToothHint": "Tick for caries, extractions, crowns…",
+      "color": "Color (odontogram)",
+      "isActive": "Available in catalog",
+      "sortOrder": "Sort order",
+      "submitCreate": "Create",
+      "submitUpdate": "Save",
+      "submitting": "Saving…",
+      "cancel": "Cancel"
+    },
+    "errors": {
+      "DUPLICATE_CODE": "Code already exists",
+      "INVALID_CODE": "Invalid code (letters, digits, dash)",
+      "INVALID_COLOR": "Invalid color (#RRGGBB)"
+    },
+    "toast": {
+      "created": "Treatment created",
+      "updated": "Treatment saved",
+      "deactivated": "Treatment deactivated"
+    }
+  },
+  "Session": {
+    "treatmentsTitle": "Session treatments",
+    "addTreatment": "Add a treatment",
+    "empty": "No treatments recorded for this session",
+    "total": "Session total",
+    "tooth": "Tooth",
+    "surfaces": "Surfaces",
+    "noTooth": "No tooth",
+    "noSurfaces": "—",
+    "discount": "Discount",
+    "delete": "Delete",
+    "deleteConfirm": "Delete this treatment?",
+    "status": {
+      "PLANNED": "Planned",
+      "IN_PROGRESS": "In progress",
+      "COMPLETED": "Completed",
+      "CANCELLED": "Cancelled"
+    },
+    "surface": {
+      "MESIAL": "Mesial",
+      "DISTAL": "Distal",
+      "OCCLUSAL": "Occlusal",
+      "VESTIBULAR": "Vestibular",
+      "LINGUAL": "Lingual",
+      "INCISAL": "Incisal"
+    },
+    "form": {
+      "catalog": "Catalog item",
+      "catalogPlaceholder": "Choose a treatment…",
+      "tooth": "Tooth (FDI 11-48)",
+      "toothHint": "e.g. 26 for upper-left first molar",
+      "surfaces": "Surfaces",
+      "status": "Status",
+      "unitPrice": "Unit price (MAD)",
+      "discountType": "Discount type",
+      "discountNone": "None",
+      "discountPct": "Percentage",
+      "discountFixed": "Fixed amount",
+      "discountValue": "Value",
+      "notes": "Notes",
+      "submit": "Add",
+      "submitUpdate": "Save",
+      "submitting": "Saving…",
+      "cancel": "Cancel"
+    },
+    "errors": {
+      "TOOTH_REQUIRED": "Tooth number required for this treatment",
+      "INVALID_TOOTH": "Invalid tooth number (FDI 11-48)",
+      "DISCOUNT_EXCLUSIVE": "Pick % OR fixed amount, not both"
+    },
+    "toast": {
+      "added": "Treatment added",
+      "updated": "Treatment saved",
+      "deleted": "Treatment deleted"
+    }
+  },
+  "Dashboard": {
+    "greeting": "Hello {name} ☀",
+    "subtitle": "{date} · {clinic}",
+    "thisWeek": "This week",
+    "newAppointment": "New appointment",
+    "kpi": {
+      "revenueMonth": "Revenue this month",
+      "activePatients": "Active patients",
+      "apptsThisWeek": "Appointments this week",
+      "occupancy": "Occupancy rate",
+      "deltaUp": "+{n} % vs last month",
+      "deltaDown": "{n} % vs last month",
+      "deltaNeutral": "stable vs last month",
+      "newThisMonth": "{count} new this month",
+      "confirmed": "✓ {n} confirmed",
+      "pending": "⏳ {n} pending"
+    },
+    "charts": {
+      "monthlyRevenue": "Revenue — last 12 months",
+      "monthlyRevenueUnit": "in MAD",
+      "topTreatments": "Top 5 treatments",
+      "noData": "No data yet"
+    },
+    "today": {
+      "title": "Today's appointments",
+      "viewCalendar": "View calendar →",
+      "empty": "No appointments today"
+    },
+    "alerts": {
+      "title": "Alerts",
+      "empty": "All clear ✓",
+      "overduePlans": {
+        "title": "{count} overdue payment plan(s)",
+        "detail": "{names} · WhatsApp reminders sent"
+      },
+      "lowStock": {
+        "title": "{count} item(s) below threshold",
+        "detail": "{names}"
+      },
+      "recalls": {
+        "title": "{count} recall(s) due this week",
+        "detail": "6-month scaling · WhatsApp scheduled"
+      },
+      "openInvoices": {
+        "title": "{count} pending invoice(s)",
+        "detail": "Follow up or cash in"
+      }
+    },
+    "months": {
+      "0": "Jan",
+      "1": "Feb",
+      "2": "Mar",
+      "3": "Apr",
+      "4": "May",
+      "5": "Jun",
+      "6": "Jul",
+      "7": "Aug",
+      "8": "Sep",
+      "9": "Oct",
+      "10": "Nov",
+      "11": "Dec"
+    }
+  },
+  "Users": {
+    "title": "Users",
+    "subtitle": "{count} active account(s)",
+    "add": "New user",
+    "empty": "No users",
+    "columns": {
+      "name": "Name",
+      "email": "Email",
+      "role": "Role",
+      "status": "Status",
+      "lastLogin": "Last login"
+    },
+    "roles": {
+      "ADMIN": "Administrator",
+      "DENTIST": "Dentist",
+      "RECEPTIONIST": "Receptionist"
+    },
+    "active": "Active",
+    "inactive": "Inactive",
+    "neverLoggedIn": "Never logged in",
+    "edit": "Edit",
+    "resetPassword": "Password",
+    "form": {
+      "titleCreate": "New user",
+      "titleEdit": "Edit user",
+      "titleResetPassword": "Reset password",
+      "fullName": "Full name",
+      "email": "Email",
+      "role": "Role",
+      "password": "Initial password",
+      "passwordHint": "At least 8 characters. User can change it after first login.",
+      "newPassword": "New password",
+      "isActive": "Account active",
+      "submitCreate": "Create",
+      "submitUpdate": "Save",
+      "submitReset": "Reset",
+      "submitting": "Saving…",
+      "cancel": "Cancel"
+    },
+    "errors": {
+      "DUPLICATE_EMAIL": "This email is already in use",
+      "INVALID_EMAIL": "Invalid email",
+      "PASSWORD_TOO_SHORT": "Password must be at least 8 characters",
+      "LAST_ADMIN": "Cannot disable the last administrator"
+    },
+    "toast": {
+      "created": "User created",
+      "updated": "User saved",
+      "passwordReset": "Password reset"
+    }
+  },
+  "Settings": {
+    "title": "Clinic settings",
+    "subtitle": "Profile, contact and preferences",
+    "sections": {
+      "clinic": "Clinic profile",
+      "contact": "Contact info",
+      "billing": "Billing"
+    },
+    "form": {
+      "name": "Clinic name",
+      "address": "Address",
+      "phone": "Phone",
+      "email": "Email",
+      "vatNumber": "Tax / VAT number",
+      "defaultLocale": "Default language",
+      "invoiceStart": "Invoice starting number",
+      "invoiceStartHint": "Randomised at creation — does not expose real volume.",
+      "submit": "Save",
+      "submitting": "Saving…"
+    },
+    "toast": {
+      "saved": "Settings saved"
+    }
+  },
+  "Notifications": {
+    "title": "Notifications",
+    "empty": "No notifications",
+    "viewAll": "View all",
+    "items": {
+      "overduePlans": "{count} overdue installment(s)",
+      "lowStock": "{count} low-stock item(s)",
+      "recallsDue": "{count} recall(s) this week",
+      "waitlist": "{count} patient(s) waiting",
+      "openInvoices": "{count} overdue invoice(s)"
+    }
+  },
+  "Recalls": {
+    "title": "Patient recalls",
+    "subtitle": "{count} active recall(s)",
+    "empty": "No recalls",
+    "emptyDesc": "Recalls are auto-generated after cleanings, extractions, and crowns.",
+    "tabs": {
+      "OPEN": "Open",
+      "PENDING": "Scheduled",
+      "SENT": "Sent",
+      "APPOINTMENT_BOOKED": "Booked",
+      "DISABLED": "Disabled",
+      "EXPIRED": "Expired",
+      "all": "All"
+    },
+    "columns": {
+      "patient": "Patient",
+      "kind": "Type",
+      "dueDate": "Due",
+      "status": "Status",
+      "sentAt": "Sent"
+    },
+    "kind": {
+      "SCALING": "Scaling",
+      "ANNUAL_CHECKUP": "Annual check-up",
+      "IMPLANT_FOLLOWUP": "Implant follow-up",
+      "POST_EXTRACTION": "Post-extraction",
+      "CUSTOM": "Custom"
+    },
+    "status": {
+      "PENDING": "Scheduled",
+      "SENT": "Sent",
+      "APPOINTMENT_BOOKED": "Booked",
+      "DISABLED": "Disabled",
+      "EXPIRED": "Expired"
+    },
+    "overdue": "Overdue",
+    "approaching": "Soon",
+    "actions": {
+      "disable": "Disable",
+      "regenerate": "Re-arm",
+      "new": "New recall"
+    },
+    "disableConfirm": "Disable this recall?",
+    "toast": {
+      "created": "Recall created",
+      "disabled": "Recall disabled",
+      "regenerated": "Recall re-armed"
+    }
+  },
+  "CmdK": {
+    "placeholder": "Search patient, appointment, invoice…",
+    "shortcut": "Ctrl K",
+    "noResults": "No results",
+    "groups": {
+      "patients": "Patients",
+      "appointments": "Appointments",
+      "invoices": "Invoices",
+      "stock": "Stock",
+      "actions": "Actions"
+    },
+    "actions": {
+      "newPatient": "Create patient",
+      "newAppointment": "New appointment",
+      "newInvoice": "New invoice",
+      "openRecalls": "View recalls",
+      "openStock": "View stock"
+    },
+    "loading": "Searching…"
+  },
+  "Stock": {
+    "title": "Stock & supplies",
+    "subtitle": "{count} item(s)",
+    "add": "New item",
+    "empty": "No stock items",
+    "emptyDesc": "Start by adding your consumables and materials.",
+    "filters": {
+      "all": "All",
+      "low": "Low stock",
+      "out": "Out of stock",
+      "expiring": "Expiring soon"
+    },
+    "columns": {
+      "code": "Code",
+      "name": "Item",
+      "category": "Category",
+      "quantity": "Quantity",
+      "unit": "Unit",
+      "expiresAt": "Expiry",
+      "status": "Status"
+    },
+    "badges": {
+      "ok": "OK",
+      "low": "Low",
+      "out": "Out",
+      "expiringSoon": "Expiring soon",
+      "expired": "Expired"
+    },
+    "edit": "Edit",
+    "movement": "Movement",
+    "viewHistory": "View history",
+    "form": {
+      "titleCreate": "New item",
+      "titleEdit": "Edit item",
+      "code": "Code",
+      "codePlaceholder": "GLOV-S, ANES-LIDO…",
+      "name": "Name",
+      "namePlaceholder": "e.g. Latex gloves size S",
+      "description": "Description",
+      "unit": "Unit",
+      "unitPlaceholder": "box, ml, pack…",
+      "category": "Category",
+      "categoryPlaceholder": "Consumables, Anesthetics…",
+      "lowStockAt": "Low-stock threshold",
+      "lowStockAtHint": "Alerts when quantity drops to this level",
+      "expiresAt": "Expiry date (current batch)",
+      "isActive": "Active",
+      "openingQuantity": "Opening quantity",
+      "openingQuantityHint": "Recorded as an OPENING movement",
+      "submitCreate": "Create",
+      "submitUpdate": "Save",
+      "submitting": "Saving…",
+      "cancel": "Cancel"
+    },
+    "movementForm": {
+      "title": "Record a movement",
+      "type": "Type",
+      "quantity": "Quantity",
+      "unitPrice": "Unit price (MAD)",
+      "unitPriceHint": "Optional — for purchases",
+      "note": "Note",
+      "notePlaceholder": "Supplier, invoice #, patient…",
+      "recordedAt": "Date",
+      "submit": "Record",
+      "submitting": "Saving…",
+      "cancel": "Cancel"
+    },
+    "type": {
+      "OPENING": "Opening stock",
+      "PURCHASE": "Purchase",
+      "CONSUMPTION": "Consumption",
+      "ADJUSTMENT": "Adjustment",
+      "RETURN": "Supplier return"
+    },
+    "history": {
+      "title": "Movement history",
+      "empty": "No movements"
+    },
+    "errors": {
+      "DUPLICATE_CODE": "Code already exists",
+      "INVALID_CODE": "Invalid code (letters, digits, dash)",
+      "INSUFFICIENT_STOCK": "Insufficient stock — reduce quantity"
+    },
+    "toast": {
+      "created": "Item added",
+      "updated": "Item saved",
+      "movement": "Movement recorded"
+    }
+  },
+  "Invoices": {
+    "title": "Invoices",
+    "subtitle": "{count} invoice(s)",
+    "subtitleOpen": "{count} unpaid",
+    "new": "New invoice",
+    "edit": "Edit",
+    "view": "View",
+    "delete": "Delete",
+    "empty": "No invoices",
+    "emptyDesc": "Issue the first invoice for the patient from a completed treatment.",
+    "tabs": {
+      "all": "All",
+      "OPEN": "Unpaid",
+      "DRAFT": "Drafts",
+      "PAID": "Paid",
+      "VOID": "Voided"
+    },
+    "columns": {
+      "number": "Number",
+      "patient": "Patient",
+      "issuedAt": "Issued",
+      "dueDate": "Due",
+      "total": "Total",
+      "paid": "Paid",
+      "remaining": "Remaining",
+      "status": "Status"
+    },
+    "status": {
+      "DRAFT": "Draft",
+      "EMITTED": "Issued",
+      "PARTIAL": "Partially paid",
+      "PAID": "Paid",
+      "VOID": "Voided"
+    },
+    "overdue": "Overdue",
+    "noNumber": "—",
+    "filters": {
+      "patient": "Patient",
+      "query": "Invoice # or name"
+    },
+    "form": {
+      "patient": "Patient",
+      "patientPlaceholder": "Pick a patient…",
+      "fromTreatments": "Completed treatments to bill",
+      "noTreatments": "No unbilled treatments for this patient",
+      "extraLine": "Extra line (optional)",
+      "addExtraLine": "+ Add line",
+      "removeLine": "Remove",
+      "description": "Description",
+      "tooth": "Tooth",
+      "quantity": "Qty",
+      "unitPrice": "Price (MAD)",
+      "discountType": "Discount",
+      "discountNone": "None",
+      "discountPct": "%",
+      "discountFixed": "MAD",
+      "discountValue": "Value",
+      "notes": "Notes (mentions, payment terms…)",
+      "dueDate": "Due date",
+      "submitCreate": "Create draft",
+      "submitUpdate": "Save",
+      "submitting": "Saving…",
+      "cancel": "Cancel"
+    },
+    "actions": {
+      "emit": "Issue invoice",
+      "emitting": "Issuing…",
+      "emitConfirm": "Issue this invoice? This is irreversible: the number is locked in.",
+      "recordPayment": "Record payment",
+      "void": "Void invoice",
+      "voidConfirm": "Void this invoice? Existing payments are kept.",
+      "print": "Print / PDF",
+      "shareWhatsApp": "Send WhatsApp"
+    },
+    "totals": {
+      "subtotal": "Subtotal",
+      "discount": "Discount",
+      "total": "TOTAL",
+      "totalPaid": "Total paid",
+      "remaining": "Remaining",
+      "vatNote": "VAT 0% — medical acts exempt"
+    },
+    "paymentSection": {
+      "title": "Payments received",
+      "empty": "No payments recorded",
+      "via": "via {method}",
+      "by": "by {name}",
+      "ref": "Ref. {ref}"
+    },
+    "paymentForm": {
+      "title": "Record a payment",
+      "amount": "Amount (MAD)",
+      "method": "Method",
+      "reference": "Reference (optional)",
+      "referencePlaceholder": "Check #, transaction…",
+      "receivedAt": "Received on",
+      "notes": "Notes",
+      "submit": "Cash in",
+      "submitting": "Saving…"
+    },
+    "method": {
+      "CASH": "Cash",
+      "CARD": "Card",
+      "BANK_TRANSFER": "Transfer",
+      "CHECK": "Check",
+      "OTHER": "Other"
+    },
+    "voidDialog": {
+      "title": "Void invoice",
+      "reason": "Reason for voiding",
+      "reasonPlaceholder": "Data entry error, etc.",
+      "submit": "Confirm void",
+      "cancel": "Keep"
+    },
+    "errors": {
+      "OVERPAYMENT": "Amount exceeds remaining balance",
+      "EMPTY_INVOICE": "Cannot issue an empty invoice",
+      "NOT_EDITABLE": "Only drafts can be edited",
+      "ALREADY_EMITTED": "Invoice already issued",
+      "ALREADY_VOID": "Invoice already voided",
+      "PAID_NOT_VOIDABLE": "A fully paid invoice cannot be voided"
+    },
+    "toast": {
+      "created": "Draft created",
+      "updated": "Invoice updated",
+      "emitted": "Invoice {number} issued",
+      "paymentRecorded": "Payment recorded",
+      "paymentDeleted": "Payment deleted",
+      "voided": "Invoice voided",
+      "lineRemoved": "Line removed"
+    },
+    "doc": {
+      "title": "INVOICE",
+      "patient": "Patient",
+      "cin": "ID",
+      "phone": "Phone",
+      "dob": "Date of birth",
+      "emittedAt": "Issued on",
+      "dueDate": "Due",
+      "lineDescription": "Description",
+      "qty": "Qty",
+      "unitPrice": "Price",
+      "lineTotal": "Total",
+      "vatNote": "VAT 0% — medical acts exempt",
+      "footer": "Document generated by DentalCare"
+    },
+    "plan": {
+      "title": "Installment payment plan",
+      "subtitle": "{count} monthly installments · Created on {date}",
+      "subtitleWithDown": "{count} installments · Down payment {down} · Created on {date}",
+      "noPlan": "No active payment plan",
+      "createCTA": "Create a plan",
+      "overdueChip": "⚠ {count} installment(s) overdue",
+      "cancelled": "Plan cancelled",
+      "completed": "Plan completed",
+      "active": "Active",
+      "remindersHint": "Auto WhatsApp reminders: J-3 (reminder) · J+1 (overdue)",
+      "remainingOnPlan": "Remaining on plan",
+      "cashIn": "Cash in",
+      "cancelPlan": "Cancel plan",
+      "cancelConfirm": "Cancel this plan? Unpaid installments will no longer be due.",
+      "installment": "Installment {n}/{total}",
+      "due": "Due",
+      "amount": "Amount",
+      "status": "Status",
+      "paidVia": "✓ Paid ({method}) — {date}",
+      "comingUp": "○ Upcoming",
+      "lateBy": "⚠ Overdue ({days} d)",
+      "cancelledLine": "○ Cancelled",
+      "form": {
+        "title": "Create payment plan",
+        "installments": "Number of installments",
+        "startDate": "First installment date",
+        "downPayment": "Down payment (optional)",
+        "notes": "Notes",
+        "submit": "Create plan",
+        "submitting": "Creating…",
+        "cancel": "Cancel"
+      },
+      "errors": {
+        "INVOICE_NOT_PAYABLE": "Invoice must be issued before creating a plan",
+        "PLAN_EXISTS": "Invoice already has a plan",
+        "NOTHING_TO_PLAN": "Invoice is already paid"
+      },
+      "toast": {
+        "created": "Payment plan created",
+        "cancelled": "Plan cancelled"
+      }
+    }
+  },
+  "Prescriptions": {
+    "title": "Prescriptions",
+    "subtitle": "{count} prescription(s) issued",
+    "add": "New prescription",
+    "edit": "Edit",
+    "view": "View",
+    "print": "Print",
+    "share": "Share",
+    "delete": "Delete",
+    "deleteConfirm": "Delete this prescription?",
+    "empty": "No prescriptions",
+    "emptyDesc": "Issue the first prescription for this patient.",
+    "issuedOn": "Issued on {date}",
+    "issuedBy": "By Dr {name}",
+    "items": "{count} drug(s)",
+    "form": {
+      "titleCreate": "New prescription",
+      "titleEdit": "Edit prescription",
+      "dentist": "Prescriber",
+      "locale": "Document language",
+      "items": "Medications",
+      "addItem": "+ Add medication",
+      "removeItem": "Remove",
+      "drug": "Drug + strength",
+      "drugPlaceholder": "e.g. Amoxicillin 500 mg",
+      "dosage": "Dosage",
+      "dosagePlaceholder": "1 capsule",
+      "frequency": "Frequency",
+      "frequencyPlaceholder": "3 times daily",
+      "duration": "Duration",
+      "durationPlaceholder": "7 days",
+      "instructions": "Instructions",
+      "instructionsPlaceholder": "take with food",
+      "notes": "General notes (allergies, warnings…)",
+      "notesPlaceholder": "e.g. Penicillin allergy — avoid amoxicillin",
+      "submitCreate": "Issue",
+      "submitUpdate": "Save",
+      "submitting": "Saving…",
+      "cancel": "Cancel"
+    },
+    "errors": {
+      "REQUIRED": "At least one medication is required",
+      "DENTIST_NOT_FOUND": "Prescriber not found"
+    },
+    "toast": {
+      "created": "Prescription issued",
+      "updated": "Prescription saved",
+      "deleted": "Prescription deleted"
+    },
+    "doc": {
+      "title": "PRESCRIPTION",
+      "patient": "Patient",
+      "dob": "Date of birth",
+      "cin": "ID",
+      "phone": "Phone",
+      "dentist": "Dr",
+      "issuedAt": "Issued on",
+      "instructions": "Additional instructions",
+      "signature": "Signature and stamp",
+      "footer": "Document generated by DentalCare"
+    }
+  },
+  "Odontogram": {
+    "title": "Odontogram",
+    "subtitle": "FDI notation · 32 permanent teeth",
+    "lastUpdate": "Last updated {date} by {name}",
+    "noEntries": "No annotations for this patient",
+    "modes": { "read": "Read", "edit": "Edit" },
+    "anatomy": {
+      "right": "RIGHT",
+      "left": "LEFT",
+      "maxillary": "MAXILLARY",
+      "mandibular": "MANDIBULAR"
+    },
+    "panel": {
+      "selectTooth": "Click a tooth",
+      "selectToothDesc": "Select a tooth in the chart to see its condition and history.",
+      "selected": "Selected tooth",
+      "currentCondition": "Current condition",
+      "noEntry": "No annotation",
+      "surfaces": "Affected surfaces",
+      "history": "Tooth {tooth} history",
+      "noHistory": "No history",
+      "since": "since {date}"
+    },
+    "condition": {
+      "HEALTHY": "Healthy",
+      "CARIES": "Caries",
+      "FILLING": "Filling",
+      "CROWN": "Crown",
+      "IMPLANT": "Implant",
+      "MISSING": "Missing",
+      "TO_EXTRACT": "To extract",
+      "DEVITALIZED": "Devitalized",
+      "FRACTURE": "Fracture",
+      "PROSTHESIS": "Prosthesis"
+    },
+    "surface": {
+      "MESIAL": "Mes.",
+      "DISTAL": "Dist.",
+      "OCCLUSAL": "Occl.",
+      "VESTIBULAR": "Vest.",
+      "LINGUAL": "Ling.",
+      "INCISAL": "Inc."
+    },
+    "toothName": {
+      "11": "Upper right central incisor",
+      "12": "Upper right lateral incisor",
+      "13": "Upper right canine",
+      "14": "Upper right 1st premolar",
+      "15": "Upper right 2nd premolar",
+      "16": "Upper right 1st molar",
+      "17": "Upper right 2nd molar",
+      "18": "Upper right wisdom tooth",
+      "21": "Upper left central incisor",
+      "22": "Upper left lateral incisor",
+      "23": "Upper left canine",
+      "24": "Upper left 1st premolar",
+      "25": "Upper left 2nd premolar",
+      "26": "Upper left 1st molar",
+      "27": "Upper left 2nd molar",
+      "28": "Upper left wisdom tooth",
+      "31": "Lower left central incisor",
+      "32": "Lower left lateral incisor",
+      "33": "Lower left canine",
+      "34": "Lower left 1st premolar",
+      "35": "Lower left 2nd premolar",
+      "36": "Lower left 1st molar",
+      "37": "Lower left 2nd molar",
+      "38": "Lower left wisdom tooth",
+      "41": "Lower right central incisor",
+      "42": "Lower right lateral incisor",
+      "43": "Lower right canine",
+      "44": "Lower right 1st premolar",
+      "45": "Lower right 2nd premolar",
+      "46": "Lower right 1st molar",
+      "47": "Lower right 2nd molar",
+      "48": "Lower right wisdom tooth"
+    },
+    "actions": {
+      "record": "Record condition",
+      "plan": "Plan treatment",
+      "planSelected": "Plan for {count} teeth",
+      "delete": "Delete this entry",
+      "deleteConfirm": "Delete this annotation? It cannot be recovered.",
+      "cancel": "Cancel"
+    },
+    "form": {
+      "condition": "Condition",
+      "surfaces": "Affected surfaces",
+      "note": "Note (optional)",
+      "notePlaceholder": "Clinical details, depth, etc.",
+      "submit": "Save",
+      "submitting": "Saving…"
+    },
+    "plan": {
+      "title": "Proposed treatment plan",
+      "subtitle": "{count} teeth selected",
+      "noProposal": "No proposal (none of the selected teeth have annotations).",
+      "rationale": "Suggested",
+      "tooth": "Tooth",
+      "manual": "Pick one",
+      "manualHint": "No match in catalog — pick an act or remove this row",
+      "total": "Estimated total",
+      "commit": "Create {count} planned treatments",
+      "remove": "Remove",
+      "close": "Close"
+    },
+    "toast": {
+      "saved": "Annotation saved",
+      "deleted": "Annotation deleted",
+      "planned": "{count} treatment(s) planned"
+    },
+    "errors": {
+      "INVALID_TOOTH": "Invalid tooth number",
+      "HEALTHY_HAS_NO_SURFACES": "A healthy tooth has no surfaces",
+      "NO_VALID_ITEMS": "No valid acts to create"
+    }
+  },
+  "Records": {
+    "title": "Medical record",
+    "subtitle": "Notes, radiographs, and before/after photos",
+    "sessionNotesTitle": "Clinical notes for this session",
+    "viewFullRecord": "View full record",
+    "filters": {
+      "all": "All",
+      "notes": "Notes",
+      "radiographs": "Radiographs",
+      "photos": "Photos"
+    },
+    "empty": "No entries yet",
+    "emptyDesc": "Add a note, radiograph, or photo to start the record.",
+    "addNote": "Add a note",
+    "addRadiograph": "Upload a radiograph",
+    "addPhoto": "Upload a photo",
+    "noteAuthor": "by {name}",
+    "uploaderBy": "Uploaded by {name}",
+    "consentRequired": "Photo consent has not been granted — open the patient profile to enable it.",
+    "viewLarger": "View larger",
+    "delete": "Delete",
+    "deleteConfirm": "Delete this entry?",
+    "stage": {
+      "BEFORE": "Before",
+      "DURING": "During",
+      "AFTER": "After"
+    },
+    "kind": {
+      "PANORAMIC": "Panoramic",
+      "PERIAPICAL": "Periapical",
+      "BITEWING": "Bitewing",
+      "CEPHALOMETRIC": "Cephalometric",
+      "CBCT": "CBCT 3D",
+      "OCCLUSAL": "Occlusal",
+      "OTHER": "Other"
+    },
+    "form": {
+      "title": "Title (optional)",
+      "body": "Note text",
+      "bodyPlaceholder": "Clinical observations, treatment plan, recommendations…",
+      "kind": "Radiograph type",
+      "stage": "Stage",
+      "takenAt": "Date taken",
+      "caption": "Caption (optional)",
+      "captionPlaceholder": "e.g. Case 23 — molar 26",
+      "file": "Image file",
+      "fileHint": "JPG, PNG, or WebP — 8 MB max",
+      "note": "Note (optional)",
+      "submitNote": "Save note",
+      "submitRadio": "Upload",
+      "submitPhoto": "Upload",
+      "submitting": "Uploading…",
+      "cancel": "Cancel"
+    },
+    "errors": {
+      "FILE_REQUIRED": "Please select an image file",
+      "FILE_TOO_LARGE": "File too large (max 8 MB)",
+      "FILE_TYPE_NOT_ALLOWED": "Unsupported format (JPG, PNG, WebP, HEIC)",
+      "PHOTO_CONSENT_REQUIRED": "Photo consent must be enabled on the patient profile"
+    },
+    "toast": {
+      "noteAdded": "Note added",
+      "noteDeleted": "Note deleted",
+      "radioAdded": "Radiograph uploaded",
+      "radioDeleted": "Radiograph deleted",
+      "photoAdded": "Photo uploaded",
+      "photoDeleted": "Photo deleted"
+    }
+  }
+}

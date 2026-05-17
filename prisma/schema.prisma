@@ -1,0 +1,1108 @@
+// DentalCare — Prisma schema (Prisma 7+)
+// Datasource URLs live in ../prisma.config.ts.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+/// Minimal key/value table (runtime config + DB pipeline sanity check).
+model Meta {
+  key       String   @id
+  value     String
+  updatedAt DateTime @updatedAt
+
+  @@map("meta")
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Tenant + identity
+// ─────────────────────────────────────────────────────────────────────────────
+
+/// Cabinet = tenant. Every domain row is scoped by `clinicId` (multi-tenant prep).
+model Clinic {
+  id                    String   @id @default(cuid())
+  name                  String
+  address               String?
+  phone                 String?
+  email                 String?
+  vatNumber             String?
+  logoUrl               String?
+  defaultLocale         String   @default("fr")
+  /// Random starting invoice number in [1000, 9999] generated at creation
+  /// — obscures billing volume (cf. SPEC §4.8).
+  invoiceStartingNumber Int
+  settingsJson          Json?
+  createdAt             DateTime @default(now())
+  updatedAt             DateTime @updatedAt
+
+  users                 User[]
+  patients              Patient[]
+  dentists              Dentist[]
+  appointments          Appointment[]
+  waitlistEntries       WaitlistEntry[]
+  medicalNotes          MedicalNote[]
+  radiographs           Radiograph[]
+  treatmentPhotos       TreatmentPhoto[]
+  treatmentCatalog      TreatmentCatalogItem[]
+  treatmentApplications TreatmentApplication[]
+  dentalChartEntries    DentalChartEntry[]
+  prescriptions         Prescription[]
+  invoices              Invoice[]
+  payments              Payment[]
+  paymentPlans          PaymentPlan[]
+  stockItems            StockItem[]
+  stockMovements        StockMovement[]
+  recallReminders       RecallReminder[]
+
+  @@map("clinics")
+}
+
+enum UserRole {
+  ADMIN
+  DENTIST
+  RECEPTIONIST
+
+  @@map("user_role")
+}
+
+/// Application user. Email globally unique to keep multi-clinic invitations easy.
+model User {
+  id           String    @id @default(cuid())
+  clinicId     String
+  email        String    @unique
+  passwordHash String
+  role         UserRole
+  fullName     String
+  isActive     Boolean   @default(true)
+  lastLoginAt  DateTime?
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+
+  clinic               Clinic                 @relation(fields: [clinicId], references: [id])
+  resetTokens          PasswordResetToken[]
+  createdPatients      Patient[]              @relation("PatientCreator")
+  createdAppointments  Appointment[]          @relation("AppointmentCreator")
+  createdMedicalNotes  MedicalNote[]          @relation("MedicalNoteAuthor")
+  uploadedRadiographs  Radiograph[]           @relation("RadiographUploader")
+  uploadedPhotos       TreatmentPhoto[]       @relation("PhotoUploader")
+  createdTreatmentApps TreatmentApplication[] @relation("TreatmentApplicationCreator")
+  recordedChartEntries DentalChartEntry[]     @relation("DentalChartRecorder")
+  createdPrescriptions Prescription[]         @relation("PrescriptionCreator")
+  createdInvoices      Invoice[]              @relation("InvoiceCreator")
+  recordedPayments     Payment[]              @relation("PaymentCreator")
+  createdPaymentPlans  PaymentPlan[]          @relation("PaymentPlanCreator")
+  recordedStockMoves   StockMovement[]        @relation("StockMovementCreator")
+  createdRecalls       RecallReminder[]       @relation("RecallCreator")
+  /// Reverse 1-1 — set when this user IS a dentist (and only then).
+  dentist              Dentist?               @relation("UserDentist")
+
+  @@index([clinicId])
+  @@index([role])
+  @@map("users")
+}
+
+/// One-shot password reset token. Stored hashed, single-use, 30-min expiry.
+model PasswordResetToken {
+  id        String    @id @default(cuid())
+  userId    String
+  tokenHash String    @unique
+  expiresAt DateTime
+  usedAt    DateTime?
+  createdAt DateTime  @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@map("password_reset_tokens")
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Patients
+// ─────────────────────────────────────────────────────────────────────────────
+
+enum Gender {
+  MALE
+  FEMALE
+  OTHER
+
+  @@map("gender")
+}
+
+enum BloodGroup {
+  A_POSITIVE
+  A_NEGATIVE
+  B_POSITIVE
+  B_NEGATIVE
+  AB_POSITIVE
+  AB_NEGATIVE
+  O_POSITIVE
+  O_NEGATIVE
+
+  @@map("blood_group")
+}
+
+enum CommunicationChannel {
+  WHATSAPP
+  EMAIL
+  PHONE
+
+  @@map("communication_channel")
+}
+
+/// Patient record. Soft-deleted via `deletedAt` (rétention 5 ans cf. loi 09-08).
+model Patient {
+  id               String               @id @default(cuid())
+  clinicId         String
+  firstName        String
+  lastName         String
+  cin              String?
+  phone            String
+  email            String?
+  dob              DateTime             @db.Date
+  gender           Gender?
+  address          String?
+  city             String?
+  bloodGroup       BloodGroup?
+  photoUrl         String?
+  medicalHistory   String?
+  /// Preferred communication channel for reminders + recall (cf. SPEC §4.2 / §4.4.1).
+  preferredChannel CommunicationChannel @default(WHATSAPP)
+  /// Preferred UI / template locale ("fr" | "en" | "ar").
+  preferredLocale  String               @default("fr")
+  /// Patient consent for before/after treatment photos (cf. SPEC §4.5).
+  photoConsent     Boolean              @default(false)
+  photoConsentAt   DateTime?
+  deletedAt        DateTime?
+  createdById      String
+  createdAt        DateTime             @default(now())
+  updatedAt        DateTime             @updatedAt
+
+  clinic                Clinic                 @relation(fields: [clinicId], references: [id])
+  createdBy             User                   @relation("PatientCreator", fields: [createdById], references: [id])
+  allergies             PatientAllergy[]
+  appointments          Appointment[]
+  waitlistEntries       WaitlistEntry[]
+  medicalNotes          MedicalNote[]
+  radiographs           Radiograph[]
+  treatmentPhotos       TreatmentPhoto[]
+  treatmentApplications TreatmentApplication[]
+  dentalChartEntries    DentalChartEntry[]
+  prescriptions         Prescription[]
+  invoices              Invoice[]
+  paymentPlans          PaymentPlan[]
+  recallReminders       RecallReminder[]
+
+  // CIN is unique within a clinic when present. Postgres treats NULLs as distinct,
+  // so multiple patients without CIN are allowed.
+  @@unique([clinicId, cin])
+  @@index([clinicId, deletedAt])
+  @@index([clinicId, lastName, firstName])
+  @@map("patients")
+}
+
+model PatientAllergy {
+  id        String @id @default(cuid())
+  patientId String
+  label     String
+
+  patient Patient @relation(fields: [patientId], references: [id], onDelete: Cascade)
+
+  @@index([patientId])
+  @@map("patient_allergies")
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Dentists + schedules + absences
+// ─────────────────────────────────────────────────────────────────────────────
+
+/// A practitioner. May be linked to a {@link User} (when they have a login),
+/// or stand alone (e.g. external consultant only present on the agenda).
+model Dentist {
+  id        String   @id @default(cuid())
+  clinicId  String
+  /// Optional 1-1 link with the {@link User} who can sign in. NULL = "no login".
+  userId    String?  @unique
+  firstName String
+  lastName  String
+  specialty String?
+  phone     String?
+  email     String?
+  /// Hex color for the appointment calendar (cf. SPEC §4.3, mockup appointments.html).
+  color     String   @default("#0891B2")
+  photoUrl  String?
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  clinic                Clinic                 @relation(fields: [clinicId], references: [id])
+  user                  User?                  @relation("UserDentist", fields: [userId], references: [id])
+  schedules             WorkingSchedule[]
+  absences              DentistAbsence[]
+  appointments          Appointment[]
+  waitlistEntries       WaitlistEntry[]
+  radiographs           Radiograph[]
+  treatmentPhotos       TreatmentPhoto[]
+  treatmentApplications TreatmentApplication[]
+  prescriptions         Prescription[]
+
+  @@index([clinicId, isActive])
+  @@map("dentists")
+}
+
+/// One row per (dentist × day × time range). Multi-plage = multiple rows
+/// for the same (dentistId, dayOfWeek).
+///
+/// `dayOfWeek` follows ISO-8601 with Sunday=0..Saturday=6.
+/// `startTime`/`endTime` are "HH:MM" 24-hour strings (kept as text to dodge
+/// timezone math on a pure clock-time concept).
+model WorkingSchedule {
+  id        String @id @default(cuid())
+  dentistId String
+  dayOfWeek Int
+  startTime String
+  endTime   String
+
+  dentist Dentist @relation(fields: [dentistId], references: [id], onDelete: Cascade)
+
+  @@index([dentistId, dayOfWeek])
+  @@map("working_schedules")
+}
+
+/// Punctual absence (vacation, training, sick day…). Both `startAt` and
+/// `endAt` are full timestamps so half-day absences are expressable.
+model DentistAbsence {
+  id        String   @id @default(cuid())
+  dentistId String
+  startAt   DateTime
+  endAt     DateTime
+  reason    String?
+  createdAt DateTime @default(now())
+
+  dentist Dentist @relation(fields: [dentistId], references: [id], onDelete: Cascade)
+
+  @@index([dentistId, startAt])
+  @@map("dentist_absences")
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Appointments
+// ─────────────────────────────────────────────────────────────────────────────
+
+enum AppointmentStatus {
+  SCHEDULED
+  CONFIRMED
+  IN_PROGRESS
+  COMPLETED
+  CANCELLED
+  NO_SHOW
+  RESCHEDULE_REQUESTED
+
+  @@map("appointment_status")
+}
+
+enum WaitlistStatus {
+  WAITING
+  PROPOSED
+  ACCEPTED
+  DECLINED
+  EXPIRED
+  CANCELLED
+
+  @@map("waitlist_status")
+}
+
+enum WaitlistTimePreference {
+  ANY
+  MORNING
+  AFTERNOON
+
+  @@map("waitlist_time_preference")
+}
+
+/// A patient appointment with a dentist.
+///
+/// Conflict detection (no two appointments overlapping for the same dentist)
+/// is enforced at Server Action level — see `createAppointment` in
+/// `server/actions/appointments.ts`. We could add a Postgres exclusion
+/// constraint later, but in practice the action-level check is simpler and
+/// matches the user-facing error contract.
+model Appointment {
+  id                     String            @id @default(cuid())
+  clinicId               String
+  patientId              String
+  dentistId              String
+  startAt                DateTime
+  endAt                  DateTime
+  status                 AppointmentStatus @default(SCHEDULED)
+  reason                 String?
+  notes                  String?
+  /// 32-byte URL-safe token used by the J-1 WhatsApp/email reminder to let
+  /// the patient confirm or request a reschedule with a single click.
+  /// Generated lazily when the first reminder is queued.
+  confirmationToken      String?           @unique
+  reminderSentAt         DateTime?
+  confirmationReceivedAt DateTime?
+  cancelledAt            DateTime?
+  cancellationReason     String?
+  /// `true` when the patient cancelled less than 24h before the start —
+  /// useful for cabinet stats (no-show rate proxy).
+  cancelledLate          Boolean           @default(false)
+  createdById            String
+  createdAt              DateTime          @default(now())
+  updatedAt              DateTime          @updatedAt
+
+  clinic                Clinic                 @relation(fields: [clinicId], references: [id])
+  patient               Patient                @relation(fields: [patientId], references: [id])
+  dentist               Dentist                @relation(fields: [dentistId], references: [id])
+  createdBy             User                   @relation("AppointmentCreator", fields: [createdById], references: [id])
+  treatmentApplications TreatmentApplication[]
+  prescriptions         Prescription[]
+
+  @@index([clinicId, startAt])
+  @@index([dentistId, startAt])
+  @@index([patientId, startAt])
+  @@index([status])
+  @@map("appointments")
+}
+
+/// Patient on the waitlist for an earlier slot.
+///
+/// `dentistId == NULL` = any dentist accepted. `timePreference` narrows the
+/// matchable window; if `notBefore` / `notAfter` are set, the candidate is
+/// only matched to slots strictly inside that window. `expiresAt` clears the
+/// entry from the queue (admin can extend by editing).
+model WaitlistEntry {
+  id             String                 @id @default(cuid())
+  clinicId       String
+  patientId      String
+  dentistId      String?
+  durationMin    Int                    @default(30)
+  timePreference WaitlistTimePreference @default(ANY)
+  /// Patient won't accept a slot before this date (e.g. holidays).
+  notBefore      DateTime?
+  /// Hard deadline; entry auto-expires after this date.
+  notAfter       DateTime?
+  status         WaitlistStatus         @default(WAITING)
+  reason         String?
+
+  // Set when a slot is proposed.
+  proposedAt             DateTime?
+  proposedExpiresAt      DateTime?
+  /// The cancelled appointment slot we are offering.
+  proposedSlotStart      DateTime?
+  proposedSlotEnd        DateTime?
+  /// Public token the patient uses to accept/decline the proposal.
+  proposalToken          String?   @unique
+  /// Once `ACCEPTED`, this points to the newly created appointment.
+  resultingAppointmentId String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  clinic  Clinic   @relation(fields: [clinicId], references: [id])
+  patient Patient  @relation(fields: [patientId], references: [id])
+  dentist Dentist? @relation(fields: [dentistId], references: [id])
+
+  @@index([clinicId, status, createdAt])
+  @@index([patientId])
+  @@map("waitlist_entries")
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Audit
+// ─────────────────────────────────────────────────────────────────────────────
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Medical records (notes + radiographs + treatment photos)
+// ─────────────────────────────────────────────────────────────────────────────
+
+enum RadiographKind {
+  PANORAMIC
+  PERIAPICAL
+  BITEWING
+  CEPHALOMETRIC
+  CBCT
+  OCCLUSAL
+  OTHER
+
+  @@map("radiograph_kind")
+}
+
+enum TreatmentPhotoStage {
+  BEFORE
+  DURING
+  AFTER
+
+  @@map("treatment_photo_stage")
+}
+
+/// Free-form medical note attached to a patient (and optionally to a specific
+/// appointment). Used for clinical observations, treatment plans, follow-up
+/// instructions. The note `body` is stored as plain text — rich text can be
+/// layered on later without a schema change.
+model MedicalNote {
+  id            String   @id @default(cuid())
+  clinicId      String
+  patientId     String
+  appointmentId String?
+  authorId      String
+  /// Short label rendered on the timeline (e.g. "Examen initial").
+  title         String?
+  body          String
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  clinic  Clinic  @relation(fields: [clinicId], references: [id])
+  patient Patient @relation(fields: [patientId], references: [id], onDelete: Cascade)
+  author  User    @relation("MedicalNoteAuthor", fields: [authorId], references: [id])
+
+  @@index([clinicId, patientId, createdAt])
+  @@index([appointmentId])
+  @@map("medical_notes")
+}
+
+/// Radiographic image attached to a patient. Files are stored in Cloudinary;
+/// the schema only keeps the `publicId` (used to build signed delivery URLs)
+/// plus indexing metadata. `takenAt` is set by the user — defaults to upload
+/// time if omitted.
+model Radiograph {
+  id           String         @id @default(cuid())
+  clinicId     String
+  patientId    String
+  dentistId    String?
+  kind         RadiographKind @default(PANORAMIC)
+  /// Cloudinary public_id (stable identifier — used to sign delivery URLs).
+  publicId     String         @unique
+  /// File format extension reported by Cloudinary ("png", "jpg", "pdf"…).
+  format       String?
+  bytes        Int?
+  width        Int?
+  height       Int?
+  takenAt      DateTime
+  note         String?
+  uploadedById String
+  createdAt    DateTime       @default(now())
+
+  clinic     Clinic   @relation(fields: [clinicId], references: [id])
+  patient    Patient  @relation(fields: [patientId], references: [id], onDelete: Cascade)
+  dentist    Dentist? @relation(fields: [dentistId], references: [id])
+  uploadedBy User     @relation("RadiographUploader", fields: [uploadedById], references: [id])
+
+  @@index([clinicId, patientId, takenAt])
+  @@index([kind])
+  @@map("radiographs")
+}
+
+/// Before/during/after clinical photo. Requires `patient.photoConsent = true`
+/// at upload time (enforced in the Server Action — see SPEC §4.5).
+model TreatmentPhoto {
+  id            String              @id @default(cuid())
+  clinicId      String
+  patientId     String
+  dentistId     String?
+  appointmentId String?
+  stage         TreatmentPhotoStage @default(BEFORE)
+  /// Cloudinary public_id.
+  publicId      String              @unique
+  format        String?
+  bytes         Int?
+  width         Int?
+  height        Int?
+  caption       String?
+  uploadedById  String
+  createdAt     DateTime            @default(now())
+
+  clinic     Clinic   @relation(fields: [clinicId], references: [id])
+  patient    Patient  @relation(fields: [patientId], references: [id], onDelete: Cascade)
+  dentist    Dentist? @relation(fields: [dentistId], references: [id])
+  uploadedBy User     @relation("PhotoUploader", fields: [uploadedById], references: [id])
+
+  @@index([clinicId, patientId, createdAt])
+  @@index([appointmentId])
+  @@map("treatment_photos")
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Treatments (Phase 6 — catalog + per-séance applications)
+// ─────────────────────────────────────────────────────────────────────────────
+
+enum ToothSurface {
+  MESIAL
+  DISTAL
+  OCCLUSAL
+  VESTIBULAR
+  LINGUAL
+  INCISAL
+
+  @@map("tooth_surface")
+}
+
+enum TreatmentApplicationStatus {
+  PLANNED
+  IN_PROGRESS
+  COMPLETED
+  CANCELLED
+
+  @@map("treatment_application_status")
+}
+
+/// A reusable treatment definition for the clinic's catalog. Each `code` is
+/// unique within a clinic so receptionists can quote it quickly and reports
+/// can aggregate by treatment type. `defaultPrice` seeds new applications;
+/// dentists can override per case.
+model TreatmentCatalogItem {
+  id                 String   @id @default(cuid())
+  clinicId           String
+  /// Short alphanumeric code chosen by the clinic (e.g. "DET", "COMP1").
+  code               String
+  name               String
+  description        String?
+  /// Default price in MAD. Stored as Decimal(10,2) — covers up to 99 999 999.99 DH.
+  defaultPrice       Decimal  @db.Decimal(10, 2)
+  defaultDurationMin Int      @default(30)
+  /// UI hint — when true, the application form will surface the tooth/surface
+  /// picker. Treatments like scaling don't need a tooth so default is false.
+  requiresTooth      Boolean  @default(false)
+  /// Hex color used on the odontogram (Phase 7) to mark dents with this act.
+  color              String   @default("#0891B2")
+  isActive           Boolean  @default(true)
+  sortOrder          Int      @default(100)
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+
+  clinic       Clinic                 @relation(fields: [clinicId], references: [id])
+  applications TreatmentApplication[]
+
+  @@unique([clinicId, code])
+  @@index([clinicId, isActive])
+  @@map("treatment_catalog")
+}
+
+/// An instance of a catalog item applied to a patient. May be linked to a
+/// specific appointment (the séance during which the act was performed) and
+/// optionally to a tooth + surfaces. Pricing is captured at the time of
+/// application so future catalog price changes don't rewrite history.
+model TreatmentApplication {
+  id             String                     @id @default(cuid())
+  clinicId       String
+  patientId      String
+  appointmentId  String?
+  catalogItemId  String
+  dentistId      String?
+  /// FDI tooth number (11-48 for permanent teeth). NULL when not applicable
+  /// (scaling, whitening, etc.).
+  toothNumber    Int?
+  /// Surfaces affected — Postgres native array. Empty array = unspecified.
+  surfaces       ToothSurface[]
+  status         TreatmentApplicationStatus @default(PLANNED)
+  /// Captured at creation. `unitPrice * 1 - discount` = line total.
+  unitPrice      Decimal                    @db.Decimal(10, 2)
+  /// Percentage discount 0-100. Mutually exclusive with `discountAmount`.
+  discountPct    Decimal?                   @db.Decimal(5, 2)
+  /// Fixed-amount discount in MAD. Mutually exclusive with `discountPct`.
+  discountAmount Decimal?                   @db.Decimal(10, 2)
+  notes          String?
+  /// When the application transitioned to COMPLETED. NULL otherwise.
+  performedAt    DateTime?
+  createdById    String
+  createdAt      DateTime                   @default(now())
+  updatedAt      DateTime                   @updatedAt
+
+  clinic       Clinic               @relation(fields: [clinicId], references: [id])
+  patient      Patient              @relation(fields: [patientId], references: [id], onDelete: Cascade)
+  appointment  Appointment?         @relation(fields: [appointmentId], references: [id])
+  catalogItem  TreatmentCatalogItem @relation(fields: [catalogItemId], references: [id])
+  dentist      Dentist?             @relation(fields: [dentistId], references: [id])
+  createdBy    User                 @relation("TreatmentApplicationCreator", fields: [createdById], references: [id])
+  invoiceLines InvoiceLine[]
+
+  @@index([clinicId, patientId, createdAt])
+  @@index([appointmentId])
+  @@index([catalogItemId])
+  @@index([status])
+  @@map("treatment_applications")
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Odontogram (Phase 7 — dental chart)
+// ─────────────────────────────────────────────────────────────────────────────
+
+/// Per-tooth condition. The chart is append-only: each change creates a new
+/// `DentalChartEntry`, and the "current state of tooth N" is the most recent
+/// row for `(patientId, toothNumber)`. Old rows form the per-tooth history
+/// timeline shown in the side panel.
+enum DentalCondition {
+  HEALTHY
+  CARIES
+  FILLING
+  CROWN
+  IMPLANT
+  MISSING
+  TO_EXTRACT
+  DEVITALIZED
+  FRACTURE
+  PROSTHESIS
+
+  @@map("dental_condition")
+}
+
+/// A single observation/diagnosis on one tooth at one point in time. Multiple
+/// surfaces can be affected (e.g. occlusal + distal caries on tooth 26). When
+/// the condition is HEALTHY, `surfaces` should be empty.
+model DentalChartEntry {
+  id           String          @id @default(cuid())
+  clinicId     String
+  patientId    String
+  /// FDI permanent dentition: 11-18, 21-28, 31-38, 41-48. Validated by the
+  /// Server Action (the DB cannot enforce a complex range check).
+  toothNumber  Int
+  condition    DentalCondition
+  surfaces     ToothSurface[]
+  note         String?
+  /// When the observation was made. Defaults to creation but can be backdated
+  /// (e.g. recording an existing condition seen on a prior visit).
+  recordedAt   DateTime        @default(now())
+  recordedById String
+  createdAt    DateTime        @default(now())
+
+  clinic     Clinic  @relation(fields: [clinicId], references: [id])
+  patient    Patient @relation(fields: [patientId], references: [id], onDelete: Cascade)
+  recordedBy User    @relation("DentalChartRecorder", fields: [recordedById], references: [id])
+
+  @@index([clinicId, patientId, recordedAt])
+  @@index([patientId, toothNumber, recordedAt])
+  @@map("dental_chart_entries")
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Prescriptions (Phase 8)
+// ─────────────────────────────────────────────────────────────────────────────
+
+/// A medication prescription issued by a dentist to a patient. Rendered to a
+/// bilingual PDF (patient locale + Arabic) and shareable by email / WhatsApp.
+///
+/// `issuedAt` is the official date printed on the document. Edits are
+/// permitted up to a couple of days after issue — beyond that, dentists
+/// should issue a new prescription rather than rewrite history.
+model Prescription {
+  id            String   @id @default(cuid())
+  clinicId      String
+  patientId     String
+  /// The prescriber — must be a {@link Dentist} (FK gives that guarantee).
+  dentistId     String
+  /// Optional link to the appointment during which the prescription was made.
+  appointmentId String?
+  /// Patient's preferred locale at time of issue — frozen so a later language
+  /// switch on the patient profile doesn't rewrite the document.
+  locale        String   @default("fr")
+  /// Free-text notes printed at the bottom of the prescription (allergies,
+  /// special precautions, etc.).
+  notes         String?
+  issuedAt      DateTime @default(now())
+  /// Audit trail: which staff user persisted it (may equal the dentist's User).
+  createdById   String
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  clinic      Clinic             @relation(fields: [clinicId], references: [id])
+  patient     Patient            @relation(fields: [patientId], references: [id], onDelete: Cascade)
+  dentist     Dentist            @relation(fields: [dentistId], references: [id])
+  appointment Appointment?       @relation(fields: [appointmentId], references: [id])
+  createdBy   User               @relation("PrescriptionCreator", fields: [createdById], references: [id])
+  items       PrescriptionItem[]
+
+  @@index([clinicId, patientId, issuedAt])
+  @@index([dentistId])
+  @@index([appointmentId])
+  @@map("prescriptions")
+}
+
+/// One drug line on a prescription. Kept as free text rather than a drug-DB
+/// reference because dentists in Morocco typically prescribe by brand name
+/// and dosage in the same string ("Amoxicilline 500 mg").
+model PrescriptionItem {
+  id             String  @id @default(cuid())
+  prescriptionId String
+  /// Drug name + strength, exactly as the dentist wants it printed.
+  drug           String
+  /// Dosage per intake (e.g. "1 gélule", "1 c. à café").
+  dosage         String?
+  /// Frequency (e.g. "3 fois par jour", "every 8 hours").
+  frequency      String?
+  /// Duration (e.g. "7 jours", "until pain stops").
+  duration       String?
+  /// Extra instructions (e.g. "à prendre au repas", "après chaque brossage").
+  instructions   String?
+  /// Display order on the printed document.
+  sortOrder      Int     @default(100)
+
+  prescription Prescription @relation(fields: [prescriptionId], references: [id], onDelete: Cascade)
+
+  @@index([prescriptionId, sortOrder])
+  @@map("prescription_items")
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Billing (Phase 9 — invoices + payments + payment plans)
+// ─────────────────────────────────────────────────────────────────────────────
+
+enum InvoiceStatus {
+  DRAFT
+  EMITTED
+  PARTIAL
+  PAID
+  VOID
+
+  @@map("invoice_status")
+}
+
+enum PaymentMethod {
+  CASH
+  CARD
+  BANK_TRANSFER
+  CHECK
+  OTHER
+
+  @@map("payment_method")
+}
+
+enum PaymentPlanStatus {
+  ACTIVE
+  COMPLETED
+  CANCELLED
+
+  @@map("payment_plan_status")
+}
+
+enum InstallmentStatus {
+  PENDING
+  PAID
+  CANCELLED
+
+  @@map("installment_status")
+}
+
+/// A patient invoice. Lifecycle:
+///   DRAFT  → editable, no number yet, no public-facing document
+///   EMITTED → number assigned (via the `next_invoice_number` Postgres
+///             function — see migration), totals frozen, can record payments
+///   PARTIAL → payments recorded but sum < total
+///   PAID    → payments fully cover total
+///   VOID    → annulled (irreversible, kept for audit)
+///
+/// `number` is `F-YYYY-NNNN` where NNNN starts at the clinic's
+/// `invoiceStartingNumber` to obscure billing volume (cf. SPEC §4.8).
+model Invoice {
+  id             String        @id @default(cuid())
+  clinicId       String
+  patientId      String
+  /// `F-YYYY-NNNN`. NULL on DRAFT, frozen on EMITTED.
+  number         String?
+  status         InvoiceStatus @default(DRAFT)
+  /// Set when status transitions DRAFT → EMITTED.
+  emittedAt      DateTime?
+  /// Payment due-by date (defaults to emittedAt + 30 days on emit).
+  dueDate        DateTime?
+  /// Computed totals captured at write — single source of truth for prints.
+  subtotal       Decimal       @default(0) @db.Decimal(12, 2)
+  discountAmount Decimal       @default(0) @db.Decimal(12, 2)
+  total          Decimal       @default(0) @db.Decimal(12, 2)
+  notes          String?
+  voidedAt       DateTime?
+  voidedReason   String?
+  createdById    String
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
+
+  clinic      Clinic        @relation(fields: [clinicId], references: [id])
+  patient     Patient       @relation(fields: [patientId], references: [id])
+  createdBy   User          @relation("InvoiceCreator", fields: [createdById], references: [id])
+  lines       InvoiceLine[]
+  payments    Payment[]
+  paymentPlan PaymentPlan?
+
+  /// `(clinicId, number)` is unique among non-null numbers — Postgres treats
+  /// NULLs as distinct, so multiple DRAFTs coexist freely.
+  @@unique([clinicId, number])
+  @@index([clinicId, status])
+  @@index([clinicId, patientId, emittedAt])
+  @@index([dueDate])
+  @@map("invoices")
+}
+
+/// One line on an invoice. May reference a {@link TreatmentApplication} to
+/// trace back to the séance; that link is optional so manual one-off lines
+/// (lab fees, etc.) still work.
+model InvoiceLine {
+  id                     String   @id @default(cuid())
+  invoiceId              String
+  treatmentApplicationId String?
+  description            String
+  toothNumber            Int?
+  quantity               Int      @default(1)
+  unitPrice              Decimal  @db.Decimal(10, 2)
+  discountPct            Decimal? @db.Decimal(5, 2)
+  discountAmount         Decimal? @db.Decimal(10, 2)
+  /// Pre-computed line total = qty * unitPrice - discount. Kept on the row so
+  /// the printed invoice doesn't recalculate on every render.
+  lineTotal              Decimal  @db.Decimal(12, 2)
+  sortOrder              Int      @default(100)
+
+  invoice              Invoice               @relation(fields: [invoiceId], references: [id], onDelete: Cascade)
+  treatmentApplication TreatmentApplication? @relation(fields: [treatmentApplicationId], references: [id])
+
+  @@index([invoiceId, sortOrder])
+  @@map("invoice_lines")
+}
+
+/// A payment received against an invoice. May be linked to a payment-plan
+/// installment via the unique `installmentId` (1-1 — one payment closes one
+/// installment).
+model Payment {
+  id            String        @id @default(cuid())
+  clinicId      String
+  invoiceId     String
+  amount        Decimal       @db.Decimal(12, 2)
+  method        PaymentMethod @default(CASH)
+  /// Free-text reference (check number, transaction id…). Optional.
+  reference     String?
+  receivedAt    DateTime      @default(now())
+  notes         String?
+  /// When part of a payment plan, the installment this payment closes.
+  installmentId String?       @unique
+  createdById   String
+  createdAt     DateTime      @default(now())
+
+  invoice     Invoice                 @relation(fields: [invoiceId], references: [id], onDelete: Cascade)
+  clinic      Clinic                  @relation(fields: [clinicId], references: [id])
+  installment PaymentPlanInstallment? @relation(fields: [installmentId], references: [id])
+  createdBy   User                    @relation("PaymentCreator", fields: [createdById], references: [id])
+
+  @@index([clinicId, receivedAt])
+  @@index([invoiceId])
+  @@map("payments")
+}
+
+/// Installment payment plan attached to an invoice (1-1). Created when the
+/// patient agrees to pay an emitted invoice in N installments. The first
+/// installment's date is the user-chosen `startDate`; subsequent ones are
+/// spaced 1 month apart by default (action layer can override).
+model PaymentPlan {
+  id                String            @id @default(cuid())
+  clinicId          String
+  patientId         String
+  invoiceId         String            @unique
+  installmentsCount Int
+  totalAmount       Decimal           @db.Decimal(12, 2)
+  status            PaymentPlanStatus @default(ACTIVE)
+  /// First-installment date. Stored as Date (no time) since payment plans
+  /// are aligned to days, not minutes.
+  startDate         DateTime          @db.Date
+  notes             String?
+  createdById       String
+  createdAt         DateTime          @default(now())
+  updatedAt         DateTime          @updatedAt
+
+  clinic       Clinic                   @relation(fields: [clinicId], references: [id])
+  patient      Patient                  @relation(fields: [patientId], references: [id])
+  invoice      Invoice                  @relation(fields: [invoiceId], references: [id])
+  createdBy    User                     @relation("PaymentPlanCreator", fields: [createdById], references: [id])
+  installments PaymentPlanInstallment[]
+
+  @@index([clinicId, status])
+  @@map("payment_plans")
+}
+
+/// One installment of a {@link PaymentPlan}. Status is computed at read time
+/// for "OVERDUE" by comparing `dueDate` to `now()` — we only persist the
+/// terminal states (PAID/CANCELLED) so we never have to backfill statuses.
+/// `reminderJ3SentAt` / `reminderJ1SentAt` are de-dup keys for the cron.
+model PaymentPlanInstallment {
+  id               String            @id @default(cuid())
+  planId           String
+  /// 1-based position in the plan.
+  sequence         Int
+  dueDate          DateTime          @db.Date
+  amount           Decimal           @db.Decimal(12, 2)
+  status           InstallmentStatus @default(PENDING)
+  paidAt           DateTime?
+  reminderJ3SentAt DateTime?
+  reminderJ1SentAt DateTime?
+
+  plan    PaymentPlan @relation(fields: [planId], references: [id], onDelete: Cascade)
+  payment Payment?
+
+  @@unique([planId, sequence])
+  @@index([dueDate, status])
+  @@map("payment_plan_installments")
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Stock (Phase 10 — inventory + movements)
+// ─────────────────────────────────────────────────────────────────────────────
+
+enum StockMovementType {
+  /// Initial seeding when a new SKU is added with a starting quantity.
+  OPENING
+  /// Reception of new supplies (purchase).
+  PURCHASE
+  /// Consumption during patient treatment.
+  CONSUMPTION
+  /// Inventory correction (count discrepancy, breakage…).
+  ADJUSTMENT
+  /// Returned to supplier (negative purchase).
+  RETURN
+
+  @@map("stock_movement_type")
+}
+
+/// A consumable, single-use item, or piece of equipment tracked by the cabinet.
+/// Quantity in stock is the algebraic sum of all `StockMovement.quantity`
+/// rows for this item — we never write `currentQuantity` directly to avoid
+/// drift; UI fetches the live aggregate.
+model StockItem {
+  id          String    @id @default(cuid())
+  clinicId    String
+  /// Short SKU/code chosen by the cabinet (e.g. "GANT-S", "ANES-LIDO").
+  code        String
+  name        String
+  description String?
+  /// Unit label printed alongside the qty (e.g. "boîte", "ml", "unité").
+  unit        String    @default("unité")
+  /// Threshold below which the UI flags the item low-stock. NULL = no alert.
+  lowStockAt  Int?
+  /// Optional best-before date for the current batch (one batch tracked at a
+  /// time in V1; multi-batch tracking left for V2 — see SPEC §Hors V1).
+  expiresAt   DateTime? @db.Date
+  /// Categorise for filtering (e.g. "Consommables", "Anesthésiques", "Implants").
+  category    String?
+  isActive    Boolean   @default(true)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  clinic    Clinic          @relation(fields: [clinicId], references: [id])
+  movements StockMovement[]
+
+  @@unique([clinicId, code])
+  @@index([clinicId, isActive])
+  @@index([category])
+  @@map("stock_items")
+}
+
+/// Append-only ledger of stock movements. Positive `quantity` = stock-in,
+/// negative = stock-out. We keep both as signed integers so the running total
+/// is just `SUM(quantity)`. Adjustments use the sign to indicate direction.
+model StockMovement {
+  id          String            @id @default(cuid())
+  clinicId    String
+  itemId      String
+  type        StockMovementType
+  /// Signed unit count. Validation at the action layer enforces the sign
+  /// matches the type (purchases > 0, consumption < 0, etc.).
+  quantity    Int
+  /// Optional per-unit price for purchases (so total cost can be reported).
+  unitPrice   Decimal?          @db.Decimal(10, 2)
+  /// Free-text note (supplier, invoice ref, patient name for consumption…).
+  note        String?
+  recordedAt  DateTime          @default(now())
+  createdById String
+  createdAt   DateTime          @default(now())
+
+  clinic    Clinic    @relation(fields: [clinicId], references: [id])
+  item      StockItem @relation(fields: [itemId], references: [id], onDelete: Cascade)
+  createdBy User      @relation("StockMovementCreator", fields: [createdById], references: [id])
+
+  @@index([clinicId, recordedAt])
+  @@index([itemId, recordedAt])
+  @@map("stock_movements")
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Recall (Phase 11 — automated follow-up reminders)
+// ─────────────────────────────────────────────────────────────────────────────
+
+enum RecallKind {
+  /// 6-month scaling/cleaning reminder.
+  SCALING
+  /// 12-month general check-up reminder.
+  ANNUAL_CHECKUP
+  /// 3-month post-implant follow-up.
+  IMPLANT_FOLLOWUP
+  /// 1-month post-extraction healing check.
+  POST_EXTRACTION
+  /// Free-form custom reminder set by the dentist.
+  CUSTOM
+
+  @@map("recall_kind")
+}
+
+enum RecallStatus {
+  /// Scheduled, not yet sent.
+  PENDING
+  /// WhatsApp/email message dispatched by the cron.
+  SENT
+  /// Patient booked a follow-up after the reminder went out (bonus signal).
+  APPOINTMENT_BOOKED
+  /// Admin disabled the recall.
+  DISABLED
+  /// Auto-disabled after due date + 30 days with no response.
+  EXPIRED
+
+  @@map("recall_status")
+}
+
+/// A scheduled follow-up reminder for a patient. Generated automatically when
+/// a treatment with `requiresTooth=false` and matching category is performed
+/// (scaling → +6 months, etc.) — see `generateRecallsFromApplication` in the
+/// recalls server actions module. Admin can override the auto-generation.
+model RecallReminder {
+  id             String       @id @default(cuid())
+  clinicId       String
+  patientId      String
+  kind           RecallKind
+  /// When the reminder should fire (cron checks every day at 09:00).
+  dueDate        DateTime     @db.Date
+  status         RecallStatus @default(PENDING)
+  /// Optional reason printed in the WhatsApp message.
+  reason         String?
+  /// Timestamp set when the cron dispatches the WhatsApp/email.
+  sentAt         DateTime?
+  /// Set when a later appointment is detected matching this recall (>= dueDate).
+  bookedAt       DateTime?
+  /// Manually disabled by staff — kept for audit.
+  disabledAt     DateTime?
+  disabledReason String?
+  createdById    String
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+
+  clinic    Clinic  @relation(fields: [clinicId], references: [id])
+  patient   Patient @relation(fields: [patientId], references: [id], onDelete: Cascade)
+  createdBy User    @relation("RecallCreator", fields: [createdById], references: [id])
+
+  @@index([clinicId, status, dueDate])
+  @@index([patientId, kind])
+  @@map("recall_reminders")
+}
+
+/// Append-only log of mutations on sensitive entities.
+/// Required for loi 09-08 compliance + admin forensics.
+model AuditLog {
+  id          String   @id @default(cuid())
+  clinicId    String
+  userId      String?
+  action      String
+  entity      String
+  entityId    String?
+  payloadJson Json?
+  createdAt   DateTime @default(now())
+
+  @@index([clinicId, createdAt])
+  @@index([entity, entityId])
+  @@index([userId])
+  @@map("audit_log")
+}
