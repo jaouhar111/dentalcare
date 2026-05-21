@@ -220,19 +220,74 @@ const TREATMENT_RECALL_RULES: Record<
   string,
   { kind: RecallKind; months: number; reason: string }
 > = {
-  // Hygiène / prévention
-  DET: { kind: RecallKind.SCALING, months: 6, reason: "Détartrage de suivi (6 mois)" },
-  BLANC: { kind: RecallKind.SCALING, months: 6, reason: "Entretien blanchiment (6 mois)" },
-  // Restaurations — contrôle annuel
-  COMP1: { kind: RecallKind.ANNUAL_CHECKUP, months: 12, reason: "Contrôle composite (1 an)" },
-  COMP3: { kind: RecallKind.ANNUAL_CHECKUP, months: 12, reason: "Contrôle composite (1 an)" },
-  // Endodontie + prothèses — contrôle post-op à 3 mois
-  ENDO1: { kind: RecallKind.IMPLANT_FOLLOWUP, months: 3, reason: "Contrôle endodontique (3 mois)" },
-  ENDO3: { kind: RecallKind.IMPLANT_FOLLOWUP, months: 3, reason: "Contrôle endodontique (3 mois)" },
-  COUR: { kind: RecallKind.IMPLANT_FOLLOWUP, months: 3, reason: "Contrôle couronne (3 mois)" },
-  // Chirurgie — cicatrisation à 1 mois
-  EXT: { kind: RecallKind.POST_EXTRACTION, months: 1, reason: "Contrôle cicatrisation (1 mois)" },
-  EXTC: { kind: RecallKind.POST_EXTRACTION, months: 1, reason: "Contrôle post-extraction" },
+  // ─── Examens & diagnostic ──────────────────────────────────────────
+  EXAM:    { kind: RecallKind.ANNUAL_CHECKUP, months: 12, reason: "Contrôle annuel" },
+  DIAG:    { kind: RecallKind.ANNUAL_CHECKUP, months: 12, reason: "Contrôle annuel" },
+
+  // ─── Hygiène / prévention ──────────────────────────────────────────
+  DET:     { kind: RecallKind.SCALING, months: 6, reason: "Détartrage de suivi (6 mois)" },
+  PROPH:   { kind: RecallKind.SCALING, months: 6, reason: "Prophylaxie de suivi (6 mois)" },
+  SEAL:    { kind: RecallKind.ANNUAL_CHECKUP, months: 12, reason: "Contrôle scellement (1 an)" },
+  FLU:     { kind: RecallKind.SCALING, months: 6, reason: "Fluoration de suivi (6 mois)" },
+
+  // ─── Restaurations — contrôle annuel ──────────────────────────────
+  COMP1:   { kind: RecallKind.ANNUAL_CHECKUP, months: 12, reason: "Contrôle composite (1 an)" },
+  COMP2:   { kind: RecallKind.ANNUAL_CHECKUP, months: 12, reason: "Contrôle composite (1 an)" },
+  COMP3:   { kind: RecallKind.ANNUAL_CHECKUP, months: 12, reason: "Contrôle composite (1 an)" },
+  INLAY:   { kind: RecallKind.ANNUAL_CHECKUP, months: 12, reason: "Contrôle inlay (1 an)" },
+  REC:     { kind: RecallKind.ANNUAL_CHECKUP, months: 12, reason: "Contrôle reconstitution (1 an)" },
+
+  // ─── Endodontie — contrôle post-op à 3 mois ───────────────────────
+  PUL:     { kind: RecallKind.IMPLANT_FOLLOWUP, months: 3, reason: "Contrôle pulpaire (3 mois)" },
+  ENDO1:   { kind: RecallKind.IMPLANT_FOLLOWUP, months: 3, reason: "Contrôle endodontique (3 mois)" },
+  ENDO2:   { kind: RecallKind.IMPLANT_FOLLOWUP, months: 3, reason: "Contrôle endodontique (3 mois)" },
+  ENDO3:   { kind: RecallKind.IMPLANT_FOLLOWUP, months: 3, reason: "Contrôle endodontique (3 mois)" },
+  RETRAIT: { kind: RecallKind.IMPLANT_FOLLOWUP, months: 3, reason: "Contrôle reprise endo (3 mois)" },
+
+  // ─── Chirurgie — cicatrisation à 1 mois ───────────────────────────
+  EXT:     { kind: RecallKind.POST_EXTRACTION, months: 1, reason: "Contrôle cicatrisation (1 mois)" },
+  EXTC:    { kind: RecallKind.POST_EXTRACTION, months: 1, reason: "Contrôle post-extraction" },
+  DDS:     { kind: RecallKind.POST_EXTRACTION, months: 1, reason: "Contrôle post-DDS" },
+  GERME:   { kind: RecallKind.POST_EXTRACTION, months: 1, reason: "Contrôle germectomie" },
+  APIC:    { kind: RecallKind.POST_EXTRACTION, months: 1, reason: "Contrôle apicectomie" },
+  FREIN:   { kind: RecallKind.POST_EXTRACTION, months: 1, reason: "Contrôle frénectomie" },
+
+  // ─── Parodontie — maintenance rapprochée ──────────────────────────
+  SURF:    { kind: RecallKind.SCALING, months: 3, reason: "Maintenance parodontale (3 mois)" },
+  LAMBE:   { kind: RecallKind.POST_EXTRACTION, months: 1, reason: "Contrôle post-lambeau" },
+  MAINT:   { kind: RecallKind.SCALING, months: 3, reason: "Maintenance parodontale" },
+
+  // ─── Prothèse fixe — contrôle joint à 3 mois ──────────────────────
+  COUR:    { kind: RecallKind.IMPLANT_FOLLOWUP, months: 3, reason: "Contrôle couronne (3 mois)" },
+  COUM:    { kind: RecallKind.IMPLANT_FOLLOWUP, months: 3, reason: "Contrôle couronne (3 mois)" },
+  COUCM:   { kind: RecallKind.IMPLANT_FOLLOWUP, months: 3, reason: "Contrôle couronne (3 mois)" },
+  FACETTE: { kind: RecallKind.IMPLANT_FOLLOWUP, months: 3, reason: "Contrôle facette (3 mois)" },
+  BRIDGE:  { kind: RecallKind.IMPLANT_FOLLOWUP, months: 3, reason: "Contrôle bridge (3 mois)" },
+
+  // ─── Prothèse amovible — adaptation à 6 mois ──────────────────────
+  PRTOT:   { kind: RecallKind.ANNUAL_CHECKUP, months: 6, reason: "Contrôle prothèse totale (6 mois)" },
+  PRSTEL:  { kind: RecallKind.ANNUAL_CHECKUP, months: 6, reason: "Contrôle prothèse stellite (6 mois)" },
+  PRRES:   { kind: RecallKind.ANNUAL_CHECKUP, months: 6, reason: "Contrôle prothèse résine (6 mois)" },
+  REBASE:  { kind: RecallKind.ANNUAL_CHECKUP, months: 6, reason: "Contrôle rebasage (6 mois)" },
+
+  // ─── Implantologie — ostéo-intégration ────────────────────────────
+  IMP:     { kind: RecallKind.IMPLANT_FOLLOWUP, months: 3, reason: "Contrôle implant (3 mois)" },
+  IMPCOR:  { kind: RecallKind.IMPLANT_FOLLOWUP, months: 6, reason: "Contrôle couronne sur implant (6 mois)" },
+  GREFO:   { kind: RecallKind.POST_EXTRACTION, months: 1, reason: "Contrôle post-greffe" },
+  SINUS:   { kind: RecallKind.IMPLANT_FOLLOWUP, months: 3, reason: "Contrôle sinus lift (3 mois)" },
+
+  // ─── Esthétique ────────────────────────────────────────────────────
+  BLANC:   { kind: RecallKind.SCALING, months: 6, reason: "Entretien blanchiment (6 mois)" },
+  BLANCA:  { kind: RecallKind.SCALING, months: 6, reason: "Entretien blanchiment au fauteuil (6 mois)" },
+
+  // ─── Pédiatrie — contrôle 6 mois ──────────────────────────────────
+  PED:     { kind: RecallKind.ANNUAL_CHECKUP, months: 6, reason: "Contrôle pédiatrique (6 mois)" },
+  PEDSCEL: { kind: RecallKind.ANNUAL_CHECKUP, months: 12, reason: "Contrôle scellement enfant (1 an)" },
+
+  // ─── Urgence — suivi de la suture ──────────────────────────────────
+  DRAIN:   { kind: RecallKind.POST_EXTRACTION, months: 1, reason: "Contrôle post-drainage" },
+  // Note: ORTHOM / ORTHOPOSE excluded — orthodontic follow-ups are
+  // monthly and handled outside the recall pipeline (calendar-driven).
 };
 
 /**
