@@ -8,6 +8,7 @@ import { InvoiceLinesEditor } from "./lines-editor";
 import { PaymentPanel, RecordPaymentButton } from "./payment-panel";
 import { EmitButton } from "./emit-button";
 import { VoidButton } from "./void-button";
+import { DeleteInvoiceButton } from "./delete-button";
 import { PrintInvoiceButton } from "./print-button";
 import { SharePdfButton } from "./share-pdf-button";
 import { PaymentPlanSection } from "./payment-plan-section";
@@ -119,7 +120,8 @@ export default async function InvoiceDetailPage({
               />
             )}
             {isDraft && <EmitButton id={inv.id} hasLines={inv.lines.length > 0} />}
-            {!isVoid && !isPaid && (
+            {isDraft && <DeleteInvoiceButton id={inv.id} />}
+            {!isVoid && !isPaid && !isDraft && (
               <VoidButton id={inv.id} disabled={inv.payments.length > 0 && isPaid} />
             )}
           </div>

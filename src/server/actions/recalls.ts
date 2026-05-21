@@ -220,8 +220,17 @@ const TREATMENT_RECALL_RULES: Record<
   string,
   { kind: RecallKind; months: number; reason: string }
 > = {
+  // Hygiène / prévention
   DET: { kind: RecallKind.SCALING, months: 6, reason: "Détartrage de suivi (6 mois)" },
+  BLANC: { kind: RecallKind.SCALING, months: 6, reason: "Entretien blanchiment (6 mois)" },
+  // Restaurations — contrôle annuel
+  COMP1: { kind: RecallKind.ANNUAL_CHECKUP, months: 12, reason: "Contrôle composite (1 an)" },
+  COMP3: { kind: RecallKind.ANNUAL_CHECKUP, months: 12, reason: "Contrôle composite (1 an)" },
+  // Endodontie + prothèses — contrôle post-op à 3 mois
+  ENDO1: { kind: RecallKind.IMPLANT_FOLLOWUP, months: 3, reason: "Contrôle endodontique (3 mois)" },
+  ENDO3: { kind: RecallKind.IMPLANT_FOLLOWUP, months: 3, reason: "Contrôle endodontique (3 mois)" },
   COUR: { kind: RecallKind.IMPLANT_FOLLOWUP, months: 3, reason: "Contrôle couronne (3 mois)" },
+  // Chirurgie — cicatrisation à 1 mois
   EXT: { kind: RecallKind.POST_EXTRACTION, months: 1, reason: "Contrôle cicatrisation (1 mois)" },
   EXTC: { kind: RecallKind.POST_EXTRACTION, months: 1, reason: "Contrôle post-extraction" },
 };

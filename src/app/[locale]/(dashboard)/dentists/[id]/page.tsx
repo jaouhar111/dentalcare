@@ -8,6 +8,7 @@ import { formatMoroccanPhone } from "@/lib/utils/phone";
 import { InfoTab } from "./info-tab";
 import { ScheduleEditor } from "./schedule-editor";
 import { AbsencesEditor } from "./absences-editor";
+import { ToggleActiveButton } from "./toggle-active-button";
 
 export const dynamic = "force-dynamic";
 
@@ -56,9 +57,16 @@ export default async function DentistDetailPage({
             {(dentist.firstName[0] ?? "") + (dentist.lastName[0] ?? "")}
           </div>
           <div className="min-w-0 flex-1">
-            <h1 className="text-2xl font-bold tracking-tight">
-              Dr {dentist.firstName} {dentist.lastName}
-            </h1>
+            <div className="flex flex-wrap items-start justify-between gap-3">
+              <h1 className="text-2xl font-bold tracking-tight">
+                Dr {dentist.firstName} {dentist.lastName}
+              </h1>
+              <ToggleActiveButton
+                dentistId={dentist.id}
+                isActive={dentist.isActive}
+                dentistName={dentistName}
+              />
+            </div>
             <p className="text-muted-foreground mt-0.5 text-sm">
               {dentist.specialty ?? "—"}
               {dentist.phone && (

@@ -576,6 +576,47 @@ export async function emitInvoice(
   return ok({ id: data.id, number });
 }
 
+/**
+ * Hard-delete a DRAFT invoice + its lines. Only DRAFTs are eligible because
+ * emitted invoices have an assigned legal number and a chain of payments
+ * that we never want to break — use `voidInvoice` for those instead.
+ *
+ * Cascades through the schema's `onDelete: Cascade` on InvoiceLine; the
+ * parent transaction is implicit (no payments/plans can be linked to a
+ * DRAFT by construction).
+ */
+export async function deleteInvoice(
+  id: string,
+): Promise<Result<{ id: string }>> {
+  const user = await requireRole([...CLINICIAN]);
+  const inv = await db.invoice.findFirst({
+    where: { id, clinicId: user.clinicId },
+    select: { id: true, status: true, patientId: true, number: true },
+  });
+  if (!inv) return fail("NOT_FOUND", "Invoice not found");
+  if (inv.status !== InvoiceStatus.DRAFT) {
+    return fail(
+      "NOT_DRAFT",
+      "Seules les factures en brouillon peuvent être supprimées. Utilisez « Annuler » pour les autres.",
+    );
+  }
+
+  await db.invoice.delete({ where: { id } });
+
+  await audit({
+    clinicId: user.clinicId,
+    userId: user.id,
+    action: "delete",
+    entity: "Invoice",
+    entityId: id,
+    payload: { wasDraft: true, number: inv.number },
+  });
+
+  revalidatePath(`/[locale]/invoices`, "page");
+  revalidatePath(`/[locale]/patients/${inv.patientId}`, "page");
+  return ok({ id });
+}
+
 export async function voidInvoice(
   raw: VoidInvoiceInput,
 ): Promise<Result<{ id: string }>> {

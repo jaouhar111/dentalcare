@@ -163,6 +163,9 @@ export async function listAppointments(
       clinicId: user.clinicId,
       startAt: { gte: new Date(from), lt: new Date(to) },
       ...(dentistScope ? { dentistId: { in: dentistScope } } : {}),
+      // Hide RDV whose patient was soft-deleted — they pollute the calendar
+      // and break the edit flow because `getPatient` refuses to load them.
+      patient: { deletedAt: null },
     },
     orderBy: { startAt: "asc" },
     include: {
