@@ -18,6 +18,17 @@ const appointmentShape = z.object({
     }),
   reason: z.string().trim().max(200).optional(),
   notes: z.string().trim().max(1000).optional(),
+  /**
+   * Optional catalog item linked to this séance. On create, the action
+   * spawns a PLANNED `TreatmentApplication` so the dentist sees the
+   * intended act in the séance editor and the recall pipeline knows
+   * what to fire when the act is later marked COMPLETED.
+   */
+  catalogItemId: z
+    .string()
+    .min(1)
+    .optional()
+    .or(z.literal("").transform(() => undefined)),
 });
 
 const validDateRefine = (v: { startAt: string }) => !Number.isNaN(Date.parse(v.startAt));

@@ -44,6 +44,7 @@ export default async function InterceptedEditAppointment({
     durationMin,
     reason: appt.reason ?? "",
     notes: appt.notes ?? "",
+    catalogItemId: "",
   };
 
   const me = await getCurrentUser();

@@ -3,6 +3,7 @@ import { getTranslations, setRequestLocale } from "next-intl/server";
 import { Link } from "@/i18n/navigation";
 import { listDentists } from "@/server/actions/dentists";
 import { getPatient } from "@/server/actions/patients";
+import { listCatalogItems } from "@/server/actions/treatments";
 import { requireAuth } from "@/lib/auth/rbac";
 import { AppointmentForm, type AppointmentFormValues } from "../appointment-form";
 
@@ -24,6 +25,7 @@ function defaultInitial(): AppointmentFormValues {
     durationMin: 30,
     reason: "",
     notes: "",
+    catalogItemId: "",
   };
 }
 
@@ -69,6 +71,13 @@ export default async function NewAppointmentStandalone({
     }
   }
 
+  const catalogResult = await listCatalogItems();
+  const catalog = catalogResult.ok
+    ? catalogResult.data
+        .filter((c) => c.isActive)
+        .map((c) => ({ id: c.id, code: c.code, name: c.name, color: c.color }))
+    : [];
+
   return (
     <div className="mx-auto max-w-3xl p-6 lg:p-8">
       <div className="mb-6">
@@ -84,6 +93,7 @@ export default async function NewAppointmentStandalone({
         <AppointmentForm
           initial={initial}
           dentists={dentists}
+          catalog={catalog}
           lockedDentistId={lockedDentistId}
         />
       </div>

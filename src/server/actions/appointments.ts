@@ -274,11 +274,12 @@ export async function createAppointment(
   if (!parsed.success) {
     return fail("INVALID_INPUT", "Invalid appointment", zodFieldsFromError(parsed.error));
   }
-  const { patientId, dentistId, startAt, durationMin, reason, notes } = parsed.data;
+  const { patientId, dentistId, startAt, durationMin, reason, notes, catalogItemId } =
+    parsed.data;
 
   // Validate patient + dentist belong to this clinic (defense-in-depth — the
   // tenant extension already filters but explicit lookup gives nicer errors).
-  const [patient, dentist] = await Promise.all([
+  const [patient, dentist, catalogItem] = await Promise.all([
     db.patient.findFirst({
       where: { id: patientId, clinicId: user.clinicId, deletedAt: null },
       select: { id: true },
@@ -287,9 +288,18 @@ export async function createAppointment(
       where: { id: dentistId, clinicId: user.clinicId, isActive: true },
       select: { id: true },
     }),
+    catalogItemId
+      ? db.treatmentCatalogItem.findFirst({
+          where: { id: catalogItemId, clinicId: user.clinicId, isActive: true },
+          select: { id: true, defaultPrice: true, requiresTooth: true, name: true },
+        })
+      : Promise.resolve(null),
   ]);
   if (!patient) return fail("PATIENT_NOT_FOUND", "Patient not found", { patientId: ["NOT_FOUND"] });
   if (!dentist) return fail("DENTIST_NOT_FOUND", "Dentist not found", { dentistId: ["NOT_FOUND"] });
+  if (catalogItemId && !catalogItem) {
+    return fail("INVALID_INPUT", "Treatment not found", { catalogItemId: ["NOT_FOUND"] });
+  }
 
   const start = new Date(startAt);
   const end = new Date(start.getTime() + durationMin * 60_000);
@@ -305,18 +315,39 @@ export async function createAppointment(
   });
   if (conflict) return fail("CONFLICT", "Another appointment overlaps this slot");
 
-  const created = await db.appointment.create({
-    data: {
-      clinicId: user.clinicId,
-      patientId,
-      dentistId,
-      startAt: start,
-      endAt: end,
-      reason: reason ?? null,
-      notes: notes ?? null,
-      createdById: user.id,
-    },
-    select: { id: true },
+  // Create the appointment and (optionally) link a PLANNED treatment
+  // application in the same transaction so the dentist sees the intended
+  // act in the séance editor and recall pipeline knows what to fire on
+  // COMPLETED.
+  const created = await db.$transaction(async (tx) => {
+    const appt = await tx.appointment.create({
+      data: {
+        clinicId: user.clinicId,
+        patientId,
+        dentistId,
+        startAt: start,
+        endAt: end,
+        reason: reason ?? null,
+        notes: notes ?? null,
+        createdById: user.id,
+      },
+      select: { id: true },
+    });
+    if (catalogItem) {
+      await tx.treatmentApplication.create({
+        data: {
+          clinicId: user.clinicId,
+          patientId,
+          dentistId,
+          appointmentId: appt.id,
+          catalogItemId: catalogItem.id,
+          status: "PLANNED",
+          unitPrice: catalogItem.defaultPrice,
+          createdById: user.id,
+        },
+      });
+    }
+    return appt;
   });
 
   await audit({
@@ -325,7 +356,13 @@ export async function createAppointment(
     action: "appointment.create",
     entity: "Appointment",
     entityId: created.id,
-    payload: { patientId, dentistId, startAt: start.toISOString(), durationMin },
+    payload: {
+      patientId,
+      dentistId,
+      startAt: start.toISOString(),
+      durationMin,
+      ...(catalogItem ? { catalogItemId: catalogItem.id } : {}),
+    },
   });
 
   revalidatePath("/appointments");

@@ -15,10 +15,12 @@ import { AppointmentForm, type AppointmentFormValues } from "../../appointment-f
 export function NewAppointmentModal({
   initial,
   dentists,
+  catalog,
   lockedDentistId,
 }: {
   initial: AppointmentFormValues;
   dentists: Array<{ id: string; name: string; color: string }>;
+  catalog: Array<{ id: string; code: string; name: string; color: string }>;
   lockedDentistId?: string | null;
 }) {
   const t = useTranslations("AppointmentForm");
@@ -41,6 +43,7 @@ export function NewAppointmentModal({
           <AppointmentForm
             initial={initial}
             dentists={dentists}
+            catalog={catalog}
             lockedDentistId={lockedDentistId}
             onSuccess={(_id, _action, summary) => {
               toast.success(tToast("appointmentCreated"), {

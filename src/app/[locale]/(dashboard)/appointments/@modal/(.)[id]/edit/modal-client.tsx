@@ -43,6 +43,7 @@ export function EditAppointmentModal({
           <AppointmentForm
             initial={initial}
             dentists={dentists}
+            catalog={[]}
             lockedDentistId={lockedDentistId}
             onSuccess={() => {
               toast.success(tToast("appointmentUpdated"));

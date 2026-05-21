@@ -27,6 +27,10 @@ export interface AppointmentFormValues {
   durationMin: number;
   reason: string;
   notes: string;
+  /// Catalog item to attach as a PLANNED `TreatmentApplication` on create.
+  /// Empty string = "no treatment yet". Ignored on edit (dentist manages
+  /// treatments via the "Soins de la séance" section instead).
+  catalogItemId: string;
 }
 
 interface DentistOption {
@@ -35,14 +39,30 @@ interface DentistOption {
   color: string;
 }
 
+interface CatalogOption {
+  id: string;
+  code: string;
+  name: string;
+  color: string;
+}
+
 export function AppointmentForm({
   initial,
   dentists,
+  catalog,
   lockedDentistId,
   onSuccess,
 }: {
   initial: AppointmentFormValues;
   dentists: DentistOption[];
+  /**
+   * Active treatment catalog. Used to render the "Soin associé" combo on
+   * the CREATE form — picking a code spawns a PLANNED `TreatmentApplication`
+   * server-side, which later transitions to COMPLETED to fire a recall.
+   * Pass `[]` on the edit page; the existing "Soins de la séance" section
+   * manages treatments after creation.
+   */
+  catalog: CatalogOption[];
   /**
    * When set, the dentist field renders as a read-only chip instead of a
    * picker. Used for DENTIST-role users so they can only book on their own
@@ -91,6 +111,10 @@ export function AppointmentForm({
         durationMin: values.durationMin,
         reason: values.reason || undefined,
         notes: values.notes || undefined,
+        // Catalog item is honoured only on create. On edit, treatments are
+        // managed by the dedicated "Soins de la séance" section so this
+        // form doesn't have to reconcile add/replace/remove semantics.
+        catalogItemId: !isEdit && values.catalogItemId ? values.catalogItemId : undefined,
       };
       const res = isEdit
         ? await updateAppointment({ ...payload, id: initial.id! })
@@ -203,6 +227,27 @@ export function AppointmentForm({
           </select>
         )}
       </Field>
+
+      {!isEdit && catalog.length > 0 && (
+        <Field label="Soin prévu (déclenche le rappel)">
+          <select
+            value={values.catalogItemId}
+            onChange={(e) => set("catalogItemId", e.target.value)}
+            className="border-input bg-background focus-visible:border-ring focus-visible:ring-ring/50 w-full rounded-lg border px-3 py-2 text-sm outline-none focus-visible:ring-3"
+          >
+            <option value="">— Aucun pour l'instant —</option>
+            {catalog.map((c) => (
+              <option key={c.id} value={c.id}>
+                {c.code} · {c.name}
+              </option>
+            ))}
+          </select>
+          <p className="text-muted-foreground mt-1 text-xs">
+            Une fois marqué « réalisé » depuis la page du RDV, un rappel sera créé
+            automatiquement selon le type de soin (détartrage → 6 mois, extraction → 1 mois, etc.).
+          </p>
+        </Field>
+      )}
 
       <div className="grid gap-4 sm:grid-cols-3">
         <Field label={t("fields.date")} required>

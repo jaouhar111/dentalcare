@@ -70,6 +70,7 @@ export default async function EditAppointmentStandalone({
     durationMin,
     reason: appt.reason ?? "",
     notes: appt.notes ?? "",
+    catalogItemId: "",
   };
 
   return (
@@ -88,6 +89,7 @@ export default async function EditAppointmentStandalone({
         <AppointmentForm
           initial={initial}
           dentists={dentists}
+          catalog={[]}
           lockedDentistId={
             me?.role === UserRole.DENTIST && me.dentistId ? me.dentistId : null
           }

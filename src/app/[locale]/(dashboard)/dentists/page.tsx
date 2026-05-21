@@ -5,6 +5,7 @@ import { Link } from "@/i18n/navigation";
 import { auth } from "@/lib/auth";
 import { listDentists } from "@/server/actions/dentists";
 import { formatMoroccanPhone } from "@/lib/utils/phone";
+import { DentistStatusToggle } from "./status-toggle";
 
 export const dynamic = "force-dynamic";
 
@@ -120,15 +121,13 @@ export default async function DentistsListPage({
                       )}
                     </td>
                     <td className="px-4 py-3">
-                      {d.isActive ? (
-                        <span className="inline-flex items-center gap-1 rounded-full border border-emerald-200 bg-emerald-50 px-2 py-0.5 text-xs text-emerald-700 dark:border-emerald-900 dark:bg-emerald-950/40 dark:text-emerald-300">
-                          ● {t("active")}
-                        </span>
-                      ) : (
-                        <span className="bg-muted text-muted-foreground border-border inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-xs">
-                          ○ {t("inactive")}
-                        </span>
-                      )}
+                      <DentistStatusToggle
+                        dentistId={d.id}
+                        dentistName={`${d.firstName} ${d.lastName}`}
+                        isActive={d.isActive}
+                        activeLabel={t("active")}
+                        inactiveLabel={t("inactive")}
+                      />
                     </td>
                   </tr>
                 ))}
