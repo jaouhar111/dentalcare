@@ -372,5 +372,6 @@ export async function recordMovement(
   });
   revalidatePath("/[locale]/stock", "page");
   revalidatePath(`/[locale]/stock/${data.itemId}`, "page");
+  revalidatePath("/[locale]", "page"); // dashboard low-stock KPI
   return ok({ id: movementId });
 }

@@ -8,6 +8,7 @@ import {
   getRecentPatientAppointments,
 } from "@/server/actions/appointments";
 import { getPatientBalance } from "@/server/actions/invoices";
+import { listMedicalNotes } from "@/server/actions/medical";
 import { AppointmentStatus } from "@prisma/client";
 import { getCurrentUser, canDeletePatient } from "@/lib/auth/rbac";
 import { ageInYears, formatCurrency, formatDate, formatDateShort } from "@/lib/utils/format";
@@ -263,28 +264,92 @@ async function InfoTabContent({
   const tForm = await getTranslations("PatientForm");
   const tAppt = await getTranslations("Appointments");
 
-  const [nextAppt, recentAppts, balanceResult] = await Promise.all([
+  const [nextAppt, recentAppts, balanceResult, notesResult] = await Promise.all([
     getNextPatientAppointment(patient.id),
     getRecentPatientAppointments(patient.id, 5),
     getPatientBalance(patient.id),
+    listMedicalNotes(patient.id),
   ]);
   const balance = balanceResult.ok ? balanceResult.data : null;
+  const notes = notesResult.ok ? notesResult.data : [];
+  const dateFmt = new Intl.DateTimeFormat(locale, {
+    day: "2-digit",
+    month: "short",
+    year: "numeric",
+  });
 
   return (
     <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
       {/* ─── Left column ─── */}
       <div className="space-y-6 lg:col-span-2">
         <section>
-          <h2 className="text-foreground mb-3 text-sm font-semibold tracking-wider uppercase">
-            {t("sections.medicalHistory")}
-          </h2>
-          <div className="bg-muted/40 text-foreground/90 rounded-lg p-4 text-sm">
-            {patient.medicalHistory ? (
-              <p className="whitespace-pre-wrap">{patient.medicalHistory}</p>
-            ) : (
-              <p className="text-muted-foreground italic">{t("noMedicalHistory")}</p>
-            )}
+          <div className="mb-3 flex items-center justify-between">
+            <h2 className="text-foreground text-sm font-semibold tracking-wider uppercase">
+              {t("sections.medicalHistory")}
+            </h2>
+            <Link
+              href={`/patients/${patient.id}?tab=records` as never}
+              className="text-muted-foreground hover:text-foreground text-xs"
+            >
+              {t("viewFullRecord") ?? "Voir le dossier complet"} →
+            </Link>
           </div>
+
+          {patient.medicalHistory && (
+            <div className="bg-muted/40 text-foreground/90 mb-3 rounded-lg p-4 text-sm">
+              <p className="text-muted-foreground mb-1 text-xs uppercase tracking-wider">
+                Antécédents
+              </p>
+              <p className="whitespace-pre-wrap">{patient.medicalHistory}</p>
+            </div>
+          )}
+
+          {notes.length === 0 ? (
+            !patient.medicalHistory && (
+              <div className="bg-muted/40 text-foreground/90 rounded-lg p-4 text-sm">
+                <p className="text-muted-foreground italic">{t("noMedicalHistory")}</p>
+              </div>
+            )
+          ) : (
+            <div className="space-y-2">
+              <p className="text-muted-foreground text-xs uppercase tracking-wider">
+                Notes cliniques ({notes.length})
+              </p>
+              <ul className="space-y-2">
+                {notes.slice(0, 5).map((n) => (
+                  <li
+                    key={n.id}
+                    className="bg-muted/40 text-foreground/90 rounded-lg p-3 text-sm"
+                  >
+                    <div className="flex flex-wrap items-baseline justify-between gap-2">
+                      <span className="text-foreground font-medium">
+                        {n.title ?? "Note clinique"}
+                      </span>
+                      <span className="text-muted-foreground num text-xs">
+                        {dateFmt.format(n.createdAt)} · {n.authorName}
+                      </span>
+                    </div>
+                    <p className="text-foreground/80 mt-1 whitespace-pre-wrap text-[13px] leading-relaxed">
+                      {n.body.length > 280 ? n.body.slice(0, 280) + "…" : n.body}
+                    </p>
+                  </li>
+                ))}
+              </ul>
+              {notes.length > 5 && (
+                <p className="text-muted-foreground text-xs">
+                  + {notes.length - 5} autre{notes.length - 5 > 1 ? "s" : ""} note
+                  {notes.length - 5 > 1 ? "s" : ""} (
+                  <Link
+                    href={`/patients/${patient.id}?tab=records` as never}
+                    className="text-primary underline-offset-2 hover:underline"
+                  >
+                    voir tout
+                  </Link>
+                  )
+                </p>
+              )}
+            </div>
+          )}
         </section>
 
         <section>

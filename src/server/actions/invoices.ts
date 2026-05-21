@@ -424,6 +424,7 @@ export async function addInvoiceLine(raw: AddLineInput): Promise<Result<{ id: st
   });
   revalidatePath(`/[locale]/invoices/${invoiceId}`, "page");
   revalidatePath(`/[locale]/patients/${inv.patientId}`, "page");
+  revalidatePath("/[locale]", "page"); // dashboard KPIs
   return ok({ id: invoiceId });
 }
 
@@ -455,6 +456,7 @@ export async function removeInvoiceLine(args: {
   });
   revalidatePath(`/[locale]/invoices/${args.invoiceId}`, "page");
   revalidatePath(`/[locale]/patients/${inv.patientId}`, "page");
+  revalidatePath("/[locale]", "page"); // dashboard KPIs
   return ok({ id: args.invoiceId });
 }
 
@@ -511,6 +513,7 @@ export async function updateInvoice(
   });
   revalidatePath(`/[locale]/invoices/${data.id}`, "page");
   revalidatePath(`/[locale]/patients/${inv.patientId}`, "page");
+  revalidatePath("/[locale]", "page"); // dashboard KPIs
   return ok({ id: data.id });
 }
 
@@ -573,6 +576,7 @@ export async function emitInvoice(
   revalidatePath(`/[locale]/invoices/${data.id}`, "page");
   revalidatePath(`/[locale]/invoices`, "page");
   revalidatePath(`/[locale]/patients/${inv.patientId}`, "page");
+  revalidatePath("/[locale]", "page"); // dashboard KPIs
   return ok({ id: data.id, number });
 }
 
@@ -614,6 +618,7 @@ export async function deleteInvoice(
 
   revalidatePath(`/[locale]/invoices`, "page");
   revalidatePath(`/[locale]/patients/${inv.patientId}`, "page");
+  revalidatePath("/[locale]", "page"); // dashboard KPIs
   return ok({ id });
 }
 
@@ -654,6 +659,7 @@ export async function voidInvoice(
   });
   revalidatePath(`/[locale]/invoices/${id}`, "page");
   revalidatePath(`/[locale]/patients/${inv.patientId}`, "page");
+  revalidatePath("/[locale]", "page"); // dashboard KPIs
   return ok({ id });
 }
 
@@ -726,6 +732,7 @@ export async function recordPayment(
   });
   revalidatePath(`/[locale]/invoices/${data.invoiceId}`, "page");
   revalidatePath(`/[locale]/patients/${inv.patientId}`, "page");
+  revalidatePath("/[locale]", "page"); // dashboard KPIs
   return ok({ id: paymentId });
 }
 

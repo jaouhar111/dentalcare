@@ -366,6 +366,7 @@ export async function createAppointment(
   });
 
   revalidatePath("/appointments");
+  revalidatePath("/[locale]", "page"); // dashboard KPIs
   return ok(created);
 }
 
@@ -427,6 +428,7 @@ export async function updateAppointment(
   });
 
   revalidatePath("/appointments");
+  revalidatePath("/[locale]", "page"); // dashboard KPIs
   return ok({ id });
 }
 
@@ -504,6 +506,7 @@ export async function cancelAppointment(
   }
 
   revalidatePath("/appointments");
+  revalidatePath("/[locale]", "page"); // dashboard KPIs
   revalidatePath("/waitlist");
   return ok({ id });
 }
@@ -543,6 +546,7 @@ export async function markStatus(raw: MarkStatusInput): Promise<Result<{ id: str
   });
 
   revalidatePath("/appointments");
+  revalidatePath("/[locale]", "page"); // dashboard KPIs
   return ok({ id });
 }
 

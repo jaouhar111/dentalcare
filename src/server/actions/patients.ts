@@ -297,6 +297,7 @@ export async function createPatient(raw: CreatePatientInput): Promise<Result<{ i
     });
 
     revalidatePath("/patients");
+    revalidatePath("/[locale]", "page"); // dashboard KPIs
     return ok(created);
   } catch (err) {
     if (err instanceof Prisma.PrismaClientKnownRequestError && err.code === "P2002") {
@@ -410,5 +411,6 @@ export async function softDeletePatient(id: string): Promise<Result<null>> {
   });
 
   revalidatePath("/patients");
+  revalidatePath("/[locale]", "page"); // dashboard KPIs
   return ok(null);
 }
