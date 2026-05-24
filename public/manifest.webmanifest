@@ -1,0 +1,44 @@
+{
+  "name": "DentalCare — Gestion cabinet dentaire",
+  "short_name": "DentalCare",
+  "description": "Gestion patients, rendez-vous, ordonnances et factures pour cabinets dentaires.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#0F172A",
+  "theme_color": "#06B6D4",
+  "lang": "fr",
+  "categories": ["medical", "productivity"],
+  "icons": [
+    {
+      "src": "/icon-192.svg",
+      "type": "image/svg+xml",
+      "sizes": "192x192",
+      "purpose": "any"
+    },
+    {
+      "src": "/icon-512.svg",
+      "type": "image/svg+xml",
+      "sizes": "512x512",
+      "purpose": "any maskable"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Nouveau patient",
+      "url": "/patients/new",
+      "description": "Créer une fiche patient"
+    },
+    {
+      "name": "Calendrier",
+      "url": "/appointments",
+      "description": "Voir les rendez-vous"
+    },
+    {
+      "name": "Factures",
+      "url": "/invoices",
+      "description": "Liste des factures"
+    }
+  ]
+}

@@ -3,15 +3,15 @@
   "crons": [
     {
       "path": "/api/cron/appointment-reminders",
-      "schedule": "0 18 * * *"
+      "schedule": "0 17 * * *"
     },
     {
       "path": "/api/cron/payment-plan-reminders",
-      "schedule": "0 9 * * *"
+      "schedule": "0 8 * * *"
     },
     {
       "path": "/api/cron/recall-reminders",
-      "schedule": "30 9 * * *"
+      "schedule": "30 8 * * *"
     }
   ]
 }

@@ -88,24 +88,76 @@ export interface DashboardData {
 
 // ─── Helpers ────────────────────────────────────────────────────────────────
 
+/**
+ * The cabinet's wall-clock timezone. Vercel serverless runs in UTC so
+ * `new Date().setHours(0,0,0,0)` would return midnight UTC = 01:00 Maroc
+ * (UTC+1, no DST since 2018). The user would see "today's RDV" lag the
+ * real Morocco day by up to an hour around midnight.
+ *
+ * Using `Intl.DateTimeFormat` with this timezone is the only IANA-compliant
+ * way to handle the rare Ramadan offset shift without a dependency.
+ */
+const CLINIC_TIMEZONE = "Africa/Casablanca";
+
+/**
+ * Returns the UTC `Date` whose wall-clock value in {@link CLINIC_TIMEZONE}
+ * is midnight on the same calendar day as `d` (also interpreted in that TZ).
+ */
 function startOfDay(d: Date): Date {
-  const out = new Date(d);
-  out.setHours(0, 0, 0, 0);
-  return out;
+  // Format → {year, month, day} as the cabinet sees it.
+  const parts = new Intl.DateTimeFormat("en-CA", {
+    timeZone: CLINIC_TIMEZONE,
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+  }).formatToParts(d);
+  const get = (t: string) => parts.find((p) => p.type === t)?.value ?? "";
+  // "2026-05-18T00:00" interpreted as Morocco time → ISO UTC.
+  const moroccoMidnightIso = `${get("year")}-${get("month")}-${get("day")}T00:00:00`;
+  // The TZ-naïve string is parsed as UTC; correct by re-anchoring through Intl.
+  // For Morocco UTC+1 the result is exactly 23:00 UTC the previous day.
+  const utcGuess = new Date(moroccoMidnightIso + "Z");
+  const utcWall = new Intl.DateTimeFormat("en-CA", {
+    timeZone: CLINIC_TIMEZONE,
+    hour: "2-digit",
+    minute: "2-digit",
+    hourCycle: "h23",
+  }).formatToParts(utcGuess);
+  const hh = Number(utcWall.find((p) => p.type === "hour")?.value ?? 0);
+  const mm = Number(utcWall.find((p) => p.type === "minute")?.value ?? 0);
+  // `utcGuess` is +N hours past the actual local midnight — subtract.
+  return new Date(utcGuess.getTime() - (hh * 60 + mm) * 60_000);
 }
+
 function addDays(d: Date, n: number): Date {
-  const out = new Date(d);
-  out.setDate(out.getDate() + n);
-  return out;
+  return new Date(d.getTime() + n * 86_400_000);
 }
+
 function startOfWeek(d: Date): Date {
   const out = startOfDay(d);
-  const dow = out.getDay();
-  out.setDate(out.getDate() + (dow === 0 ? -6 : 1 - dow));
-  return out;
+  // ISO weeks start on Monday — use UTC accessors so the timezone we already
+  // pinned in startOfDay is honoured.
+  const dow = new Date(
+    new Intl.DateTimeFormat("en-US", { timeZone: CLINIC_TIMEZONE, weekday: "short" }).format(d) +
+      " ",
+  )
+    ? ["sun", "mon", "tue", "wed", "thu", "fri", "sat"].indexOf(
+        new Intl.DateTimeFormat("en-US", { timeZone: CLINIC_TIMEZONE, weekday: "short" })
+          .format(d)
+          .toLowerCase(),
+      )
+    : out.getUTCDay();
+  return addDays(out, dow === 0 ? -6 : 1 - dow);
 }
+
 function startOfMonth(d: Date): Date {
-  return new Date(d.getFullYear(), d.getMonth(), 1);
+  const parts = new Intl.DateTimeFormat("en-CA", {
+    timeZone: CLINIC_TIMEZONE,
+    year: "numeric",
+    month: "2-digit",
+  }).formatToParts(d);
+  const get = (t: string) => parts.find((p) => p.type === t)?.value ?? "";
+  return startOfDay(new Date(`${get("year")}-${get("month")}-01T00:00:00Z`));
 }
 
 // ─── Cached compute ─────────────────────────────────────────────────────────

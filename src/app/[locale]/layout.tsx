@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Inter, Noto_Sans_Arabic } from "next/font/google";
 import { NextIntlClientProvider, hasLocale } from "next-intl";
 import { setRequestLocale, getMessages } from "next-intl/server";
@@ -22,6 +22,34 @@ const notoArabic = Noto_Sans_Arabic({
 export const metadata: Metadata = {
   title: "DentalCare",
   description: "Dental practice management — patients, appointments, records, billing.",
+  manifest: "/manifest.webmanifest",
+  appleWebApp: {
+    capable: true,
+    title: "DentalCare",
+    statusBarStyle: "default",
+  },
+  icons: {
+    icon: [
+      { url: "/icon-192.svg", sizes: "192x192", type: "image/svg+xml" },
+      { url: "/icon-512.svg", sizes: "512x512", type: "image/svg+xml" },
+    ],
+    apple: [{ url: "/icon-512.svg", sizes: "512x512" }],
+  },
+};
+
+/**
+ * Viewport + theme color — drives the address-bar tint on Android Chrome,
+ * the iOS PWA status bar, and prevents the dreaded 300ms tap delay /
+ * pinch-zoom on dental forms.
+ */
+export const viewport: Viewport = {
+  themeColor: [
+    { media: "(prefers-color-scheme: light)", color: "#06B6D4" },
+    { media: "(prefers-color-scheme: dark)", color: "#0F172A" },
+  ],
+  width: "device-width",
+  initialScale: 1,
+  // `maximumScale: 1` would break a11y zoom — leave the user free to zoom in.
 };
 
 export function generateStaticParams() {

@@ -7,6 +7,7 @@ import { formatDateShort } from "@/lib/utils/format";
 import { formatMoroccanPhoneShort } from "@/lib/utils/phone";
 import { DisableRecallButton } from "./disable-button";
 import { RegenerateRecallButton } from "./regenerate-button";
+import { NewRecallDialog } from "./new-recall-dialog";
 import type { Locale } from "@/i18n/routing";
 
 export const dynamic = "force-dynamic";
@@ -52,6 +53,7 @@ export default async function RecallsPage({
             {t("subtitle", { count: openCount }).replace(`${openCount} `, "")}
           </p>
         </div>
+        <NewRecallDialog />
       </header>
 
       <div className="mb-4 flex flex-wrap items-center gap-1.5">
