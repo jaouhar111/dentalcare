@@ -2,7 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
-import { AIReceptionistStyle, UserRole } from "@prisma/client";
+import { AIReceptionistStyle, Prisma, UserRole } from "@prisma/client";
 import { db } from "@/lib/db/client";
 import { requireRole } from "@/lib/auth/rbac";
 import { audit } from "@/lib/audit";
@@ -125,7 +125,12 @@ export async function updateAIReceptionistSettings(
       ...(data.style !== undefined ? { aiStyle: data.style } : {}),
       ...(data.signature !== undefined ? { aiSignature: data.signature || null } : {}),
       ...(normalisedTemplates !== undefined
-        ? { aiTemplatesJson: normalisedTemplates }
+        ? {
+            // Prisma's `Json?` field expects InputJsonValue. AITemplates is
+            // a typed interface without an index signature, so cast through
+            // the narrower Prisma type to satisfy the strict shape.
+            aiTemplatesJson: normalisedTemplates as Prisma.InputJsonValue,
+          }
         : {}),
     },
   });

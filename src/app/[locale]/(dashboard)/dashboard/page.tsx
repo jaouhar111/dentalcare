@@ -388,9 +388,11 @@ function StatusDot({ status }: { status: AppointmentStatus }) {
   const colorMap: Record<AppointmentStatus, string> = {
     SCHEDULED: "#86868b",
     CONFIRMED: "#34c759",
+    IN_PROGRESS: "#0071e3",
     COMPLETED: "#0071e3",
     CANCELLED: "#86868b",
     NO_SHOW: "#ef4444",
+    RESCHEDULE_REQUESTED: "#f59e0b",
   };
   return (
     <span

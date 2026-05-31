@@ -134,14 +134,20 @@ export function OnboardingWizard({
             onSkip={() =>
               startTransition(async () => {
                 const res = await onboardingStepWhatsApp({ phoneId: "" });
-                if (!res.ok) return toast.error(res.error.message);
+                if (!res.ok) {
+                  toast.error(res.error.message);
+                  return;
+                }
                 markDone(1, 2);
               })
             }
             onSubmit={(phoneId) =>
               startTransition(async () => {
                 const res = await onboardingStepWhatsApp({ phoneId });
-                if (!res.ok) return toast.error(res.error.message);
+                if (!res.ok) {
+                  toast.error(res.error.message);
+                  return;
+                }
                 toast.success("Numéro WhatsApp connecté.");
                 markDone(1, 2);
               })
@@ -155,7 +161,10 @@ export function OnboardingWizard({
             onSubmit={(days) =>
               startTransition(async () => {
                 const res = await onboardingStepHours({ days });
-                if (!res.ok) return toast.error(res.error.message);
+                if (!res.ok) {
+                  toast.error(res.error.message);
+                  return;
+                }
                 toast.success("Horaires enregistrés.");
                 markDone(2, 3);
               })
@@ -169,7 +178,10 @@ export function OnboardingWizard({
             onSubmit={(d) =>
               startTransition(async () => {
                 const res = await onboardingStepDentist(d);
-                if (!res.ok) return toast.error(res.error.message);
+                if (!res.ok) {
+                  toast.error(res.error.message);
+                  return;
+                }
                 toast.success("Dentiste ajouté.");
                 markDone(3, 4);
               })
@@ -183,7 +195,10 @@ export function OnboardingWizard({
             onContinue={() =>
               startTransition(async () => {
                 const res = await onboardingStepPatients({ skipImport: true });
-                if (!res.ok) return toast.error(res.error.message);
+                if (!res.ok) {
+                  toast.error(res.error.message);
+                  return;
+                }
                 markDone(4, 5);
               })
             }
@@ -196,7 +211,10 @@ export function OnboardingWizard({
             onFinish={(aiEnabled) =>
               startTransition(async () => {
                 const res = await onboardingFinish({ aiEnabled });
-                if (!res.ok) return toast.error(res.error.message);
+                if (!res.ok) {
+                  toast.error(res.error.message);
+                  return;
+                }
                 toast.success("Configuration terminée 🎉");
                 router.push("/dashboard");
               })
