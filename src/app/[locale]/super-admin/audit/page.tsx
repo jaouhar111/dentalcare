@@ -24,7 +24,8 @@ export default async function AuditPage({
 }) {
   const { locale } = await params;
   setRequestLocale(locale);
-  await requireRole([UserRole.ADMIN]);
+  // SUPER_ADMIN only — clinic admins no longer see the platform audit log.
+  await requireRole([UserRole.SUPER_ADMIN]);
 
   const sp = await searchParams;
   const offset = Math.max(Number(sp.offset ?? 0), 0);
@@ -67,14 +68,14 @@ export default async function AuditPage({
     if (sp.to) qs.set("to", sp.to);
     if (nextOffset > 0) qs.set("offset", String(nextOffset));
     const s = qs.toString();
-    return `/audit${s ? `?${s}` : ""}`;
+    return `/super-admin/audit${s ? `?${s}` : ""}`;
   }
 
   return (
-    <div className="mx-auto max-w-6xl p-6 lg:p-8">
+    <div className="mx-auto w-full max-w-6xl">
       <header className="mb-6">
-        <h1 className="text-2xl font-bold tracking-tight">Registre d'audit</h1>
-        <p className="text-muted-foreground mt-0.5 text-sm">
+        <h1 className="page-h1">Registre d'audit</h1>
+        <p className="page-sub">
           Journal des opérations sensibles (loi 09-08). <span className="num">{total}</span>{" "}
           entrée{total > 1 ? "s" : ""}.
         </p>
@@ -146,7 +147,7 @@ export default async function AuditPage({
               Filtrer
             </button>
             <Link
-              href={"/audit" as never}
+              href={"/super-admin/audit" as never}
               className="border-input hover:bg-muted bg-background inline-flex items-center justify-center rounded-md border px-3 py-1.5 text-sm"
             >
               Reset

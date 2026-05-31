@@ -84,6 +84,29 @@ export default async function EditAppointmentStandalone({
         </Link>
         <h1 className="mt-2 text-2xl font-bold tracking-tight">{t("titleEdit")}</h1>
         <p className="text-muted-foreground mt-1 text-sm">{initial.patientName}</p>
+        <p className="text-muted-foreground mt-2 flex flex-wrap items-center gap-2 text-[12px]">
+          {appt.source === "AI_WHATSAPP" ? (
+            <span className="inline-flex items-center gap-1 rounded-full bg-linear-to-br from-emerald-500 to-teal-600 px-2 py-0.5 text-[10px] font-bold text-white shadow-[0_2px_8px_rgba(16,185,129,0.35)]">
+              <svg width="10" height="10" viewBox="0 0 24 24" fill="currentColor" aria-hidden>
+                <path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448L.057 24z" />
+              </svg>
+              IA WhatsApp
+            </span>
+          ) : (
+            <span className="inline-flex items-center rounded-full bg-slate-500/15 px-2 py-0.5 text-[10px] font-medium text-slate-700 dark:text-slate-300">
+              {appt.source === "RECALL_FOLLOWUP"
+                ? "Rappel"
+                : appt.source === "WAITLIST_ACCEPT"
+                  ? "Liste d'attente"
+                  : "Manuel"}
+            </span>
+          )}
+          {appt.createdBy?.fullName ? (
+            <span>
+              Créé par <span className="text-foreground font-medium">{appt.createdBy.fullName}</span>
+            </span>
+          ) : null}
+        </p>
       </div>
       <div className="bg-card border-border/60 rounded-xl border p-6 lg:p-8">
         <AppointmentForm

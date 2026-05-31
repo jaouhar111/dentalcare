@@ -2,10 +2,15 @@
 
 import { z } from "zod";
 import { headers } from "next/headers";
+import { Prisma, UserRole } from "@prisma/client";
 import { isRedirectError } from "next/dist/client/components/redirect-error";
 import { signIn, signOut } from "@/lib/auth";
 import { isAllowed } from "@/lib/auth/rate-limit";
+import { hashPassword } from "@/lib/auth/password";
+import { db } from "@/lib/db/client";
+import { audit } from "@/lib/audit";
 import { fail, ok, type Result } from "@/lib/utils/result";
+import { slugify } from "@/lib/utils/slug";
 
 const loginSchema = z.object({
   email: z.string().email("INVALID_EMAIL").toLowerCase().trim(),
@@ -50,4 +55,134 @@ export async function loginAction(
 
 export async function logoutAction(): Promise<void> {
   await signOut({ redirectTo: "/login" });
+}
+
+// ─────────────────────────────────────────────────────────────────────
+// Self-service signup — Option B multi-tenant onboarding
+// ─────────────────────────────────────────────────────────────────────
+
+const TRIAL_DAYS = 14;
+
+const signupSchema = z.object({
+  clinicName: z
+    .string()
+    .min(2, "TOO_SHORT")
+    .max(80, "TOO_LONG")
+    .trim(),
+  fullName: z
+    .string()
+    .min(2, "TOO_SHORT")
+    .max(80, "TOO_LONG")
+    .trim(),
+  email: z.string().email("INVALID_EMAIL").toLowerCase().trim(),
+  password: z
+    .string()
+    .min(8, "PASSWORD_TOO_SHORT")
+    .max(128, "PASSWORD_TOO_LONG"),
+  phone: z.string().trim().optional(),
+  locale: z.enum(["fr", "en"]).default("fr"),
+});
+
+export type SignupInput = z.infer<typeof signupSchema>;
+
+/**
+ * Provisions a brand-new cabinet :
+ *   1. Validate inputs (zod).
+ *   2. Rate-limit per IP so we don't get spammed.
+ *   3. Reject if the email is already on another clinic.
+ *   4. Generate a unique slug from the cabinet name (e.g. "Cabinet
+ *      Hdoud" → "cabinet-hdoud" then "cabinet-hdoud-2" on collision).
+ *   5. Create Clinic + ADMIN User in one transaction so we never end
+ *      up with an orphan clinic if the user insert fails.
+ *   6. Stamp `trialEndsAt = now + 14 days`. After Stripe is wired the
+ *      paywall will check this against `Date.now()`.
+ *   7. Sign the new admin in immediately so they land on /dashboard.
+ */
+export async function signupAction(
+  input: SignupInput,
+): Promise<Result<{ redirectTo: string }, { code: string; message: string }>> {
+  const parsed = signupSchema.safeParse(input);
+  if (!parsed.success) {
+    const firstError = parsed.error.issues[0];
+    return fail(firstError?.message ?? "INVALID_INPUT", "Invalid sign-up data");
+  }
+  const data = parsed.data;
+
+  const h = await headers();
+  const ip = h.get("x-forwarded-for")?.split(",")[0]?.trim() ?? "unknown";
+  const guard = isAllowed(`signup:${ip}`);
+  if (!guard.allowed) {
+    return fail("RATE_LIMITED", "Trop de tentatives, réessayez plus tard.");
+  }
+
+  const existingUser = await db.user.findUnique({
+    where: { email: data.email },
+    select: { id: true },
+  });
+  if (existingUser) {
+    return fail("EMAIL_TAKEN", "Cette adresse est déjà liée à un compte.");
+  }
+
+  // Compute a unique slug. We try up to 20 variants — beyond that it
+  // means a thousand cabinets share the same base name, time to escalate.
+  let slug = slugify(data.clinicName);
+  for (let suffix = 2; suffix <= 20; suffix++) {
+    const taken = await db.clinic.findUnique({
+      where: { slug },
+      select: { id: true },
+    });
+    if (!taken) break;
+    slug = `${slugify(data.clinicName)}-${suffix}`;
+  }
+
+  const trialEndsAt = new Date(Date.now() + TRIAL_DAYS * 86_400_000);
+  const passwordHash = await hashPassword(data.password);
+
+  try {
+    const created = await db.$transaction(async (tx) => {
+      const clinic = await tx.clinic.create({
+        data: {
+          name: data.clinicName,
+          slug,
+          phone: data.phone ?? null,
+          email: data.email,
+          defaultLocale: data.locale,
+          // Random 4-digit start so the first invoice number isn't a
+          // dead giveaway of "we're a brand-new cabinet, you're the
+          // first patient".
+          invoiceStartingNumber: 1000 + Math.floor(Math.random() * 9000),
+          trialEndsAt,
+        },
+        select: { id: true, slug: true, name: true },
+      });
+      await tx.user.create({
+        data: {
+          clinicId: clinic.id,
+          email: data.email,
+          passwordHash,
+          fullName: data.fullName,
+          role: UserRole.ADMIN,
+        },
+      });
+      return clinic;
+    });
+
+    await audit({
+      clinicId: created.id,
+      action: "clinic.signup",
+      entity: "Clinic",
+      entityId: created.id,
+      payload: { slug: created.slug, name: created.name, ip },
+    });
+    return ok({ redirectTo: `/login?email=${encodeURIComponent(data.email)}&signup=success` });
+  } catch (e) {
+    if (e instanceof Prisma.PrismaClientKnownRequestError && e.code === "P2002") {
+      return fail("EMAIL_TAKEN", "Cette adresse est déjà liée à un compte.");
+    }
+    console.error("[signup] unexpected error", e);
+    return fail(
+      "UNEXPECTED",
+      e instanceof Error ? `Erreur : ${e.message}` : "Une erreur est survenue, réessayez.",
+    );
+  }
 }

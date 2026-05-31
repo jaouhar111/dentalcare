@@ -60,6 +60,25 @@ const envSchema = z.object({
   UPSTASH_REDIS_REST_URL: z.string().url().optional(),
   UPSTASH_REDIS_REST_TOKEN: z.string().optional(),
 
+  // --- AI-0: AI provider cascade + event orchestrator ---
+
+  // Google Gemini (primary AI provider — free tier 1500 req/day).
+  // Get a key at https://aistudio.google.com/app/apikey.
+  GEMINI_API_KEY: z.string().optional(),
+  // Override the model — leave empty to use the cascade default.
+  GEMINI_MODEL: z.string().optional(),
+
+  // Groq (fallback when Gemini hits its 429). Free tier with rate limits.
+  // Get a key at https://console.groq.com/keys.
+  GROQ_API_KEY: z.string().optional(),
+  GROQ_MODEL: z.string().optional(),
+
+  // Inngest event orchestrator. Replaces Vercel cron with an event-driven
+  // pipeline (retry + visual debug). In dev you can run `npx inngest-cli
+  // dev` to get a local dashboard; the `signingKey` is then optional.
+  INNGEST_EVENT_KEY: z.string().optional(),
+  INNGEST_SIGNING_KEY: z.string().optional(),
+
   // Node / runtime
   NODE_ENV: z.enum(["development", "test", "production"]).default("development"),
 });

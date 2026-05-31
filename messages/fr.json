@@ -1,4 +1,96 @@
 {
+  "Landing": {
+    "nav": {
+      "overview": "Aperçu",
+      "features": "Fonctionnalités",
+      "demo": "Démo",
+      "pricing": "Tarifs",
+      "contact": "Contact",
+      "login": "Connexion",
+      "signup": "Essai gratuit",
+      "dashboard": "Mon dashboard"
+    },
+    "hero": {
+      "wordmark": "DentalCare.",
+      "tagline": "Le cabinet, géré tout seul.",
+      "sub": "Le bot WhatsApp parle français, anglais et darija et prend les RDV à votre place. Les rappels J-1 et les recalls détartrage partent seuls. Vous, vous soignez.",
+      "ctaPrimary": "Démarrer l'essai",
+      "ctaSecondary": "En savoir plus"
+    },
+    "trust": {
+      "stat1Big": "−42 %",
+      "stat1Caption": "de no-shows en moyenne, avec rappel J-1 automatique",
+      "stat2Big": "24/7",
+      "stat2Caption": "le bot WhatsApp répond, même quand vous dormez",
+      "stat3Big": "3 min",
+      "stat3Caption": "pour configurer un cabinet, de zéro"
+    },
+    "problem": {
+      "kicker": "Le problème",
+      "headline": "Vous avez signé pour soigner. Pas pour répondre à WhatsApp toute la journée.",
+      "sub": "30 à 50 messages WhatsApp par jour. RDV ratés. Recalls oubliés. Patients perdus à 22h. DentalCare met fin à tout ça.",
+      "ctaHow": "Voir comment ça marche",
+      "ctaPricing": "Voir les tarifs"
+    },
+    "features": {
+      "kicker": "Fonctionnalités",
+      "headline": "Tout ce qu'il faut. Rien de plus.",
+      "t1Kicker": "Bot IA WhatsApp",
+      "t1Title": "Parle FR, EN et darija.",
+      "t1Body": "Prend les RDV, répond aux urgences, transcrit les vocaux. Aucune surveillance.",
+      "t2Kicker": "Rappels J-1",
+      "t2Title": "Confirmations qui partent seules.",
+      "t2Body": "WhatsApp envoie le rappel 24 h avant. Patient confirme ou reporte en 1 clic.",
+      "t3Kicker": "Recalls automatiques",
+      "t3Title": "Détartrage, contrôle annuel.",
+      "t3Body": "Chaque détartrage déclenche un rappel à 6 mois. Le patient revient. Sans y penser.",
+      "t4Kicker": "Tout-en-un",
+      "t4Title": "Planning, factures, paiements.",
+      "t4Body": "Calendrier visuel, PDF en 1 clic, plans 3-6-12 mensualités, conformité 09-08."
+    },
+    "showcase": {
+      "kicker": "Conçu pour les vrais cabinets",
+      "headline": "Pensé au Maroc. Hébergé au Maroc.",
+      "sub": "Conforme à la loi 09-08 sur la protection des données. Vos patients restent chez vous."
+    },
+    "demo": {
+      "kicker": "Démo en conditions réelles",
+      "headlineA": "Un patient écrit.",
+      "headlineB": "Un RDV sort."
+    },
+    "pricing": {
+      "kicker": "Tarifs",
+      "headline": "Simple. Sans engagement.",
+      "sub": "14 jours gratuits sur tous les plans. Annulation en 1 clic. Tarifs HT en MAD / mois.",
+      "recommended": "Recommandé",
+      "starterName": "Starter",
+      "starterSub": "Pour découvrir DentalCare",
+      "starterPrice": "0",
+      "starterSuffix": "/ mois",
+      "starterCta": "Commencer gratuitement",
+      "proName": "Pro",
+      "proSub": "Le plus populaire",
+      "proPrice": "499",
+      "proSuffix": "MAD / mois",
+      "proCta": "Démarrer 14 j. gratuits",
+      "plusName": "Cabinet+",
+      "plusSub": "Pour les grandes équipes",
+      "plusPrice": "999",
+      "plusSuffix": "MAD / mois",
+      "plusCta": "Démarrer 14 j. gratuits"
+    },
+    "closing": {
+      "headline": "Laissez l'IA parler. Vous, soignez.",
+      "sub": "Créez votre cabinet en 2 minutes. 14 jours gratuits. Sans carte bancaire.",
+      "ctaPrimary": "Démarrer l'essai",
+      "ctaSecondary": "J'ai déjà un compte",
+      "compliance": "DentalCare est une plateforme de gestion de cabinet dentaire conçue au Maroc, hébergée au Maroc, conforme à la loi 09-08 sur la protection des données personnelles.",
+      "copyright": "Tous droits réservés.",
+      "terms": "Conditions d'utilisation",
+      "privacy": "Confidentialité",
+      "contact": "Contact"
+    }
+  },
   "Common": {
     "appName": "DentalCare",
     "tagline": "Gestion de cabinet dentaire",
@@ -38,8 +130,43 @@
   "LocaleSwitcher": {
     "label": "Langue",
     "fr": "Français",
-    "en": "English",
-    "ar": "العربية"
+    "en": "English"
+  },
+  "Signup": {
+    "tagline": "Lancez votre cabinet en 2 minutes",
+    "taglineDesc": "DentalCare s'occupe des rendez-vous, des relances et de l'IA WhatsApp. Vous, vous soignez.",
+    "bullet1": "Essai gratuit 14 jours, sans carte bancaire",
+    "bullet2": "Bot WhatsApp IA inclus (FR / AR / Darija)",
+    "bullet3": "Rappels J-1, recalls détartrage automatiques",
+    "bullet4": "Multi-utilisateurs : admin, dentiste, secrétaire",
+    "footer": "© DentalCare — Hébergé au Maroc",
+    "title": "Créer votre cabinet",
+    "subtitle": "Configurez votre espace en 30 secondes.",
+    "clinicNameLabel": "Nom du cabinet",
+    "clinicNamePlaceholder": "Cabinet Bennani",
+    "fullNameLabel": "Votre nom complet",
+    "fullNamePlaceholder": "Dr Bennani",
+    "phoneLabel": "Téléphone du cabinet",
+    "optional": "optionnel",
+    "emailLabel": "Email administrateur",
+    "passwordLabel": "Mot de passe",
+    "passwordHint": "min. 8 caractères",
+    "submit": "Créer mon cabinet",
+    "submitLoading": "Création…",
+    "haveAccount": "Vous avez déjà un compte ?",
+    "signIn": "Se connecter",
+    "legalNotice": "En créant un compte, vous acceptez nos CGU et notre politique de confidentialité conforme à la loi 09-08 (Maroc).",
+    "errors": {
+      "INVALID_INPUT": "Données invalides. Vérifiez les champs.",
+      "TOO_SHORT": "Ce champ est trop court.",
+      "TOO_LONG": "Ce champ dépasse la limite autorisée.",
+      "INVALID_EMAIL": "Adresse email invalide.",
+      "PASSWORD_TOO_SHORT": "Mot de passe trop court (min. 8 caractères).",
+      "PASSWORD_TOO_LONG": "Mot de passe trop long.",
+      "EMAIL_TAKEN": "Cette adresse email est déjà liée à un compte.",
+      "RATE_LIMITED": "Trop de tentatives. Réessayez dans quelques minutes.",
+      "UNEXPECTED": "Une erreur est survenue, réessayez."
+    }
   },
   "Login": {
     "title": "Bienvenue 👋",
@@ -53,6 +180,9 @@
     "forgotPassword": "Mot de passe oublié ?",
     "submit": "Se connecter",
     "submitLoading": "Connexion…",
+    "noAccount": "Pas encore de cabinet ?",
+    "createAccount": "Créer mon cabinet",
+    "signupSuccess": "🎉 Cabinet créé ! Connectez-vous avec votre email et votre mot de passe.",
     "errors": {
       "INVALID_INPUT": "Email ou mot de passe invalide.",
       "INVALID_CREDENTIALS": "Email ou mot de passe incorrect.",
@@ -91,6 +221,8 @@
     "missingToken": "Aucun lien de réinitialisation détecté."
   },
   "Nav": {
+    "Plateforme": "Plateforme",
+    "Super-admin": "Super-admin",
     "Pilotage": "Pilotage",
     "Patientèle": "Patientèle",
     "Cabinet": "Cabinet",
@@ -101,11 +233,15 @@
     "Factures": "Factures",
     "Stock": "Stock",
     "Rappels": "Rappels",
+    "Conversations IA": "Conversations IA",
+    "File des rappels": "File des rappels",
     "Dentistes": "Dentistes",
     "Utilisateurs": "Utilisateurs",
     "Traitements": "Traitements",
     "Paramètres": "Paramètres",
-    "Registre d'audit": "Registre d'audit"
+    "AI Receptionist": "AI Receptionist",
+    "Registre d'audit": "Registre d'audit",
+    "Support": "Support"
   },
   "Topbar": {
     "searchPlaceholder": "Rechercher patient, RDV, facture…",
@@ -113,6 +249,7 @@
     "notifications": "Notifications"
   },
   "Role": {
+    "SUPER_ADMIN": "Propriétaire plateforme",
     "ADMIN": "Administrateur",
     "DENTIST": "Dentiste",
     "RECEPTIONIST": "Réceptionniste"
@@ -224,8 +361,7 @@
     },
     "locale": {
       "fr": "Français",
-      "en": "English",
-      "ar": "العربية"
+      "en": "English"
     },
     "submit": "Enregistrer",
     "submitLoading": "Enregistrement…",
@@ -530,6 +666,9 @@
     "noAddress": "Adresse non renseignée",
     "noEmail": "Email non renseigné",
     "noMedicalHistory": "Aucun antécédent renseigné",
+    "viewFullRecord": "Voir le dossier complet",
+    "antecedents": "Antécédents",
+    "clinicalNotes": "Notes cliniques",
     "noRecentConsultations": "Aucune consultation passée",
     "noNextAppointment": "Aucun RDV à venir",
     "balanceLabels": {
@@ -810,6 +949,81 @@
       "recallsDue": "{count} rappel(s) cette semaine",
       "waitlist": "{count} patient(s) en liste d'attente",
       "openInvoices": "{count} facture(s) en retard"
+    }
+  },
+  "Conversations": {
+    "title": "Conversations IA",
+    "subtitle": "{count} conversation(s)",
+    "empty": "Aucune conversation pour le moment. Les patients qui écrivent au cabinet via WhatsApp apparaîtront ici.",
+    "selectOne": "Sélectionnez une conversation pour afficher l'historique.",
+    "noMessages": "(aucun message)",
+    "turns": "{count} tour(s)",
+    "tokens": "Tokens",
+    "createdAt": "Créée le",
+    "tabs": {
+      "ACTIVE": "Actives",
+      "HANDED_OFF": "Reprises",
+      "CLOSED": "Fermées",
+      "all": "Toutes"
+    },
+    "status": {
+      "ACTIVE": "Bot",
+      "HANDED_OFF": "Humain",
+      "CLOSED": "Fermée",
+      "handedOffBy": "Reprise par"
+    },
+    "messages": {
+      "tool": "outil"
+    },
+    "actions": {
+      "handover": "Reprendre la main",
+      "handoverConfirm": "Le bot arrêtera de répondre. Vous prendrez en charge cette conversation manuellement.",
+      "reactivate": "Rendre au bot"
+    },
+    "admin": {
+      "inputPlaceholder": "Tapez votre réponse au patient…",
+      "send": "Envoyer",
+      "hint": "Reprenez la main pour répondre manuellement.",
+      "marker": "Vous"
+    },
+    "searchPlaceholder": "Rechercher (numéro ou nom)…",
+    "unreadDot": "Nouveau message"
+  },
+  "RemindersQueue": {
+    "title": "File des rappels",
+    "subtitle": "Aperçu des messages WhatsApp programmés et envoyés",
+    "kpi": {
+      "appointments": "RDV à rappeler",
+      "appointmentsHelp": "{sent} déjà envoyé(s)",
+      "recalls": "Recalls à venir",
+      "recallsHelp": "Patients à recontacter sous 60 jours",
+      "failures": "Échecs (7j)",
+      "failuresHelp": "Envois WhatsApp qui ont échoué"
+    },
+    "sections": {
+      "appointments": "Prochains rappels J-1 (RDV)",
+      "recalls": "Recalls patients à venir",
+      "failures": "Échecs récents (7 derniers jours)",
+      "empty": "Aucun élément.",
+      "noFailures": "Aucun échec récent — tout passe."
+    },
+    "col": {
+      "startAt": "Date RDV",
+      "reminderAt": "Rappel J-1",
+      "patient": "Patient",
+      "dentist": "Dentiste",
+      "status": "Statut",
+      "dueDate": "Échéance",
+      "kind": "Type",
+      "reason": "Motif",
+      "when": "Quand",
+      "action": "Action",
+      "target": "Cible",
+      "error": "Erreur"
+    },
+    "status": {
+      "queued": "À envoyer",
+      "sent": "Envoyé"
     }
   },
   "Recalls": {

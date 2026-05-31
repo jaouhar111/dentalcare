@@ -59,7 +59,7 @@ export async function PrescriptionsTab({
       <div className="flex flex-wrap items-end justify-between gap-3">
         <div>
           <h2 className="text-foreground text-lg font-semibold">{t("title")}</h2>
-          <p className="text-muted-foreground mt-0.5 text-sm">
+          <p className="page-sub">
             <span className="num">{items.length}</span>{" "}
             {t("subtitle", { count: items.length }).replace(`${items.length} `, "")}
           </p>

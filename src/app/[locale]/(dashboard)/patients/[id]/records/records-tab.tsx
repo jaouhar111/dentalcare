@@ -51,7 +51,7 @@ export async function RecordsTab({
       <div className="flex flex-wrap items-end justify-between gap-3">
         <div>
           <h2 className="text-foreground text-lg font-semibold">{t("title")}</h2>
-          <p className="text-muted-foreground mt-0.5 text-sm">{t("subtitle")}</p>
+          <p className="page-sub">{t("subtitle")}</p>
         </div>
         <div className="flex flex-wrap items-center gap-2">
           {canManage && <AddNoteForm patientId={patientId} />}

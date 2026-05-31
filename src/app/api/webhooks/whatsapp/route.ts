@@ -3,10 +3,16 @@ import { AppointmentStatus } from "@prisma/client";
 import { db } from "@/lib/db/client";
 import { audit } from "@/lib/audit";
 import {
+  downloadMedia,
+  parseAudioMessages,
   parseQuickReplies,
+  parseTextMessages,
+  sendText,
   verifyWebhookChallenge,
   verifyWebhookSignature,
 } from "@/lib/whatsapp/client";
+import { handleInboundTextMessage } from "@/lib/ai/webhook-handler";
+import { transcribeAudio } from "@/lib/ai/transcribe";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -52,7 +58,103 @@ export async function POST(req: NextRequest) {
     });
   }
 
+  // Meta groups all change events under `entry[].changes[].value` and
+  // each `value` carries the `metadata.phone_number_id` that identifies
+  // *which* of our cabinets the message landed on. We pull it once so
+  // the per-message handlers can route by cabinet without re-parsing.
+  const metaPhoneNumberId = extractMetaPhoneNumberId(payload);
+
+  // Plain-text messages → AI booking engine. Run sequentially so a
+  // patient who sends two messages in rapid succession gets a coherent
+  // history (no interleaved persistence). Failures are caught so one
+  // bad message doesn't poison the whole batch.
+  const texts = parseTextMessages(payload);
+  for (const t of texts) {
+    await handleInboundTextMessage({
+      fromPhone: t.from,
+      body: t.body,
+      messageId: t.messageId,
+      metaPhoneNumberId,
+    }).catch((err) => {
+      console.error("[whatsapp:webhook] AI handler failed", { from: t.from, err });
+    });
+  }
+
+  // Voice notes → download from Meta → Gemini transcribes → fed into
+  // the same engine as text. Failures fall back to a polite "désolé je
+  // n'ai pas compris" text so the patient knows to try again.
+  const audios = parseAudioMessages(payload);
+  for (const a of audios) {
+    await handleInboundAudio({ ...a, metaPhoneNumberId }).catch((err) => {
+      console.error("[whatsapp:webhook] audio handler failed", { from: a.from, err });
+    });
+  }
+
   return NextResponse.json({ ok: true });
+}
+
+function extractMetaPhoneNumberId(payload: unknown): string | null {
+  if (!payload || typeof payload !== "object") return null;
+  const entries = (payload as { entry?: unknown[] }).entry;
+  if (!Array.isArray(entries)) return null;
+  for (const entry of entries) {
+    const changes = (entry as { changes?: unknown[] }).changes;
+    if (!Array.isArray(changes)) continue;
+    for (const change of changes) {
+      const value = (change as { value?: { metadata?: { phone_number_id?: string } } })
+        .value;
+      const id = value?.metadata?.phone_number_id;
+      if (typeof id === "string" && id.length > 0) return id;
+    }
+  }
+  return null;
+}
+
+async function handleInboundAudio(a: {
+  from: string;
+  mediaId: string;
+  mimeType: string;
+  messageId: string;
+  metaPhoneNumberId?: string | null;
+}) {
+  const normalized = a.from.startsWith("+") ? a.from : `+${a.from}`;
+  const media = await downloadMedia(a.mediaId);
+  if (!media.ok) {
+    console.error("[whatsapp:webhook] downloadMedia failed", { mediaId: a.mediaId, err: media.error });
+    await sendText({
+      to: normalized,
+      body: "Désolé, je n'ai pas pu télécharger ton message vocal. Peux-tu réécrire ?",
+    }).catch(() => undefined);
+    return;
+  }
+  const transcript = await transcribeAudio({ buffer: media.buffer, mimeType: media.mimeType });
+  if (!transcript.ok) {
+    if (transcript.error === "INAUDIBLE") {
+      await sendText({
+        to: normalized,
+        body: "Je n'arrive pas à comprendre le vocal — il est peut-être trop court ou inaudible. Tu peux réessayer ou m'écrire en texte ?",
+      }).catch(() => undefined);
+      return;
+    }
+    console.error("[whatsapp:webhook] transcribe failed", { err: transcript.error });
+    await sendText({
+      to: normalized,
+      body: "Petit problème pour comprendre ton vocal — peux-tu réécrire ?",
+    }).catch(() => undefined);
+    return;
+  }
+  // Hand the transcript to the same engine that handles text messages.
+  // `replyInVoice: true` flips the handler into TTS mode: it generates
+  // a Gemini voice note, uploads it to Meta, and sends it back. The
+  // text version is still sent so the admin /conversations view shows
+  // the conversation as words, not just audio links.
+  await handleInboundTextMessage({
+    fromPhone: a.from,
+    body: `🎙️ ${transcript.text}`,
+    messageId: a.messageId,
+    replyInVoice: true,
+    metaPhoneNumberId: a.metaPhoneNumberId,
+  });
 }
 
 async function handleButton(fromPhone: string, payload: string) {

@@ -3,6 +3,7 @@ import {
   Page,
   Text,
   View,
+  Image,
   StyleSheet,
   pdf,
 } from "@react-pdf/renderer";
@@ -119,10 +120,19 @@ function PrescriptionPDF({ p }: { p: PrescriptionDetail }) {
     >
       <Page size="A4" style={styles.page}>
         <View style={styles.headerRow}>
-          <View>
-            <Text style={styles.clinicName}>{p.clinicName}</Text>
-            {p.clinicAddress && <Text style={styles.clinicMeta}>{p.clinicAddress}</Text>}
-            {p.clinicPhone && <Text style={styles.clinicMeta}>{p.clinicPhone}</Text>}
+          <View style={{ flexDirection: "row", gap: 10, alignItems: "flex-start" }}>
+            {p.clinicLogoUrl && (
+              // eslint-disable-next-line jsx-a11y/alt-text
+              <Image
+                src={p.clinicLogoUrl}
+                style={{ width: 48, height: 48, objectFit: "contain" }}
+              />
+            )}
+            <View>
+              <Text style={styles.clinicName}>{p.clinicName}</Text>
+              {p.clinicAddress && <Text style={styles.clinicMeta}>{p.clinicAddress}</Text>}
+              {p.clinicPhone && <Text style={styles.clinicMeta}>{p.clinicPhone}</Text>}
+            </View>
           </View>
           <View style={{ alignItems: "flex-end" }}>
             <Text style={styles.docTitle}>ORDONNANCE</Text>

@@ -27,7 +27,7 @@ export default async function DentistDetailPage({
 
   const session = await auth();
   if (!session?.user || session.user.role !== UserRole.ADMIN) {
-    redirect(`/${locale}` as never);
+    redirect(`/${locale}/dashboard` as never);
   }
 
   const { tab = "info" } = await searchParams;
@@ -58,7 +58,7 @@ export default async function DentistDetailPage({
           </div>
           <div className="min-w-0 flex-1">
             <div className="flex flex-wrap items-start justify-between gap-3">
-              <h1 className="text-2xl font-bold tracking-tight">
+              <h1 className="page-h1">
                 Dr {dentist.firstName} {dentist.lastName}
               </h1>
               <ToggleActiveButton
@@ -67,7 +67,7 @@ export default async function DentistDetailPage({
                 dentistName={dentistName}
               />
             </div>
-            <p className="text-muted-foreground mt-0.5 text-sm">
+            <p className="page-sub">
               {dentist.specialty ?? "—"}
               {dentist.phone && (
                 <>

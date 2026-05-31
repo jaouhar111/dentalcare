@@ -35,4 +35,5 @@ export interface PrescriptionDetail extends PrescriptionListItem {
   clinicName: string;
   clinicAddress: string | null;
   clinicPhone: string | null;
+  clinicLogoUrl: string | null;
 }

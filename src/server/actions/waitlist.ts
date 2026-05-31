@@ -203,8 +203,25 @@ export async function findWaitlistCandidates(args: {
   startAt: Date;
   endAt: Date;
 }): Promise<Array<{ id: string; patientId: string }>> {
-  const slotDuration = Math.round((args.endAt.getTime() - args.startAt.getTime()) / 60_000);
-  const slotHour = args.startAt.getHours();
+  // Defensive: when this is called from an Inngest event, dates can
+  // come through as strings → `new Date(undefined)` → Invalid Date →
+  // `.getTime()` returns NaN → Prisma's `lte` validation fails with
+  // a cryptic "Argument lte is missing" error. Coerce to Date if
+  // string was passed, then early-return cleanly if the result is
+  // still not a valid date.
+  const startAt = args.startAt instanceof Date ? args.startAt : new Date(args.startAt);
+  const endAt = args.endAt instanceof Date ? args.endAt : new Date(args.endAt);
+  const startMs = startAt.getTime();
+  const endMs = endAt.getTime();
+  if (!Number.isFinite(startMs) || !Number.isFinite(endMs)) {
+    console.warn("[waitlist] invalid startAt/endAt, skipping match", {
+      startAt: args.startAt,
+      endAt: args.endAt,
+    });
+    return [];
+  }
+  const slotDuration = Math.max(1, Math.round((endMs - startMs) / 60_000));
+  const slotHour = startAt.getHours();
   const morning = slotHour < 13;
 
   const candidates = await db.waitlistEntry.findMany({
@@ -298,7 +315,7 @@ export async function proposeSlotToWaitlist(args: {
   await Promise.allSettled(
     entries.map((e) => {
       const locale = (e.patient.preferredLocale as Locale) ?? "fr";
-      const lang = locale === "en" ? "en" : locale === "ar" ? "ar" : "fr";
+      const lang = locale === "en" ? "en" : "fr";
       return sendTemplate({
         to: e.patient.phone,
         template: WAITLIST_SLOT_OFFERED,

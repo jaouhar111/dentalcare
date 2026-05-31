@@ -20,8 +20,9 @@ const notoArabic = Noto_Sans_Arabic({
 });
 
 export const metadata: Metadata = {
-  title: "DentalCare",
-  description: "Dental practice management — patients, appointments, records, billing.",
+  title: "DentalCare — Le cabinet dentaire, géré tout seul.",
+  description:
+    "Un bot WhatsApp IA prend les RDV (FR / EN / Darija), envoie les rappels J-1 et les recalls détartrage. 14 jours gratuits. Hébergé au Maroc.",
   manifest: "/manifest.webmanifest",
   appleWebApp: {
     capable: true,
@@ -34,6 +35,31 @@ export const metadata: Metadata = {
       { url: "/icon-512.svg", sizes: "512x512", type: "image/svg+xml" },
     ],
     apple: [{ url: "/icon-512.svg", sizes: "512x512" }],
+  },
+  /* Open Graph + Twitter cards — surface the marketing landing on
+     WhatsApp / Facebook / LinkedIn / Twitter shares. The og-image.jpg
+     is dropped manually into `/public/landing/`; Next serves the
+     declared URL even if the file is missing (broken image in the
+     preview), so we add a hard-coded fallback to `/icon-512.svg` at
+     the SVG level. */
+  openGraph: {
+    title: "DentalCare — Le cabinet dentaire, géré tout seul.",
+    description:
+      "Un bot WhatsApp IA prend les RDV à votre place. Rappels et recalls automatiques. 14 jours gratuits.",
+    url: "/",
+    siteName: "DentalCare",
+    images: [
+      { url: "/landing/og-image.jpg", width: 1200, height: 630, alt: "DentalCare" },
+    ],
+    locale: "fr_MA",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "DentalCare — Le cabinet dentaire, géré tout seul.",
+    description:
+      "Un bot WhatsApp IA prend les RDV à votre place. Rappels et recalls automatiques. 14 jours gratuits.",
+    images: ["/landing/og-image.jpg"],
   },
 };
 
@@ -76,9 +102,10 @@ export default async function LocaleLayout({
     <html
       lang={locale}
       dir={dir}
+      data-vertical="dental"
       className={`${inter.variable} ${notoArabic.variable} h-full antialiased`}
     >
-      <body className="bg-background text-foreground flex min-h-full flex-col">
+      <body className="text-foreground flex min-h-full flex-col">
         <NextIntlClientProvider messages={messages}>{children}</NextIntlClientProvider>
       </body>
     </html>

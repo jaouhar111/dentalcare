@@ -41,7 +41,7 @@ export async function PaymentPlanSection({
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div>
             <h2 className="font-semibold">{t("title")}</h2>
-            <p className="text-muted-foreground mt-0.5 text-sm">{t("noPlan")}</p>
+            <p className="page-sub">{t("noPlan")}</p>
           </div>
           <CreatePlanDialog invoiceId={invoiceId} remaining={remaining} />
         </div>

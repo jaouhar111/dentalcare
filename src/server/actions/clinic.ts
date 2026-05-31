@@ -33,8 +33,13 @@ export async function getClinic() {
       phone: true,
       email: true,
       vatNumber: true,
+      logoUrl: true,
       defaultLocale: true,
       invoiceStartingNumber: true,
+      subscriptionStatus: true,
+      plan: true,
+      trialEndsAt: true,
+      createdAt: true,
     },
   });
 }
@@ -54,6 +59,7 @@ export async function updateClinic(raw: UpdateClinicInput): Promise<Result<{ id:
       phone: data.phone ?? null,
       email: data.email ?? null,
       vatNumber: data.vatNumber ?? null,
+      logoUrl: data.logoUrl ?? null,
       defaultLocale: data.defaultLocale,
     },
   });
@@ -65,5 +71,10 @@ export async function updateClinic(raw: UpdateClinicInput): Promise<Result<{ id:
     entityId: me.clinicId,
   });
   revalidatePath("/[locale]/settings", "page");
+  // PDFs (invoice + prescription) embed the logo + clinic header — refresh
+  // the patient/invoice pages too so a logo change shows up immediately on
+  // the print pages without waiting for the next deploy.
+  revalidatePath("/[locale]/invoices", "page");
+  revalidatePath("/[locale]/prescriptions", "page");
   return ok({ id: me.clinicId });
 }

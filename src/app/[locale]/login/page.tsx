@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 import { auth } from "@/lib/auth";
 import { LocaleSwitcher } from "@/components/locale-switcher";
 import { LegalFooter } from "@/components/legal-footer";
+import { Link } from "@/i18n/navigation";
 import { LoginForm } from "./login-form";
 
 export default async function LoginPage({
@@ -10,19 +11,29 @@ export default async function LoginPage({
   searchParams,
 }: {
   params: Promise<{ locale: string }>;
-  searchParams: Promise<{ redirect?: string }>;
+  searchParams: Promise<{ redirect?: string; email?: string; signup?: string }>;
 }) {
   const { locale } = await params;
   setRequestLocale(locale);
-  const { redirect: redirectParam } = await searchParams;
+  const {
+    redirect: redirectParam,
+    email: emailParam,
+    signup: signupParam,
+  } = await searchParams;
 
   const session = await auth();
   if (session?.user) {
-    redirect(`/${locale}`);
+    // Owner → platform area, everyone else → cabinet dashboard.
+    redirect(
+      session.user.role === "SUPER_ADMIN"
+        ? `/${locale}/super-admin`
+        : `/${locale}/dashboard`,
+    );
   }
 
   const t = await getTranslations("Login");
-  const redirectTo = redirectParam ?? `/${locale}`;
+  const redirectTo = redirectParam ?? `/${locale}/dashboard`;
+  const justSignedUp = signupParam === "success";
 
   return (
     <div className="grid min-h-screen lg:grid-cols-2">
@@ -71,7 +82,22 @@ export default async function LoginPage({
             <p className="text-muted-foreground mt-1 text-sm">{t("subtitle")}</p>
           </div>
 
-          <LoginForm redirectTo={redirectTo} />
+          {justSignedUp ? (
+            <div className="rounded-md border border-emerald-300/40 bg-emerald-500/10 p-3 text-sm text-emerald-700 dark:text-emerald-300">
+              {t("signupSuccess")}
+            </div>
+          ) : null}
+
+          <LoginForm redirectTo={redirectTo} defaultEmail={emailParam ?? null} />
+          <p className="text-muted-foreground text-center text-sm">
+            {t("noAccount")}{" "}
+            <Link
+              href={"/signup" as never}
+              className="text-primary font-medium hover:underline"
+            >
+              {t("createAccount")}
+            </Link>
+          </p>
           <LegalFooter variant="centered" />
         </div>
       </div>

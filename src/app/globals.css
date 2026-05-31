@@ -1,6 +1,13 @@
 @import "tailwindcss";
 @import "tw-animate-css";
 
+/* Instrument Serif — self-hosted via @fontsource so the landing page
+   typography doesn't depend on whatever serif the visitor's OS ships
+   (Times New Roman varies wildly). Loaded with `font-display: swap`
+   so the splittext animation doesn't FOIT. */
+@import "@fontsource/instrument-serif/400.css";
+@import "@fontsource/instrument-serif/400-italic.css";
+
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {
@@ -47,6 +54,44 @@
 
 :root {
   --radius: 0.625rem;
+
+  /* ────────────────────────────────────────────────────────────────
+     Liquid Glass tokens — Apple-inspired design system layer.
+     Lives alongside the existing oklch palette so legacy Tailwind
+     utilities (bg-background, text-foreground) keep working while
+     new chrome (sidebar, topbar) can switch to glass materials.
+     ──────────────────────────────────────────────────────────────── */
+
+  /* Spring + smoothing curves used by buttons, cards, drawers */
+  --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --ease-smooth: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-snappy: cubic-bezier(0.4, 0, 0.2, 1);
+
+  /* Mesh-gradient blob colors — overridden per vertical below */
+  --mesh-1: #A5F3FC;
+  --mesh-2: #DBEAFE;
+  --mesh-3: #CFFAFE;
+  --mesh-4: #E0F2FE;
+  --mesh-base: #FAFAFC;
+
+  /* Accent (mirrors the OKLCH `--primary` in hex for direct use in
+     `linear-gradient(...)` where OKLCH isn't well supported yet) */
+  --accent-1: #06B6D4;
+  --accent-2: #0891B2;
+  --accent-strong: #155E75;
+  --accent-soft: rgba(8, 145, 178, 0.12);
+  --accent-glow: rgba(8, 145, 178, 0.35);
+
+  /* Glass-specific shadow stacks — inset highlight + drop shadow */
+  --shadow-glass-sm:
+    inset 0 1px 0 0 rgba(255, 255, 255, 0.55),
+    0 4px 12px rgba(15, 23, 42, 0.04);
+  --shadow-glass:
+    inset 0 1px 0 0 rgba(255, 255, 255, 0.7),
+    0 8px 32px rgba(15, 23, 42, 0.08);
+  --shadow-glass-lg:
+    inset 0 1px 0 0 rgba(255, 255, 255, 0.7),
+    0 20px 60px rgba(15, 23, 42, 0.12);
 
   --background: oklch(1 0 0);
   --foreground: oklch(0.13 0.028 261.692);
@@ -117,116 +162,807 @@
     @apply border-border outline-ring/50;
   }
   body {
-    @apply bg-background text-foreground;
+    @apply text-foreground;
+    /* Liquid Glass mesh gradient — 4 colored blobs diffused over a
+       neutral base. The blobs flow off-screen so the visible window
+       stays mostly base color with hints of accent at the corners.
+       `background-attachment: fixed` keeps the gradient anchored when
+       the user scrolls. */
+    background:
+      radial-gradient(at 12% 0%, var(--mesh-1) 0, transparent 50%),
+      radial-gradient(at 88% 0%, var(--mesh-2) 0, transparent 50%),
+      radial-gradient(at 88% 100%, var(--mesh-3) 0, transparent 50%),
+      radial-gradient(at 12% 100%, var(--mesh-4) 0, transparent 50%),
+      var(--mesh-base);
+    background-attachment: fixed;
     font-family: var(--font-sans), system-ui, sans-serif;
     font-feature-settings:
       "rlig" 1,
       "calt" 1;
+    position: relative;
+    transition: background 600ms var(--ease-smooth);
+  }
+  /* Noise overlay — the signature Apple "tangible" feel. Inline SVG
+     filter avoids a network request; mix-blend overlay adapts to the
+     mesh underneath. */
+  body::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 1;
+    opacity: 0.025;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+    mix-blend-mode: overlay;
   }
   .num {
     font-variant-numeric: tabular-nums;
   }
+  /* Honor users who'd rather not see all the spring physics. */
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
+    }
+  }
 }
 
-/* ─── Sonner toast custom theme ──────────────────────────────────────────
-   The `.cn-toast` class is applied via `toastOptions.classNames` from the
-   Toaster component. We override Sonner's defaults to render a card with a
-   colored accent bar on the leading edge + a rounded icon chip. */
-[data-sonner-toaster] .cn-toast {
-  position: relative;
-  display: flex;
-  align-items: flex-start;
-  gap: 0.75rem;
-  padding: 0.875rem 1rem 0.875rem 1.25rem;
-  background-color: var(--popover);
-  color: var(--popover-foreground);
-  border: 1px solid var(--border);
-  border-radius: 0.75rem;
+/* ──────────────────────────────────────────────────────────────────
+   Vertical themes — override mesh + accent per cabinet specialty.
+   The default :root above carries dental already; explicit selector
+   keeps the design system honest and lets us add others (kine,
+   psycho, midwifery…) later.
+   ────────────────────────────────────────────────────────────────── */
+html[data-vertical="dental"] {
+  --accent-1: #06B6D4;
+  --accent-2: #0891B2;
+  --accent-strong: #155E75;
+  --accent-soft: rgba(8, 145, 178, 0.12);
+  --accent-glow: rgba(8, 145, 178, 0.35);
+  --mesh-1: #A5F3FC;
+  --mesh-2: #DBEAFE;
+  --mesh-3: #CFFAFE;
+  --mesh-4: #E0F2FE;
+}
+
+/* ──────────────────────────────────────────────────────────────────
+   Glass material utilities — Apple HIG 4-level stack.
+   Use sparingly: chrome (sidebar, topbar, modals, hero cards) only.
+   For data-dense surfaces (tables, calendars), stay opaque with the
+   default `bg-card` / `bg-background`.
+   ────────────────────────────────────────────────────────────────── */
+.glass-thin {
+  background: rgba(255, 255, 255, 0.72);
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  box-shadow: var(--shadow-glass);
+}
+.glass-regular {
+  background: rgba(255, 255, 255, 0.82);
+  backdrop-filter: blur(28px) saturate(180%);
+  -webkit-backdrop-filter: blur(28px) saturate(180%);
+  border: 1px solid rgba(255, 255, 255, 0.28);
+  box-shadow: var(--shadow-glass);
+}
+.glass-thick {
+  background: rgba(255, 255, 255, 0.92);
+  backdrop-filter: blur(40px) saturate(180%);
+  -webkit-backdrop-filter: blur(40px) saturate(180%);
+  border: 1px solid rgba(255, 255, 255, 0.32);
+  box-shadow: var(--shadow-glass-lg);
+}
+.glass-dark {
+  background: rgba(11, 18, 32, 0.55);
+  backdrop-filter: blur(28px) saturate(180%);
+  -webkit-backdrop-filter: blur(28px) saturate(180%);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  box-shadow: var(--shadow-glass-lg);
+  color: white;
+}
+/* Vibrancy chip — accent-colored translucent tint that mixes with
+   the surface it sits on (used by badges, status pills, soft CTAs). */
+.glass-tinted {
+  background: color-mix(in srgb, var(--accent-2) 18%, transparent);
+  color: var(--accent-strong);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+/* Press-feedback for buttons: tiny squeeze on :active. */
+.btn-spring {
+  transition: transform 200ms var(--ease-spring), background 150ms var(--ease-smooth);
+}
+.btn-spring:active {
+  transform: scale(0.96);
+}
+
+/* ──────────────────────────────────────────────────────────────────
+   Apple UIActivityIndicator — 12 blades fading in turn.
+   Each blade carries its own animation-delay so the "highlight"
+   walks around the wheel instead of all 12 blinking in sync.
+   ────────────────────────────────────────────────────────────────── */
+@keyframes apple-spin-blade {
+  0% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0.25;
+  }
+}
+.apple-spinner {
+  /* The blades carry the animation; the SVG itself stays still — no
+     `animate-spin` here, which would re-rotate already-rotated blades. */
+  vertical-align: middle;
+}
+
+/* Inline gradient primary CTA — used by Link/<button> elements in
+   Server Components that can't reach the shadcn `<Button>` component.
+   Mirrors the gradient + glow of the default Button variant so the
+   visual language stays consistent. */
+.btn-gradient-primary {
+  background: linear-gradient(180deg, var(--accent-1), var(--accent-2));
   box-shadow:
-    0 1px 2px rgb(0 0 0 / 0.04),
-    0 8px 24px -4px rgb(0 0 0 / 0.08),
-    0 0 0 1px rgb(0 0 0 / 0.02);
+    inset 0 1px 0 rgba(255, 255, 255, 0.3),
+    0 4px 14px var(--accent-glow);
+}
+.btn-gradient-primary:hover {
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.3),
+    0 6px 20px var(--accent-glow);
+}
+
+/* ──────────────────────────────────────────────────────────────────
+   Layout primitives — page header + glass cards + KPI tiles.
+   Mirrors the prototype so dashboards/list pages can drop in without
+   reinventing the same spacing every time.
+   ────────────────────────────────────────────────────────────────── */
+.page-h1 {
+  font-size: 32px;
+  font-weight: 800;
+  line-height: 1.1;
+  letter-spacing: -0.03em;
+  color: var(--foreground);
+}
+.page-sub {
+  color: var(--muted-foreground);
+  font-size: 15px;
+  margin-top: 4px;
+}
+.page-h1-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+/* Glass-aware card — heavier than chrome glass. Use for hero cards
+   and dashboard panels where the colored mesh should show through. */
+.card-glass {
+  background: rgba(255, 255, 255, 0.72);
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  border-radius: 24px;
+  padding: 24px;
+  box-shadow: var(--shadow-glass);
+  transition: transform 300ms var(--ease-smooth), box-shadow 300ms var(--ease-smooth);
+}
+
+/* ─── Apple-style flat cards ──────────────────────────────────────────
+   apple.com vocabulary — pure white surface, very subtle gray ring,
+   double-stop shadow (1px close + diffuse drop). No backdrop blur,
+   no gradient banners. Use these on the super-admin platform pages
+   for the "owner-grade premium" feel instead of `.card-glass` which
+   reads as colorful cabinet glass.
+*/
+.apple-card {
+  background: #ffffff;
+  border-radius: 18px;
+  padding: 24px;
+  box-shadow:
+    0 1px 2px rgba(0, 0, 0, 0.04),
+    0 8px 24px -12px rgba(0, 0, 0, 0.06);
+  border: 1px solid rgba(0, 0, 0, 0.04);
+}
+.dark .apple-card {
+  background: rgba(28, 28, 30, 0.85);
+  border-color: rgba(255, 255, 255, 0.06);
+  box-shadow:
+    0 1px 2px rgba(0, 0, 0, 0.5),
+    0 12px 32px -12px rgba(0, 0, 0, 0.4);
+}
+
+.apple-card-soft {
+  background: #f5f5f7;
+  border-radius: 18px;
+  padding: 24px;
+  border: 1px solid rgba(0, 0, 0, 0.03);
+}
+.dark .apple-card-soft {
+  background: rgba(255, 255, 255, 0.04);
+  border-color: rgba(255, 255, 255, 0.06);
+}
+
+/* Apple KPI tile — small, flat, no halo. Two number sizes via inner
+   `.apple-kpi-value`. Pairs with `.apple-card-soft` on hover-less
+   contexts (dashboards) or `.apple-card` when it stands alone. */
+.apple-kpi {
+  background: #ffffff;
+  border-radius: 16px;
+  padding: 18px;
+  border: 1px solid rgba(0, 0, 0, 0.05);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.03);
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.dark .apple-kpi {
+  background: rgba(28, 28, 30, 0.7);
+  border-color: rgba(255, 255, 255, 0.06);
+}
+.apple-kpi-label {
+  color: #6e6e73;
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+.dark .apple-kpi-label {
+  color: #a1a1a6;
+}
+.apple-kpi-value {
+  color: #1d1d1f;
+  font-size: 32px;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+}
+.dark .apple-kpi-value {
+  color: #f5f5f7;
+}
+.apple-kpi-sub {
+  color: #6e6e73;
+  font-size: 12px;
+}
+.dark .apple-kpi-sub {
+  color: #86868b;
+}
+
+/* ─── AI CHAT — admin Conversations IA page ────────────────────────────
+   Ported from the saas-cabinet design prototype. Liquid Glass surfaces
+   with a saturated mesh under the message stream so the chat feels
+   anchored even on the long scroll. */
+.chat-list-card {
+  background: rgba(255, 255, 255, 0.6);
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  border-radius: var(--radius-xl);
+  overflow: hidden;
+  box-shadow: var(--shadow-glass-sm);
+}
+.chat-list-item {
+  padding: 14px 18px;
+  border-bottom: 1px solid color-mix(in srgb, var(--border) 60%, transparent);
+  cursor: pointer;
+  transition: background 150ms var(--ease-smooth);
+  display: block;
+  color: inherit;
+  text-decoration: none;
+}
+.chat-list-item:last-child {
+  border-bottom: 0;
+}
+.chat-list-item:hover {
+  background: rgba(255, 255, 255, 0.6);
+}
+.chat-list-item.is-active {
+  background: var(--accent-soft);
+  border-left: 3px solid var(--accent-2);
+  padding-left: 15px;
+}
+
+.chat-container {
+  background: rgba(255, 255, 255, 0.7);
+  backdrop-filter: blur(24px) saturate(180%);
+  -webkit-backdrop-filter: blur(24px) saturate(180%);
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  border-radius: var(--radius-xl);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  min-height: 600px;
+  box-shadow: var(--shadow-glass);
+}
+.chat-header {
+  padding: 16px 20px;
+  border-bottom: 1px solid color-mix(in srgb, var(--border) 60%, transparent);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: rgba(255, 255, 255, 0.4);
+}
+.chat-channel-badge {
+  padding: 5px 10px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 600;
+  background: linear-gradient(135deg, #25D366, #128C7E);
+  color: white;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  box-shadow: 0 4px 12px rgba(37, 211, 102, 0.3);
+}
+.chat-messages {
+  flex: 1;
+  padding: 24px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  background:
+    radial-gradient(at 50% 0%, var(--accent-soft) 0, transparent 60%),
+    rgba(250, 250, 252, 0.5);
+}
+.chat-msg {
+  max-width: 75%;
+  padding: 12px 16px;
+  border-radius: 18px;
+  font-size: 14px;
+  line-height: 1.45;
+  position: relative;
+  animation: chatMsgIn 380ms var(--ease-spring);
+}
+@keyframes chatMsgIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.chat-msg.user {
+  align-self: flex-end;
+  background: linear-gradient(135deg, var(--accent-2), var(--accent-1));
+  color: white;
+  border-bottom-right-radius: 4px;
+  box-shadow: 0 4px 14px var(--accent-glow), inset 0 1px 0 rgba(255, 255, 255, 0.2);
+}
+.chat-msg.bot {
+  align-self: flex-start;
+  background: white;
+  border: 1px solid rgba(15, 23, 42, 0.06);
+  border-bottom-left-radius: 4px;
+  box-shadow: 0 2px 8px rgba(15, 23, 42, 0.04);
+}
+.chat-msg .meta {
+  font-size: 10px;
+  opacity: 0.7;
+  margin-top: 4px;
+}
+.chat-msg.tool {
+  align-self: flex-start;
+  background: rgba(15, 23, 42, 0.04);
+  border: 1px dashed rgba(15, 23, 42, 0.15);
+  font-family: ui-monospace, SFMono-Regular, monospace;
+  font-size: 11px;
+  max-width: 90%;
+  color: var(--muted-foreground);
+  border-radius: 8px;
+}
+.chat-msg.tool strong {
+  color: var(--accent-2);
+}
+
+.dark .chat-list-card,
+.dark .chat-container {
+  background: rgba(15, 23, 42, 0.55);
+  border-color: rgba(255, 255, 255, 0.06);
+}
+.dark .chat-header {
+  background: rgba(15, 23, 42, 0.35);
+}
+.dark .chat-list-item:hover {
+  background: rgba(255, 255, 255, 0.04);
+}
+.dark .chat-msg.bot {
+  background: rgba(30, 41, 59, 0.85);
+  border-color: rgba(255, 255, 255, 0.06);
+  color: var(--foreground);
+}
+.dark .chat-msg.tool {
+  background: rgba(255, 255, 255, 0.04);
+  border-color: rgba(255, 255, 255, 0.1);
+  color: var(--muted-foreground);
+}
+.dark .chat-messages {
+  background:
+    radial-gradient(at 50% 0%, var(--accent-soft) 0, transparent 60%),
+    rgba(15, 23, 42, 0.45);
+}
+
+/* KPI card — dashboard tile with colored corner glow + gradient icon. */
+.kpi-card {
+  position: relative;
+  padding: 22px;
+  background: rgba(255, 255, 255, 0.72);
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  border-radius: 24px;
+  box-shadow: var(--shadow-glass-sm);
+  transition: transform 300ms var(--ease-spring), box-shadow 300ms;
   overflow: hidden;
 }
-[data-sonner-toaster] .cn-toast::before {
+.kpi-card:hover {
+  transform: translateY(-3px);
+  box-shadow: var(--shadow-glass);
+}
+.kpi-card::after {
   content: "";
   position: absolute;
-  inset-inline-start: 0;
-  inset-block: 0;
-  width: 4px;
-  background-color: var(--muted-foreground);
+  top: -30px;
+  right: -30px;
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+  background: var(--accent-glow);
+  filter: blur(40px);
+  opacity: 0.5;
+  pointer-events: none;
 }
-[data-sonner-toaster] .cn-toast[data-type="success"]::before {
-  background-color: #10b981; /* emerald-500 */
+.kpi-icon {
+  width: 38px;
+  height: 38px;
+  border-radius: 11px;
+  background: linear-gradient(135deg, var(--accent-1), var(--accent-2));
+  color: white;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.3),
+    0 4px 12px var(--accent-glow);
+  margin-bottom: 14px;
+  position: relative;
 }
-[data-sonner-toaster] .cn-toast[data-type="error"]::before {
-  background-color: #f43f5e; /* rose-500 */
+.kpi-label {
+  font-size: 13px;
+  color: var(--muted-foreground);
+  font-weight: 500;
 }
-[data-sonner-toaster] .cn-toast[data-type="warning"]::before {
-  background-color: #f59e0b; /* amber-500 */
+.kpi-value {
+  font-size: 32px;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  line-height: 1.1;
+  margin-top: 2px;
+  font-variant-numeric: tabular-nums;
+  color: var(--foreground);
 }
-[data-sonner-toaster] .cn-toast[data-type="info"]::before,
-[data-sonner-toaster] .cn-toast[data-type="default"]::before {
-  background-color: var(--primary);
+.kpi-delta {
+  font-size: 12px;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  margin-top: 6px;
+  font-weight: 600;
+  color: #047857;
 }
-[data-sonner-toaster] .cn-toast[data-type="loading"]::before {
-  background: linear-gradient(180deg, var(--primary) 0%, transparent 100%);
+.kpi-delta.neg {
+  color: #b91c1c;
 }
+
+/* RDV row used in the "Prochains rendez-vous" dashboard panel. */
+.rdv-row {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 14px;
+  background: rgba(255, 255, 255, 0.5);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 12px;
+  transition: background 150ms, transform 200ms var(--ease-spring);
+  cursor: pointer;
+}
+.rdv-row:hover {
+  background: rgba(255, 255, 255, 0.85);
+  transform: translateX(2px);
+}
+.rdv-row + .rdv-row {
+  margin-top: 8px;
+}
+.rdv-row.featured {
+  background: var(--accent-soft);
+  border-color: color-mix(in srgb, var(--accent-2) 30%, transparent);
+}
+.rdv-time {
+  font-weight: 700;
+  color: var(--accent-strong);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.01em;
+  min-width: 48px;
+}
+.rdv-info {
+  flex: 1;
+  min-width: 0;
+}
+.rdv-name {
+  font-weight: 600;
+  font-size: 14px;
+  letter-spacing: -0.01em;
+}
+.rdv-meta-line {
+  font-size: 12px;
+  color: var(--muted-foreground);
+  margin-top: 2px;
+}
+
+/* Gradient avatar fill — used for staff/patient initials. */
+.avatar-gradient {
+  background: linear-gradient(135deg, var(--accent-1), var(--accent-2));
+  color: white;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.3);
+}
+
+/* Smaller breakpoints — reduce page-h1 + KPI sizes. */
+@media (max-width: 768px) {
+  .page-h1 {
+    font-size: 24px;
+  }
+  .page-sub {
+    font-size: 14px;
+  }
+  .kpi-card {
+    padding: 18px;
+  }
+  .kpi-value {
+    font-size: 26px;
+  }
+  .card-glass {
+    padding: 18px;
+    border-radius: 20px;
+  }
+}
+
+.dark body {
+  /* Dark mode mesh — much darker, anchored on slate-900. The blobs
+     stay vibrant enough to read at low ambient light. */
+  background:
+    radial-gradient(at 12% 0%, rgba(8, 145, 178, 0.18) 0, transparent 50%),
+    radial-gradient(at 88% 0%, rgba(99, 102, 241, 0.12) 0, transparent 50%),
+    radial-gradient(at 88% 100%, rgba(8, 145, 178, 0.10) 0, transparent 50%),
+    radial-gradient(at 12% 100%, rgba(99, 102, 241, 0.08) 0, transparent 50%),
+    oklch(0.13 0.028 261.692);
+}
+
+/* ─── Sonner toast custom theme — Apple Dynamic Island style ────────────
+   The `.cn-toast` class is applied via `toastOptions.classNames` from the
+   Toaster component. Material is glass-thick (matches the rest of the
+   design system); the leading visual cue is a saturated icon chip rather
+   than a Material-style accent bar. */
+[data-sonner-toaster] .cn-toast {
+  position: relative;
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: 0.875rem;
+  min-width: 360px;
+  max-width: 440px;
+  /* Matches the KPI card padding (22px) so a toast is visually a sibling
+     of a dashboard tile, not a separate element. */
+  padding: 1.375rem 1.5rem;
+  /* Pixel-identical material to `.card-glass` — same opacity, blur and
+     border so the toast looks like a card that floats in the corner. */
+  background: rgba(255, 255, 255, 0.72);
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  color: var(--popover-foreground);
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  border-radius: 24px;
+  box-shadow: var(--shadow-glass);
+  overflow: hidden;
+  animation: apple-toast-in 380ms var(--ease-spring);
+}
+@keyframes apple-toast-in {
+  0% {
+    transform: translateY(-10px) scale(0.92);
+    opacity: 0;
+  }
+  60% {
+    transform: translateY(2px) scale(1.02);
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(0) scale(1);
+    opacity: 1;
+  }
+}
+
+/* Countdown progress bar — drains over `--toast-duration` (set by Sonner
+   per toast). Anchored to the bottom edge, paused on hover, colored
+   per toast type. */
+[data-sonner-toaster] .cn-toast::after {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  height: 3px;
+  width: 100%;
+  background: linear-gradient(90deg, var(--accent-1), var(--accent-2));
+  transform-origin: left center;
+  animation: apple-toast-progress var(--toast-duration, 4000ms) linear forwards;
+}
+@keyframes apple-toast-progress {
+  0%   { transform: scaleX(1); }
+  100% { transform: scaleX(0); }
+}
+[data-sonner-toaster] .cn-toast[data-type="success"]::after {
+  background: linear-gradient(90deg, #34d399, #10b981);
+}
+[data-sonner-toaster] .cn-toast[data-type="error"]::after {
+  background: linear-gradient(90deg, #fb7185, #f43f5e);
+}
+[data-sonner-toaster] .cn-toast[data-type="warning"]::after {
+  background: linear-gradient(90deg, #fbbf24, #f59e0b);
+}
+[data-sonner-toaster] .cn-toast:hover::after {
+  animation-play-state: paused;
+}
+[data-sonner-toaster] .cn-toast[data-type="loading"]::after {
+  /* Indeterminate stripe — slides left-to-right while the promise resolves. */
+  animation: apple-toast-loading 1.4s linear infinite;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    var(--accent-2) 50%,
+    transparent
+  );
+}
+@keyframes apple-toast-loading {
+  0%   { transform: translateX(-100%) scaleX(0.5); }
+  100% { transform: translateX(200%)  scaleX(0.5); }
+}
+
+/* Same dimensions and depth treatment as `.kpi-icon` on the dashboard
+   so a toast badge reads as part of the same icon family. */
 [data-sonner-toaster] .cn-toast-icon {
   display: grid;
   place-items: center;
-  width: 2rem;
-  height: 2rem;
+  width: 38px;
+  height: 38px;
   flex-shrink: 0;
-  border-radius: 9999px;
+  border-radius: 11px;
   margin: 0;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.3),
+    0 4px 12px var(--accent-glow);
 }
+[data-sonner-toaster] .cn-toast-icon svg {
+  width: 20px;
+  height: 20px;
+}
+/* Saturated chips — Apple notification icon style. White glyph on a
+   colored gradient so the chip carries the meaning without needing a
+   side accent bar (less Material, more iOS). */
 [data-sonner-toaster] .cn-toast[data-type="success"] .cn-toast-icon {
-  background-color: rgb(16 185 129 / 0.12);
-  color: #047857; /* emerald-700 */
+  background: linear-gradient(135deg, #34d399, #10b981);
+  color: #ffffff;
 }
 [data-sonner-toaster] .cn-toast[data-type="error"] .cn-toast-icon {
-  background-color: rgb(244 63 94 / 0.12);
-  color: #be123c; /* rose-700 */
+  background: linear-gradient(135deg, #fb7185, #f43f5e);
+  color: #ffffff;
 }
 [data-sonner-toaster] .cn-toast[data-type="warning"] .cn-toast-icon {
-  background-color: rgb(245 158 11 / 0.15);
-  color: #b45309; /* amber-700 */
+  background: linear-gradient(135deg, #fbbf24, #f59e0b);
+  color: #ffffff;
 }
 [data-sonner-toaster] .cn-toast[data-type="info"] .cn-toast-icon,
-[data-sonner-toaster] .cn-toast[data-type="loading"] .cn-toast-icon {
-  background-color: rgb(8 145 178 / 0.12);
-  color: var(--primary);
+[data-sonner-toaster] .cn-toast[data-type="loading"] .cn-toast-icon,
+[data-sonner-toaster] .cn-toast[data-type="default"] .cn-toast-icon {
+  background: linear-gradient(135deg, var(--accent-1), var(--accent-2));
+  color: #ffffff;
 }
+/* Title sits one row, larger; description below stays compact. */
 [data-sonner-toaster] .cn-toast-title {
   font-weight: 600;
-  font-size: 0.875rem;
-  line-height: 1.25rem;
+  font-size: 0.9375rem;
+  line-height: 1.3;
+  letter-spacing: -0.01em;
+  color: var(--foreground);
 }
 [data-sonner-toaster] .cn-toast-description {
   color: var(--muted-foreground);
   font-size: 0.8125rem;
-  line-height: 1.125rem;
+  line-height: 1.35;
   margin-top: 0.125rem;
 }
+
+/* Inline action button — gradient pill matching the brand CTA language. */
 [data-sonner-toaster] .cn-toast-action {
-  background-color: var(--primary);
-  color: var(--primary-foreground);
-  border-radius: 0.375rem;
-  padding: 0.25rem 0.75rem;
-  font-size: 0.75rem;
-  font-weight: 500;
-}
-[data-sonner-toaster] .cn-toast-close {
-  border-radius: 0.375rem;
-  background-color: transparent;
-  color: var(--muted-foreground);
-  border: 1px solid var(--border);
-}
-.dark [data-sonner-toaster] .cn-toast {
+  background: linear-gradient(180deg, var(--accent-1), var(--accent-2));
+  color: white;
+  border-radius: 9999px;
+  padding: 0.375rem 0.875rem;
+  font-size: 0.8125rem;
+  font-weight: 600;
   box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.3),
+    0 4px 10px var(--accent-glow);
+  transition: transform 150ms var(--ease-spring), box-shadow 150ms;
+}
+[data-sonner-toaster] .cn-toast-action:hover {
+  transform: translateY(-1px);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.3),
+    0 6px 14px var(--accent-glow);
+}
+[data-sonner-toaster] .cn-toast-action:active {
+  transform: scale(0.96);
+}
+
+/* Close button — round chiclet sized to harmonise with the 38px icon
+   chip but smaller so the visual hierarchy stays: icon > content >
+   close. Sits in the grid's third column (the toast layout reserves
+   it via `grid-template-columns: auto 1fr auto`) rather than absolutely
+   positioned — that way it never overlaps the title/description. */
+[data-sonner-toaster] .cn-toast-close,
+[data-sonner-toaster] [data-close-button="true"] {
+  position: static !important;
+  width: 28px;
+  height: 28px;
+  display: grid;
+  place-items: center;
+  border-radius: 9999px;
+  background: rgba(15, 23, 42, 0.06);
+  color: var(--muted-foreground);
+  border: 1px solid rgba(15, 23, 42, 0.06);
+  cursor: pointer;
+  transition: background 150ms var(--ease-smooth), color 150ms,
+    transform 150ms var(--ease-spring), opacity 150ms;
+  opacity: 0.65;
+}
+[data-sonner-toaster] .cn-toast-close > svg,
+[data-sonner-toaster] [data-close-button="true"] > svg {
+  width: 14px;
+  height: 14px;
+}
+[data-sonner-toaster] .cn-toast:hover .cn-toast-close,
+[data-sonner-toaster] .cn-toast:focus-within .cn-toast-close,
+[data-sonner-toaster] .cn-toast:hover [data-close-button="true"],
+[data-sonner-toaster] .cn-toast:focus-within [data-close-button="true"] {
+  opacity: 1;
+}
+[data-sonner-toaster] .cn-toast-close:hover,
+[data-sonner-toaster] [data-close-button="true"]:hover {
+  background: rgba(15, 23, 42, 0.16);
+  color: var(--foreground);
+  transform: scale(1.08);
+}
+[data-sonner-toaster] .cn-toast-close:active,
+[data-sonner-toaster] [data-close-button="true"]:active {
+  transform: scale(0.92);
+}
+
+.dark [data-sonner-toaster] .cn-toast {
+  background: rgba(17, 24, 39, 0.72);
+  border-color: rgba(255, 255, 255, 0.1);
+  box-shadow:
+    inset 0 1px 0 0 rgba(255, 255, 255, 0.06),
     0 1px 2px rgb(0 0 0 / 0.3),
-    0 8px 24px -4px rgb(0 0 0 / 0.4);
+    0 12px 32px rgb(0 0 0 / 0.4);
+}
+.dark [data-sonner-toaster] .cn-toast-close,
+.dark [data-sonner-toaster] [data-close-button="true"] {
+  background: rgba(255, 255, 255, 0.08);
+}
+.dark [data-sonner-toaster] .cn-toast-close:hover,
+.dark [data-sonner-toaster] [data-close-button="true"]:hover {
+  background: rgba(255, 255, 255, 0.16);
 }
 
 /* Print rules — used by the prescription print/preview page. The dashboard
@@ -245,4 +981,125 @@
   body {
     background: white !important;
   }
+}
+
+/* ─── Apple-style landing-page tokens ───────────────────────────────
+   Inspired by apple.com — clean white / Apple gray (#f5f5f7) section
+   alternation, near-black text (#1d1d1f), SF Pro typography, Apple
+   link-blue (#0066cc) accent. Scoped to `.lp-light` so the dashboard
+   / cabinet shell keep their independent scheme.
+*/
+.lp-light {
+  /* Surfaces — Apple uses exactly two values for alternating cards */
+  --lp-bg: #ffffff;           /* default / hero */
+  --lp-bg-soft: #f5f5f7;      /* alternating story card (Apple's gray) */
+  --lp-bg-dark: #000000;      /* black story cards (iPhone Pro vibe) */
+  --lp-bg-tint: #fbfbfd;      /* very-soft gray for nested surfaces */
+  --lp-bg-elev: #ffffff;      /* floating cards, mockups */
+  /* Type — Apple uses #1d1d1f for headings, #6e6e73 for sub copy */
+  --lp-ink: #1d1d1f;
+  --lp-ink-muted: #6e6e73;
+  --lp-ink-dim: #86868b;      /* labels, footnotes */
+  --lp-ink-inverse: #f5f5f7;  /* on black cards */
+  --lp-ink-inverse-muted: #a1a1a6;
+  --lp-line: rgba(0, 0, 0, 0.08);
+  --lp-line-strong: rgba(0, 0, 0, 0.16);
+  /* Accent — Apple's signature link blue + filled-button blue */
+  --lp-accent-1: #0071e3;     /* filled buttons */
+  --lp-accent-2: #0066cc;     /* link text */
+  --lp-accent-hi: #2997ff;    /* on-dark hover */
+  --lp-accent-soft: rgba(0, 113, 227, 0.08);
+  --lp-accent-glow: rgba(0, 113, 227, 0.18);
+
+  background: var(--lp-bg);
+  color: var(--lp-ink);
+  /* SF Pro stack — falls back gracefully off Apple devices. */
+  --lp-font-system:
+    "SF Pro Display", "SF Pro Text", -apple-system, BlinkMacSystemFont,
+    "Helvetica Neue", Helvetica, Arial, sans-serif;
+  --lp-font-display: var(--lp-font-system);
+  --lp-font-mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, monospace;
+
+  font-family: var(--lp-font-system);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  letter-spacing: -0.003em;
+}
+
+.lp-light ::selection {
+  background: var(--lp-accent-1);
+  color: #fff;
+}
+
+/* Apple-style filled CTA pill — used in hero, pricing, closing. */
+.lp-btn-filled {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 28px;
+  height: 44px;
+  padding: 0 22px;
+  border-radius: 980px;
+  background: var(--lp-accent-1);
+  color: #fff;
+  font-size: 17px;
+  line-height: 1;
+  font-weight: 400;
+  transition: background-color 200ms var(--ease-smooth, ease);
+}
+.lp-btn-filled:hover {
+  background: #0077ed;
+}
+
+/* Apple-style link CTA — blue text with the chevron suffix. */
+.lp-btn-link {
+  color: var(--lp-accent-2);
+  font-size: 17px;
+  line-height: 1;
+  font-weight: 400;
+}
+.lp-btn-link:hover {
+  text-decoration: underline;
+}
+
+/* Section heading — Apple's "Eyebrow + Headline" rhythm. */
+.lp-eyebrow {
+  font-size: 21px;
+  line-height: 1.19;
+  font-weight: 600;
+  color: var(--lp-ink);
+  letter-spacing: 0.011em;
+}
+.lp-h1 {
+  font-size: clamp(48px, 8vw, 96px);
+  line-height: 1.05;
+  font-weight: 600;
+  letter-spacing: -0.015em;
+}
+.lp-h2 {
+  font-size: clamp(40px, 5.5vw, 72px);
+  line-height: 1.07;
+  font-weight: 600;
+  letter-spacing: -0.012em;
+}
+.lp-sub {
+  font-size: clamp(19px, 1.7vw, 28px);
+  line-height: 1.21;
+  font-weight: 400;
+  letter-spacing: 0.004em;
+  color: var(--lp-ink-muted);
+}
+
+/* Marquee — used for the trust strip rolling claim badges. */
+@keyframes lp-marquee {
+  from { transform: translateX(0); }
+  to   { transform: translateX(-50%); }
+}
+.lp-marquee {
+  display: flex;
+  animation: lp-marquee 40s linear infinite;
+  width: max-content;
+}
+.lp-marquee-pause:hover .lp-marquee {
+  animation-play-state: paused;
 }

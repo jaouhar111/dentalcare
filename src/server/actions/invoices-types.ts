@@ -63,5 +63,6 @@ export interface InvoiceDetail extends InvoiceListItem {
   clinicAddress: string | null;
   clinicPhone: string | null;
   clinicVatNumber: string | null;
+  clinicLogoUrl: string | null;
   hasPaymentPlan: boolean;
 }

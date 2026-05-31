@@ -80,7 +80,7 @@ export async function getPrescription(
     include: {
       dentist: { select: { firstName: true, lastName: true } },
       patient: { select: { firstName: true, lastName: true, dob: true, cin: true, phone: true } },
-      clinic: { select: { name: true, address: true, phone: true } },
+      clinic: { select: { name: true, address: true, phone: true, logoUrl: true } },
       items: { orderBy: { sortOrder: "asc" } },
     },
   });
@@ -112,6 +112,7 @@ export async function getPrescription(
     clinicName: row.clinic.name,
     clinicAddress: row.clinic.address,
     clinicPhone: row.clinic.phone,
+    clinicLogoUrl: row.clinic.logoUrl,
   });
 }
 

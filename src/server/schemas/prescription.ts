@@ -36,7 +36,7 @@ export const createPrescriptionSchema = z.object({
     .min(1)
     .optional()
     .or(z.literal("").transform(() => undefined)),
-  locale: z.enum(["fr", "en", "ar"]).default("fr"),
+  locale: z.enum(["fr", "en"]).default("fr"),
   notes: z
     .string()
     .trim()

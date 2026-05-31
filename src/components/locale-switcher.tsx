@@ -36,7 +36,7 @@ export function LocaleSwitcher() {
                 : "text-muted-foreground hover:text-foreground"
             }`}
           >
-            {l === "fr" ? "FR" : l === "en" ? "EN" : "ع"}
+            {l === "fr" ? "FR" : "EN"}
           </button>
         );
       })}

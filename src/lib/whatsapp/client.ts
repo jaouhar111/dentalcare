@@ -104,6 +104,137 @@ export async function sendTemplate<P extends Record<string, string>>(args: {
   }
 }
 
+/**
+ * Send a plain-text WhatsApp message (no template). Used by the AI
+ * booking flow to reply mid-conversation.
+ *
+ * Constraint: Meta only allows free-form text within a 24h
+ * customer-care window after the user's last inbound message. The AI
+ * webhook always satisfies that because the patient JUST messaged us,
+ * but generic outbound messaging (reminders, recalls) must still go
+ * through `sendTemplate`.
+ *
+ * Dev mode (no Meta creds): log + return `{ ok, mocked: true }`.
+ */
+export async function sendText(args: {
+  to: string;
+  body: string;
+}): Promise<{ ok: true; messageId?: string; mocked?: boolean } | { ok: false; error: string }> {
+  const creds = readCreds();
+
+  if (!creds) {
+    console.log(`[whatsapp:mock-text] to=${args.to} :: ${args.body}`);
+    return { ok: true, mocked: true };
+  }
+
+  const body = {
+    messaging_product: "whatsapp",
+    to: args.to,
+    type: "text",
+    text: { body: args.body, preview_url: false },
+  };
+
+  try {
+    const res = await fetch(`${META_GRAPH_BASE}/${creds.phoneId}/messages`, {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${creds.token}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(body),
+    });
+    const json = (await res.json()) as {
+      messages?: Array<{ id: string }>;
+      error?: { message: string };
+    };
+    if (!res.ok) {
+      const err = json.error?.message ?? `Meta API ${res.status}`;
+      console.error("[whatsapp] sendText failed", { to: args.to, err });
+      return { ok: false, error: err };
+    }
+    return { ok: true, messageId: json.messages?.[0]?.id };
+  } catch (err) {
+    const message = err instanceof Error ? err.message : String(err);
+    console.error("[whatsapp] sendText network error", { err: message });
+    return { ok: false, error: message };
+  }
+}
+
+/**
+ * Uploads a binary blob to Meta's media endpoint and returns the
+ * `media_id` we can then attach to an outbound audio/image message.
+ * Meta keeps the file for 30 days, which is plenty for the immediate
+ * send. Dev fallback: returns a fake id so callers can no-op without
+ * network. Note: uses multipart/form-data — `Buffer` → `Blob` here.
+ */
+export async function uploadMedia(args: {
+  buffer: Buffer;
+  mimeType: string;
+  filename?: string;
+}): Promise<{ ok: true; mediaId: string; mocked?: boolean } | { ok: false; error: string }> {
+  const creds = readCreds();
+  if (!creds) {
+    console.log(`[whatsapp:mock-upload] ${args.mimeType} ${args.buffer.length}b`);
+    return { ok: true, mediaId: "mock-media-id", mocked: true };
+  }
+  const form = new FormData();
+  form.append("messaging_product", "whatsapp");
+  form.append("type", args.mimeType);
+  form.append(
+    "file",
+    new Blob([args.buffer as unknown as ArrayBuffer], { type: args.mimeType }),
+    args.filename ?? "voice.wav",
+  );
+  const res = await fetch(`${META_GRAPH_BASE}/${creds.phoneId}/media`, {
+    method: "POST",
+    headers: { Authorization: `Bearer ${creds.token}` },
+    body: form,
+  });
+  const json = (await res.json()) as { id?: string; error?: { message: string } };
+  if (!res.ok || json.error || !json.id) {
+    return { ok: false, error: json.error?.message ?? `HTTP ${res.status}` };
+  }
+  return { ok: true, mediaId: json.id };
+}
+
+/**
+ * Sends a voice/audio message referencing a previously-uploaded
+ * `media_id`. Mirrors `sendText` so the caller can swap one for the
+ * other when a patient sent audio.
+ */
+export async function sendAudio(args: {
+  to: string;
+  mediaId: string;
+}): Promise<{ ok: true; messageId?: string; mocked?: boolean } | { ok: false; error: string }> {
+  const creds = readCreds();
+  if (!creds) {
+    console.log(`[whatsapp:mock-audio] to=${args.to} mediaId=${args.mediaId}`);
+    return { ok: true, mocked: true };
+  }
+  const body = {
+    messaging_product: "whatsapp",
+    to: args.to,
+    type: "audio",
+    audio: { id: args.mediaId },
+  };
+  const res = await fetch(`${META_GRAPH_BASE}/${creds.phoneId}/messages`, {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${creds.token}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(body),
+  });
+  const json = (await res.json()) as {
+    messages?: Array<{ id: string }>;
+    error?: { message: string };
+  };
+  if (!res.ok || json.error) {
+    return { ok: false, error: json.error?.message ?? `Meta API ${res.status}` };
+  }
+  return { ok: true, messageId: json.messages?.[0]?.id };
+}
+
 // ─── Webhook signature verification ──────────────────────────────────────────
 
 /**
@@ -112,10 +243,21 @@ export async function sendTemplate<P extends Record<string, string>>(args: {
  *
  * In dev mode (no creds), we accept everything — this lets tests POST mock
  * webhooks without juggling secrets.
+ *
+ * SECURITY: in production we MUST refuse missing creds. Otherwise a
+ * mis-configured deploy (env var dropped, secret rotated without restart)
+ * silently degrades to "accept everything", letting anyone forge inbound
+ * patient messages, create appointments, and trigger billing actions.
  */
 export function verifyWebhookSignature(rawBody: string, header: string | null): boolean {
   const creds = readCreds();
-  if (!creds) return true; // dev mode
+  if (!creds) {
+    if (process.env.NODE_ENV === "production") {
+      console.error("[whatsapp] CRITICAL: missing creds in production — rejecting webhook");
+      return false;
+    }
+    return true; // dev mode only
+  }
 
   if (!header || !header.startsWith("sha256=")) return false;
   const signature = header.slice("sha256=".length);
@@ -150,6 +292,127 @@ export function verifyWebhookChallenge(searchParams: URLSearchParams): string | 
  * of `{ from, payload }` for every quick-reply button pressed in this batch.
  * Unknown payloads are surfaced as-is for the caller to ignore.
  */
+/**
+ * Walks the Meta webhook payload for plain-text inbound messages.
+ * Returns `{ from, body, messageId }` for each text message in the
+ * batch — those are the ones the AI engine handles.
+ *
+ * Button replies are NOT included here (use `parseQuickReplies` for
+ * those) so the two paths stay separate in the route handler.
+ */
+export function parseTextMessages(
+  body: unknown,
+): Array<{ from: string; body: string; messageId: string }> {
+  const out: Array<{ from: string; body: string; messageId: string }> = [];
+  if (!body || typeof body !== "object") return out;
+  const entries = (body as { entry?: unknown[] }).entry;
+  if (!Array.isArray(entries)) return out;
+  for (const entry of entries) {
+    const changes = (entry as { changes?: unknown[] }).changes;
+    if (!Array.isArray(changes)) continue;
+    for (const change of changes) {
+      const value = (change as { value?: { messages?: unknown[] } }).value;
+      const messages = value?.messages;
+      if (!Array.isArray(messages)) continue;
+      for (const msg of messages) {
+        const m = msg as {
+          from?: string;
+          id?: string;
+          type?: string;
+          text?: { body?: string };
+        };
+        if (m.type === "text" && m.from && m.id && m.text?.body) {
+          out.push({ from: m.from, body: m.text.body, messageId: m.id });
+        }
+      }
+    }
+  }
+  return out;
+}
+
+/**
+ * Walks the Meta webhook payload for inbound audio messages (voice notes).
+ * Returns `{ from, mediaId, mimeType, messageId }` per audio so the
+ * caller can download + transcribe before feeding the result to the AI
+ * engine as if it were a text message.
+ *
+ * Meta classifies both `voice` (recorded inside WhatsApp) and `audio`
+ * (attached audio file) types — we accept both because patients use
+ * either interchangeably.
+ */
+export function parseAudioMessages(
+  body: unknown,
+): Array<{ from: string; mediaId: string; mimeType: string; messageId: string }> {
+  const out: Array<{ from: string; mediaId: string; mimeType: string; messageId: string }> = [];
+  if (!body || typeof body !== "object") return out;
+  const entries = (body as { entry?: unknown[] }).entry;
+  if (!Array.isArray(entries)) return out;
+  for (const entry of entries) {
+    const changes = (entry as { changes?: unknown[] }).changes;
+    if (!Array.isArray(changes)) continue;
+    for (const change of changes) {
+      const value = (change as { value?: { messages?: unknown[] } }).value;
+      const messages = value?.messages;
+      if (!Array.isArray(messages)) continue;
+      for (const msg of messages) {
+        const m = msg as {
+          from?: string;
+          id?: string;
+          type?: string;
+          audio?: { id?: string; mime_type?: string };
+          voice?: { id?: string; mime_type?: string };
+        };
+        const audio = m.audio ?? m.voice;
+        if ((m.type === "audio" || m.type === "voice") && m.from && m.id && audio?.id) {
+          out.push({
+            from: m.from,
+            mediaId: audio.id,
+            mimeType: audio.mime_type ?? "audio/ogg",
+            messageId: m.id,
+          });
+        }
+      }
+    }
+  }
+  return out;
+}
+
+/**
+ * Downloads a media file (voice note, image, etc.) referenced by its
+ * Meta media id. Returns `{ buffer, mimeType }` ready to be handed to
+ * Gemini (which accepts inline base64).
+ *
+ * Two HTTP hops by design: Meta API returns a signed CDN URL that
+ * itself needs the bearer token to fetch — that's the documented flow,
+ * no shortcut.
+ */
+export async function downloadMedia(mediaId: string): Promise<
+  { ok: true; buffer: Buffer; mimeType: string } | { ok: false; error: string }
+> {
+  const token = process.env.WHATSAPP_TOKEN;
+  if (!token) return { ok: false, error: "WHATSAPP_TOKEN missing" };
+
+  const metaRes = await fetch(`${META_GRAPH_BASE}/${mediaId}`, {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+  const meta = (await metaRes.json()) as {
+    url?: string;
+    mime_type?: string;
+    error?: { message: string };
+  };
+  if (!metaRes.ok || meta.error || !meta.url) {
+    return { ok: false, error: meta.error?.message ?? `metadata ${metaRes.status}` };
+  }
+  const blobRes = await fetch(meta.url, {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+  if (!blobRes.ok) {
+    return { ok: false, error: `blob ${blobRes.status}` };
+  }
+  const arr = await blobRes.arrayBuffer();
+  return { ok: true, buffer: Buffer.from(arr), mimeType: meta.mime_type ?? "audio/ogg" };
+}
+
 export function parseQuickReplies(
   body: unknown,
 ): Array<{ from: string; payload: string; messageId: string }> {

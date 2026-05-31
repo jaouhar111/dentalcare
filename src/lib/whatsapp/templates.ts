@@ -13,17 +13,14 @@
 
 import type { Locale } from "@/i18n/routing";
 
-export type WhatsAppLocale = Extract<Locale, "fr" | "en" | "ar">;
+export type WhatsAppLocale = Extract<Locale, "fr" | "en">;
 
 /**
- * Maps app locale → Meta language code. Note Meta uses ISO 639 codes
- * sometimes with country (e.g. `ar` not `ar_MA`) — verify in Meta Business
- * Manager once templates are approved.
+ * Maps app locale → Meta language code. ISO 639 codes are used as-is.
  */
 export const META_LANGUAGE_CODE: Record<WhatsAppLocale, string> = {
   fr: "fr",
   en: "en",
-  ar: "ar",
 };
 
 export type TemplateName =

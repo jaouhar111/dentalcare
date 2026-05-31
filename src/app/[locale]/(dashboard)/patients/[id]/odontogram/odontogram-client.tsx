@@ -179,12 +179,14 @@ export function OdontogramClient({
   }, [chart]);
 
   return (
-    <div className="space-y-4">
-      {/* ─── Header ─── */}
-      <div className="flex flex-wrap items-end justify-between gap-3">
+    <div className="space-y-6">
+      {/* ─── Header — bigger title, breath, soft chip toggle ─── */}
+      <div className="flex flex-wrap items-end justify-between gap-4">
         <div>
-          <h2 className="text-foreground text-lg font-semibold">{t("title")}</h2>
-          <p className="text-muted-foreground mt-0.5 text-sm">
+          <h2 className="text-foreground text-[22px] font-semibold tracking-tight">
+            {t("title")}
+          </h2>
+          <p className="text-muted-foreground mt-1 text-[13px]">
             {lastUpdate
               ? t("lastUpdate", {
                   date: new Intl.DateTimeFormat(locale, {
@@ -197,17 +199,17 @@ export function OdontogramClient({
               : t("noEntries")}
           </p>
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2.5">
           {canEdit && (
-            <div className="bg-muted inline-flex items-center rounded-lg p-0.5">
+            <div className="bg-muted/60 inline-flex items-center rounded-full p-0.5 ring-1 ring-black/[0.04]">
               {(["read", "edit"] as Mode[]).map((m) => (
                 <button
                   key={m}
                   type="button"
                   onClick={() => setMode(m)}
-                  className={`rounded px-3 py-1 text-xs font-medium transition ${
+                  className={`rounded-full px-3.5 py-1 text-[12px] font-medium transition ${
                     mode === m
-                      ? "bg-background text-foreground shadow-sm"
+                      ? "bg-background text-foreground shadow-[0_1px_2px_rgba(0,0,0,0.06)]"
                       : "text-muted-foreground hover:text-foreground"
                   }`}
                 >
@@ -230,6 +232,7 @@ export function OdontogramClient({
                 }
                 setProposal(res.data);
               }}
+              className="rounded-full"
             >
               {t("actions.planSelected", { count: multi.size })}
             </Button>
@@ -238,8 +241,8 @@ export function OdontogramClient({
       </div>
 
       {/* ─── Two-column layout ─── */}
-      <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
-        <div className="bg-card border-border/60 rounded-xl border p-4 lg:col-span-2">
+      <div className="grid grid-cols-1 gap-5 lg:grid-cols-3">
+        <div className="bg-card rounded-2xl p-6 shadow-[0_1px_2px_rgba(0,0,0,0.04),0_8px_24px_-12px_rgba(0,0,0,0.06)] ring-1 ring-black/[0.04] lg:col-span-2">
           <ChartSVG
             state={chart}
             selected={selected}
@@ -254,9 +257,16 @@ export function OdontogramClient({
 
         <div className="space-y-4">
           {selected === null ? (
-            <div className="bg-muted/30 border-border/60 rounded-xl border border-dashed p-6 text-center">
-              <div className="text-foreground text-sm font-medium">{t("panel.selectTooth")}</div>
-              <p className="text-muted-foreground mt-1 text-xs">{t("panel.selectToothDesc")}</p>
+            <div className="bg-muted/30 rounded-2xl border border-dashed border-black/[0.08] p-8 text-center">
+              <div className="text-muted-foreground mx-auto mb-3 grid size-10 place-items-center rounded-full bg-white/60 ring-1 ring-black/[0.04]">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" aria-hidden>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M9 12h6M12 9v6M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+              </div>
+              <div className="text-foreground text-[14px] font-semibold">{t("panel.selectTooth")}</div>
+              <p className="text-muted-foreground mx-auto mt-1 max-w-xs text-[12px] leading-[1.5]">
+                {t("panel.selectToothDesc")}
+              </p>
             </div>
           ) : (
             <ToothPanel
@@ -404,23 +414,25 @@ function ToothPanel({
 
   return (
     <>
-      {/* Selected tooth header */}
-      <div className="bg-card border-border/60 rounded-xl border p-5">
-        <div className="flex items-start justify-between gap-3">
+      {/* ─── Hero card — massive tooth number + condition glyph ─── */}
+      <div className="bg-card rounded-2xl p-6 shadow-[0_1px_2px_rgba(0,0,0,0.04),0_8px_24px_-12px_rgba(0,0,0,0.06)] ring-1 ring-black/[0.04]">
+        <div className="text-muted-foreground text-[11px] font-medium tracking-[0.08em] uppercase">
+          {t("panel.selected")}
+        </div>
+        <div className="mt-2 flex items-end justify-between gap-3">
           <div>
-            <div className="text-muted-foreground text-xs tracking-wider uppercase">
-              {t("panel.selected")}
+            <div
+              className="text-foreground text-[56px] leading-[0.9] font-semibold tracking-[-0.02em] tabular-nums"
+            >
+              {toothNumber}
             </div>
-            <div className="num mt-0.5 flex items-baseline gap-2">
-              <span className="text-foreground text-2xl font-bold tracking-tight">{toothNumber}</span>
-              <span className="text-muted-foreground text-sm">
-                {t(`toothName.${toothNumber as 11}`)}
-              </span>
+            <div className="text-muted-foreground mt-1.5 text-[13px]">
+              {t(`toothName.${toothNumber as 11}`)}
             </div>
           </div>
           {state && (
             <div
-              className="grid size-12 place-items-center rounded-lg text-2xl font-bold text-white shadow-sm"
+              className="grid size-14 shrink-0 place-items-center rounded-2xl text-[26px] font-bold text-white shadow-[0_4px_12px_-4px_rgba(0,0,0,0.18)]"
               style={{ backgroundColor: CONDITION_STYLE[state.condition].bg }}
               aria-hidden
             >
@@ -431,35 +443,34 @@ function ToothPanel({
 
         {state ? (
           <>
-            <div className="mt-4">
-              <div className="text-muted-foreground mb-2 text-xs tracking-wider uppercase">
+            <div className="mt-5 border-t border-black/[0.05] pt-4">
+              <div className="text-muted-foreground mb-2 text-[11px] font-medium tracking-[0.08em] uppercase">
                 {t("panel.currentCondition")}
               </div>
               <div
-                className="rounded-lg border px-3 py-2 text-sm font-medium"
+                className="inline-flex items-center gap-2 rounded-full px-3 py-1.5 text-[13px] font-medium"
                 style={{
-                  borderColor: `${CONDITION_STYLE[state.condition].bg}55`,
-                  backgroundColor: `${CONDITION_STYLE[state.condition].bg}11`,
+                  backgroundColor: `${CONDITION_STYLE[state.condition].bg}14`,
                   color: CONDITION_STYLE[state.condition].text,
                 }}
               >
-                {CONDITION_STYLE[state.condition].glyph} {t(`condition.${state.condition}`)}
-                {" · "}
-                <span className="num font-normal">
-                  {t("panel.since", { date: dateFmt.format(state.recordedAt) })}
+                <span aria-hidden>{CONDITION_STYLE[state.condition].glyph}</span>
+                {t(`condition.${state.condition}`)}
+                <span className="text-muted-foreground/80 tabular-nums">
+                  · {t("panel.since", { date: dateFmt.format(state.recordedAt) })}
                 </span>
               </div>
             </div>
             {state.surfaces.length > 0 && (
-              <div className="mt-3">
-                <div className="text-muted-foreground mb-2 text-xs tracking-wider uppercase">
+              <div className="mt-4">
+                <div className="text-muted-foreground mb-2 text-[11px] font-medium tracking-[0.08em] uppercase">
                   {t("panel.surfaces")}
                 </div>
                 <div className="flex flex-wrap gap-1.5">
                   {state.surfaces.map((s) => (
                     <span
                       key={s}
-                      className="border-input text-foreground bg-muted rounded-md border px-2 py-1 text-xs"
+                      className="text-foreground rounded-full bg-black/[0.04] px-2.5 py-1 text-[11px] font-medium ring-1 ring-black/[0.04]"
                     >
                       {t(`surface.${s}`)}
                     </span>
@@ -468,11 +479,15 @@ function ToothPanel({
               </div>
             )}
             {state.note && (
-              <p className="text-muted-foreground mt-3 text-xs italic">{state.note}</p>
+              <p className="text-muted-foreground mt-4 rounded-xl bg-black/[0.025] p-3 text-[12px] leading-[1.5] italic">
+                « {state.note} »
+              </p>
             )}
           </>
         ) : (
-          <p className="text-muted-foreground mt-4 text-sm italic">{t("panel.noEntry")}</p>
+          <p className="text-muted-foreground mt-5 border-t border-black/[0.05] pt-4 text-[13px] italic">
+            {t("panel.noEntry")}
+          </p>
         )}
       </div>
 
@@ -489,28 +504,42 @@ function ToothPanel({
         />
       )}
 
-      {/* History */}
-      <div className="bg-card border-border/60 rounded-xl border p-5">
-        <div className="text-muted-foreground mb-3 text-xs tracking-wider uppercase">
+      {/* ─── History — Apple-style timeline with hairline dividers ─── */}
+      <div className="bg-card rounded-2xl p-6 shadow-[0_1px_2px_rgba(0,0,0,0.04),0_8px_24px_-12px_rgba(0,0,0,0.06)] ring-1 ring-black/[0.04]">
+        <div className="text-muted-foreground mb-4 text-[11px] font-medium tracking-[0.08em] uppercase">
           {t("panel.history", { tooth: toothNumber })}
         </div>
         {historyLoading ? (
-          <div className="text-muted-foreground text-sm">…</div>
+          <div className="text-muted-foreground flex items-center gap-2 text-[13px]">
+            <div className="size-3 animate-pulse rounded-full bg-black/[0.1]" />
+            …
+          </div>
         ) : history.length === 0 ? (
-          <p className="text-muted-foreground text-sm italic">{t("panel.noHistory")}</p>
+          <p className="text-muted-foreground text-[13px] italic">{t("panel.noHistory")}</p>
         ) : (
-          <ul className="space-y-3 text-sm">
-            {history.map((h) => {
+          <ol className="relative space-y-4">
+            {history.map((h, idx) => {
               const style = CONDITION_STYLE[h.condition];
+              const isLast = idx === history.length - 1;
               return (
-                <li key={h.id} className="flex gap-3">
-                  <div
-                    className="w-1 shrink-0 rounded"
+                <li key={h.id} className="relative flex gap-3.5">
+                  {/* timeline rail */}
+                  {!isLast && (
+                    <span
+                      aria-hidden
+                      className="absolute top-7 left-[11px] bottom-[-1rem] w-px bg-black/[0.08]"
+                    />
+                  )}
+                  <span
+                    className="relative z-10 grid size-6 shrink-0 place-items-center rounded-full text-[10px] font-bold text-white shadow-[0_2px_4px_rgba(0,0,0,0.10)]"
                     style={{ backgroundColor: style.bg }}
-                  />
-                  <div className="min-w-0 flex-1">
-                    <div className="text-foreground font-medium">
-                      {style.glyph} {t(`condition.${h.condition}`)}
+                    aria-hidden
+                  >
+                    {style.glyph}
+                  </span>
+                  <div className="min-w-0 flex-1 pb-1">
+                    <div className="text-foreground text-[13px] font-medium">
+                      {t(`condition.${h.condition}`)}
                       {h.surfaces.length > 0 && (
                         <span className="text-muted-foreground font-normal">
                           {" · "}
@@ -518,27 +547,29 @@ function ToothPanel({
                         </span>
                       )}
                     </div>
-                    <div className="text-muted-foreground num text-xs">
+                    <div className="text-muted-foreground mt-0.5 text-[11px] tabular-nums">
                       {dateFmt.format(h.recordedAt)} · {h.recordedByName}
                     </div>
                     {h.note && (
-                      <p className="text-foreground/70 mt-0.5 text-xs italic">{h.note}</p>
+                      <p className="text-foreground/75 mt-1 text-[12px] leading-[1.5] italic">
+                        « {h.note} »
+                      </p>
                     )}
                   </div>
                   {canEdit && (
-                    <Button
+                    <button
                       type="button"
-                      variant="ghost"
                       onClick={() => onRemoveEntry(h.id)}
-                      className="text-muted-foreground hover:text-destructive h-6 px-2 text-xs"
+                      aria-label="Supprimer"
+                      className="text-muted-foreground hover:text-destructive hover:bg-destructive/5 -mt-0.5 grid size-6 shrink-0 place-items-center rounded-full text-[13px] transition"
                     >
                       ×
-                    </Button>
+                    </button>
                   )}
                 </li>
               );
             })}
-          </ul>
+          </ol>
         )}
       </div>
     </>
@@ -580,10 +611,10 @@ function RecordForm({
           await onSubmit();
         });
       }}
-      className="bg-card border-border/60 rounded-xl border p-5"
+      className="bg-card rounded-2xl p-6 shadow-[0_1px_2px_rgba(0,0,0,0.04),0_8px_24px_-12px_rgba(0,0,0,0.06)] ring-1 ring-black/[0.04]"
     >
       <div>
-        <label className="text-muted-foreground mb-2 block text-xs tracking-wider uppercase">
+        <label className="text-muted-foreground mb-2.5 block text-[11px] font-medium tracking-[0.08em] uppercase">
           {t("form.condition")}
         </label>
         <div className="grid grid-cols-2 gap-1.5">
@@ -596,14 +627,14 @@ function RecordForm({
                 type="button"
                 onClick={() => onConditionChange(c)}
                 disabled={isPending}
-                className={`flex items-center gap-1.5 rounded-md border px-2 py-1.5 text-start text-xs transition ${
+                className={`flex items-center gap-2 rounded-xl px-2.5 py-2 text-start text-[12px] font-medium transition-all ${
                   active
-                    ? "border-primary bg-primary/5"
-                    : "border-input hover:bg-muted/60"
+                    ? "bg-primary/[0.08] ring-primary/40 text-foreground ring-1"
+                    : "text-muted-foreground hover:bg-black/[0.03] hover:text-foreground ring-1 ring-black/[0.04]"
                 }`}
               >
                 <span
-                  className="grid size-4 shrink-0 place-items-center rounded text-[10px] font-bold text-white"
+                  className="grid size-5 shrink-0 place-items-center rounded-md text-[10px] font-bold text-white shadow-[0_1px_2px_rgba(0,0,0,0.10)]"
                   style={{ backgroundColor: style.bg }}
                   aria-hidden
                 >
@@ -617,8 +648,8 @@ function RecordForm({
       </div>
 
       {!surfacesDisabled && (
-        <div className="mt-4">
-          <label className="text-muted-foreground mb-2 block text-xs tracking-wider uppercase">
+        <div className="mt-5">
+          <label className="text-muted-foreground mb-2.5 block text-[11px] font-medium tracking-[0.08em] uppercase">
             {t("form.surfaces")}
           </label>
           <div className="grid grid-cols-3 gap-1.5">
@@ -630,10 +661,10 @@ function RecordForm({
                   type="button"
                   onClick={() => onSurfaceToggle(s)}
                   disabled={isPending}
-                  className={`rounded-md border px-2 py-1.5 text-xs transition ${
+                  className={`rounded-xl px-2 py-2 text-[11px] font-medium transition-all ${
                     active
-                      ? "border-primary bg-primary/10 text-primary"
-                      : "border-input text-muted-foreground hover:bg-muted/60"
+                      ? "bg-primary text-primary-foreground shadow-[0_2px_6px_-2px_rgba(0,113,227,0.45)]"
+                      : "text-muted-foreground hover:bg-black/[0.03] hover:text-foreground ring-1 ring-black/[0.04]"
                   }`}
                 >
                   {t(`surface.${s}`)}
@@ -644,8 +675,8 @@ function RecordForm({
         </div>
       )}
 
-      <div className="mt-4">
-        <label className="text-muted-foreground mb-2 block text-xs tracking-wider uppercase">
+      <div className="mt-5">
+        <label className="text-muted-foreground mb-2.5 block text-[11px] font-medium tracking-[0.08em] uppercase">
           {t("form.note")}
         </label>
         <textarea
@@ -655,12 +686,16 @@ function RecordForm({
           maxLength={500}
           placeholder={t("form.notePlaceholder")}
           disabled={isPending}
-          className="border-input bg-background w-full resize-y rounded-lg border px-3 py-2 text-sm shadow-xs disabled:opacity-50"
+          className="bg-background placeholder:text-muted-foreground/60 focus-visible:ring-primary/40 w-full resize-y rounded-xl px-3 py-2.5 text-[13px] leading-[1.4] ring-1 ring-black/[0.06] transition-shadow focus-visible:ring-2 focus-visible:outline-none disabled:opacity-50"
         />
       </div>
 
-      <div className="mt-4">
-        <Button type="submit" disabled={isPending} className="w-full">
+      <div className="mt-5">
+        <Button
+          type="submit"
+          disabled={isPending}
+          className="h-10 w-full rounded-full text-[13px] font-semibold"
+        >
           {isPending ? t("form.submitting") : t("form.submit")}
         </Button>
       </div>
@@ -673,19 +708,19 @@ function RecordForm({
 function Legend() {
   const t = useTranslations("Odontogram.condition");
   return (
-    <div className="mt-4 grid grid-cols-2 gap-2 text-xs sm:grid-cols-5">
+    <div className="mt-6 grid grid-cols-2 gap-2.5 border-t border-black/[0.05] pt-5 text-[12px] sm:grid-cols-5">
       {CONDITIONS.map((c) => {
         const style = CONDITION_STYLE[c];
         return (
-          <div key={c} className="flex items-center gap-1.5">
+          <div key={c} className="flex items-center gap-2">
             <span
-              className="grid size-4 place-items-center rounded text-[10px] font-bold text-white"
+              className="grid size-5 shrink-0 place-items-center rounded-md text-[10px] font-bold text-white shadow-[0_1px_2px_rgba(0,0,0,0.10)]"
               style={{ backgroundColor: style.bg }}
               aria-hidden
             >
               {style.glyph}
             </span>
-            <span className="text-foreground/80">{t(c)}</span>
+            <span className="text-foreground/80 truncate">{t(c)}</span>
           </div>
         );
       })}
@@ -758,7 +793,7 @@ function PlanDialog({
       <DialogContent className="max-w-2xl">
         <DialogHeader>
           <DialogTitle>{t("plan.title")}</DialogTitle>
-          <p className="text-muted-foreground mt-0.5 text-sm">
+          <p className="page-sub">
             {t("plan.subtitle", { count: items.length })}
           </p>
         </DialogHeader>

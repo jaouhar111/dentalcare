@@ -200,13 +200,13 @@ export function CmdKTrigger() {
 
       {open && (
         <div
-          className="fixed inset-0 z-50 grid place-items-start bg-black/40 p-4 pt-[15vh] backdrop-blur-sm"
+          className="fixed inset-0 z-50 flex items-start justify-center bg-black/40 p-4 pt-[15vh] backdrop-blur-sm"
           onClick={() => setOpen(false)}
         >
           <div
             role="dialog"
             aria-modal="true"
-            className="bg-popover text-popover-foreground border-border w-full max-w-xl overflow-hidden rounded-xl border shadow-2xl"
+            className="glass-thick text-popover-foreground w-full max-w-xl overflow-hidden rounded-2xl shadow-2xl"
             onClick={(e) => e.stopPropagation()}
           >
             <div className="border-border/60 relative border-b">

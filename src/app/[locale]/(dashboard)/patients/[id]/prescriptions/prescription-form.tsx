@@ -54,8 +54,8 @@ export function PrescriptionFormDialog({
   const [isPending, startTransition] = useTransition();
 
   const [dentistId, setDentistId] = useState(defaultDentistId);
-  const [docLocale, setDocLocale] = useState<"fr" | "en" | "ar">(
-    (["fr", "en", "ar"].includes(patientLocale) ? patientLocale : "fr") as "fr" | "en" | "ar",
+  const [docLocale, setDocLocale] = useState<"fr" | "en">(
+    (["fr", "en"].includes(patientLocale) ? patientLocale : "fr") as "fr" | "en",
   );
   const [notes, setNotes] = useState("");
   const [items, setItems] = useState<DraftItem[]>([{ ...EMPTY_ITEM }]);
@@ -160,13 +160,12 @@ export function PrescriptionFormDialog({
                 </label>
                 <select
                   value={docLocale}
-                  onChange={(e) => setDocLocale(e.target.value as "fr" | "en" | "ar")}
+                  onChange={(e) => setDocLocale(e.target.value as "fr" | "en")}
                   disabled={isPending}
                   className="border-input bg-background w-full rounded-lg border px-3 py-2 text-sm shadow-xs disabled:opacity-50"
                 >
                   <option value="fr">Français</option>
                   <option value="en">English</option>
-                  <option value="ar">العربية</option>
                 </select>
               </div>
             </div>

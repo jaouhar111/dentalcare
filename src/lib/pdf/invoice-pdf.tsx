@@ -3,6 +3,7 @@ import {
   Page,
   Text,
   View,
+  Image,
   StyleSheet,
   pdf,
 } from "@react-pdf/renderer";
@@ -163,13 +164,22 @@ function InvoicePDF({ inv }: { inv: InvoiceDetail }) {
     >
       <Page size="A4" style={styles.page}>
         <View style={styles.headerRow}>
-          <View>
-            <Text style={styles.clinicName}>{inv.clinicName}</Text>
-            {inv.clinicAddress && <Text style={styles.clinicMeta}>{inv.clinicAddress}</Text>}
-            {inv.clinicPhone && <Text style={styles.clinicMeta}>{inv.clinicPhone}</Text>}
-            {inv.clinicVatNumber && (
-              <Text style={styles.clinicMeta}>N° TVA {inv.clinicVatNumber}</Text>
+          <View style={{ flexDirection: "row", gap: 10, alignItems: "flex-start" }}>
+            {inv.clinicLogoUrl && (
+              // eslint-disable-next-line jsx-a11y/alt-text
+              <Image
+                src={inv.clinicLogoUrl}
+                style={{ width: 48, height: 48, objectFit: "contain" }}
+              />
             )}
+            <View>
+              <Text style={styles.clinicName}>{inv.clinicName}</Text>
+              {inv.clinicAddress && <Text style={styles.clinicMeta}>{inv.clinicAddress}</Text>}
+              {inv.clinicPhone && <Text style={styles.clinicMeta}>{inv.clinicPhone}</Text>}
+              {inv.clinicVatNumber && (
+                <Text style={styles.clinicMeta}>N° TVA {inv.clinicVatNumber}</Text>
+              )}
+            </View>
           </View>
           <View style={{ alignItems: "flex-end" }}>
             <Text style={styles.docTitle}>FACTURE</Text>

@@ -4,6 +4,7 @@ import { Link } from "@/i18n/navigation";
 import { requireRole } from "@/lib/auth/rbac";
 import { getClinic } from "@/server/actions/clinic";
 import { SettingsForm } from "./settings-form";
+import { SubscriptionCard } from "./subscription-card";
 
 export const dynamic = "force-dynamic";
 
@@ -31,9 +32,18 @@ export default async function SettingsPage({
   return (
     <div className="mx-auto max-w-4xl p-6 lg:p-8">
       <header className="mb-6">
-        <h1 className="text-2xl font-bold tracking-tight">{t("title")}</h1>
-        <p className="text-muted-foreground mt-0.5 text-sm">{t("subtitle")}</p>
+        <h1 className="page-h1">{t("title")}</h1>
+        <p className="page-sub">{t("subtitle")}</p>
       </header>
+
+      {/* ── Subscription card — plan + countdown progress ───── */}
+      <SubscriptionCard
+        status={clinic.subscriptionStatus}
+        plan={clinic.plan}
+        trialEndsAt={clinic.trialEndsAt}
+        createdAt={clinic.createdAt}
+        locale={locale}
+      />
 
       <SettingsForm
         clinic={{
@@ -42,6 +52,7 @@ export default async function SettingsPage({
           phone: clinic.phone,
           email: clinic.email,
           vatNumber: clinic.vatNumber,
+          logoUrl: clinic.logoUrl,
           defaultLocale: clinic.defaultLocale,
           invoiceStartingNumber: clinic.invoiceStartingNumber,
         }}

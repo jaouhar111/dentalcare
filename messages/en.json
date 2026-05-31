@@ -1,4 +1,96 @@
 {
+  "Landing": {
+    "nav": {
+      "overview": "Overview",
+      "features": "Features",
+      "demo": "Demo",
+      "pricing": "Pricing",
+      "contact": "Contact",
+      "login": "Sign in",
+      "signup": "Start trial",
+      "dashboard": "My dashboard"
+    },
+    "hero": {
+      "wordmark": "DentalCare.",
+      "tagline": "The clinic. Run on its own.",
+      "sub": "The WhatsApp bot speaks French, English and Darija and books appointments for you. J-1 reminders and scaling recalls go out automatically. You? You treat patients.",
+      "ctaPrimary": "Start trial",
+      "ctaSecondary": "Learn more"
+    },
+    "trust": {
+      "stat1Big": "−42%",
+      "stat1Caption": "fewer no-shows on average with automatic J-1 reminders",
+      "stat2Big": "24/7",
+      "stat2Caption": "the WhatsApp bot replies, even while you sleep",
+      "stat3Big": "3 min",
+      "stat3Caption": "to spin up a brand-new clinic, from scratch"
+    },
+    "problem": {
+      "kicker": "The problem",
+      "headline": "You signed up to treat patients. Not to answer WhatsApp all day long.",
+      "sub": "30 to 50 WhatsApp messages a day. Missed appointments. Forgotten recalls. Patients lost at 10 PM. DentalCare puts an end to all of it.",
+      "ctaHow": "See how it works",
+      "ctaPricing": "See pricing"
+    },
+    "features": {
+      "kicker": "Features",
+      "headline": "Everything you need. Nothing more.",
+      "t1Kicker": "AI WhatsApp bot",
+      "t1Title": "Speaks FR, EN and Darija.",
+      "t1Body": "Books appointments, handles emergencies, transcribes voice notes. Zero supervision.",
+      "t2Kicker": "J-1 reminders",
+      "t2Title": "Confirmations that send themselves.",
+      "t2Body": "WhatsApp sends the reminder 24 h before. The patient confirms or reschedules in one tap.",
+      "t3Kicker": "Automatic recalls",
+      "t3Title": "Scaling, annual check-up.",
+      "t3Body": "Every scaling triggers a 6-month recall. Patients come back. You don't think about it.",
+      "t4Kicker": "All-in-one",
+      "t4Title": "Schedule, invoices, payments.",
+      "t4Body": "Visual calendar, one-click PDFs, 3-6-12 instalment plans, 09-08 compliance."
+    },
+    "showcase": {
+      "kicker": "Built for real practices",
+      "headline": "Designed in Morocco. Hosted in Morocco.",
+      "sub": "Compliant with law 09-08 on personal data protection. Your patients stay with you."
+    },
+    "demo": {
+      "kicker": "Live demo",
+      "headlineA": "A patient types.",
+      "headlineB": "An appointment lands."
+    },
+    "pricing": {
+      "kicker": "Pricing",
+      "headline": "Simple. No lock-in.",
+      "sub": "14 days free on all plans. Cancel in one click. Prices excl. tax, in MAD / month.",
+      "recommended": "Recommended",
+      "starterName": "Starter",
+      "starterSub": "Try DentalCare out",
+      "starterPrice": "0",
+      "starterSuffix": "/ month",
+      "starterCta": "Start free",
+      "proName": "Pro",
+      "proSub": "Most popular",
+      "proPrice": "499",
+      "proSuffix": "MAD / month",
+      "proCta": "Start 14-day trial",
+      "plusName": "Cabinet+",
+      "plusSub": "For larger teams",
+      "plusPrice": "999",
+      "plusSuffix": "MAD / month",
+      "plusCta": "Start 14-day trial"
+    },
+    "closing": {
+      "headline": "Let the AI talk. You treat patients.",
+      "sub": "Set up your practice in 2 minutes. 14 days free. No credit card.",
+      "ctaPrimary": "Start trial",
+      "ctaSecondary": "I already have an account",
+      "compliance": "DentalCare is a dental practice management platform designed in Morocco, hosted in Morocco, compliant with law 09-08 on personal data protection.",
+      "copyright": "All rights reserved.",
+      "terms": "Terms of use",
+      "privacy": "Privacy",
+      "contact": "Contact"
+    }
+  },
   "Common": {
     "appName": "DentalCare",
     "tagline": "Dental practice management",
@@ -38,8 +130,43 @@
   "LocaleSwitcher": {
     "label": "Language",
     "fr": "Français",
-    "en": "English",
-    "ar": "العربية"
+    "en": "English"
+  },
+  "Signup": {
+    "tagline": "Launch your clinic in 2 minutes",
+    "taglineDesc": "DentalCare handles appointments, reminders and the WhatsApp AI bot. You focus on patients.",
+    "bullet1": "14-day free trial, no credit card",
+    "bullet2": "WhatsApp AI booking included (FR / AR / Darija)",
+    "bullet3": "Automatic J-1 reminders and scaling recalls",
+    "bullet4": "Multi-user: admin, dentist, receptionist",
+    "footer": "© DentalCare — Hosted in Morocco",
+    "title": "Create your clinic",
+    "subtitle": "Set up your workspace in 30 seconds.",
+    "clinicNameLabel": "Clinic name",
+    "clinicNamePlaceholder": "Bennani Dental",
+    "fullNameLabel": "Your full name",
+    "fullNamePlaceholder": "Dr Bennani",
+    "phoneLabel": "Clinic phone",
+    "optional": "optional",
+    "emailLabel": "Admin email",
+    "passwordLabel": "Password",
+    "passwordHint": "min. 8 characters",
+    "submit": "Create my clinic",
+    "submitLoading": "Creating…",
+    "haveAccount": "Already have an account?",
+    "signIn": "Sign in",
+    "legalNotice": "By creating an account you agree to our terms and privacy policy compliant with Morocco's law 09-08.",
+    "errors": {
+      "INVALID_INPUT": "Invalid data. Check the fields.",
+      "TOO_SHORT": "This field is too short.",
+      "TOO_LONG": "This field exceeds the allowed limit.",
+      "INVALID_EMAIL": "Invalid email address.",
+      "PASSWORD_TOO_SHORT": "Password too short (min. 8 characters).",
+      "PASSWORD_TOO_LONG": "Password too long.",
+      "EMAIL_TAKEN": "This email is already linked to an account.",
+      "RATE_LIMITED": "Too many attempts. Try again in a few minutes.",
+      "UNEXPECTED": "Something went wrong, please try again."
+    }
   },
   "Login": {
     "title": "Welcome 👋",
@@ -53,6 +180,9 @@
     "forgotPassword": "Forgot password?",
     "submit": "Sign in",
     "submitLoading": "Signing in…",
+    "noAccount": "No clinic yet?",
+    "createAccount": "Create my clinic",
+    "signupSuccess": "🎉 Clinic created! Sign in with your email and password.",
     "errors": {
       "INVALID_INPUT": "Invalid email or password.",
       "INVALID_CREDENTIALS": "Incorrect email or password.",
@@ -91,6 +221,8 @@
     "missingToken": "No reset link detected."
   },
   "Nav": {
+    "Plateforme": "Platform",
+    "Super-admin": "Super-admin",
     "Pilotage": "Overview",
     "Patientèle": "Patients",
     "Cabinet": "Clinic",
@@ -101,11 +233,15 @@
     "Factures": "Invoices",
     "Stock": "Stock",
     "Rappels": "Recalls",
+    "Conversations IA": "AI conversations",
+    "File des rappels": "Reminder queue",
     "Dentistes": "Dentists",
     "Utilisateurs": "Users",
     "Traitements": "Treatments",
     "Paramètres": "Settings",
-    "Registre d'audit": "Audit log"
+    "AI Receptionist": "AI Receptionist",
+    "Registre d'audit": "Audit log",
+    "Support": "Support"
   },
   "Topbar": {
     "searchPlaceholder": "Search patient, appointment, invoice…",
@@ -113,6 +249,7 @@
     "notifications": "Notifications"
   },
   "Role": {
+    "SUPER_ADMIN": "Platform owner",
     "ADMIN": "Administrator",
     "DENTIST": "Dentist",
     "RECEPTIONIST": "Receptionist"
@@ -224,8 +361,7 @@
     },
     "locale": {
       "fr": "Français",
-      "en": "English",
-      "ar": "العربية"
+      "en": "English"
     },
     "submit": "Save",
     "submitLoading": "Saving…",
@@ -530,6 +666,9 @@
     "noAddress": "No address",
     "noEmail": "No email",
     "noMedicalHistory": "No medical history recorded",
+    "viewFullRecord": "View full record",
+    "antecedents": "History",
+    "clinicalNotes": "Clinical notes",
     "noRecentConsultations": "No past consultations",
     "noNextAppointment": "No upcoming appointment",
     "balanceLabels": {
@@ -810,6 +949,81 @@
       "recallsDue": "{count} recall(s) this week",
       "waitlist": "{count} patient(s) waiting",
       "openInvoices": "{count} overdue invoice(s)"
+    }
+  },
+  "Conversations": {
+    "title": "AI conversations",
+    "subtitle": "{count} conversation(s)",
+    "empty": "No conversation yet. Patients writing to the clinic on WhatsApp will appear here.",
+    "selectOne": "Select a conversation to view its history.",
+    "noMessages": "(no messages)",
+    "turns": "{count} turn(s)",
+    "tokens": "Tokens",
+    "createdAt": "Created",
+    "tabs": {
+      "ACTIVE": "Active",
+      "HANDED_OFF": "Taken over",
+      "CLOSED": "Closed",
+      "all": "All"
+    },
+    "status": {
+      "ACTIVE": "Bot",
+      "HANDED_OFF": "Human",
+      "CLOSED": "Closed",
+      "handedOffBy": "Taken over by"
+    },
+    "messages": {
+      "tool": "tool"
+    },
+    "actions": {
+      "handover": "Take over",
+      "handoverConfirm": "The bot will stop replying. You will handle this conversation manually.",
+      "reactivate": "Give back to bot"
+    },
+    "admin": {
+      "inputPlaceholder": "Type your reply to the patient…",
+      "send": "Send",
+      "hint": "Take over to reply manually.",
+      "marker": "You"
+    },
+    "searchPlaceholder": "Search (phone or name)…",
+    "unreadDot": "New message"
+  },
+  "RemindersQueue": {
+    "title": "Reminder queue",
+    "subtitle": "Overview of scheduled and delivered WhatsApp messages",
+    "kpi": {
+      "appointments": "Appointments to remind",
+      "appointmentsHelp": "{sent} already sent",
+      "recalls": "Upcoming recalls",
+      "recallsHelp": "Patients to contact within 60 days",
+      "failures": "Failures (7d)",
+      "failuresHelp": "WhatsApp deliveries that failed"
+    },
+    "sections": {
+      "appointments": "Next J-1 reminders (appointments)",
+      "recalls": "Upcoming patient recalls",
+      "failures": "Recent failures (last 7 days)",
+      "empty": "Nothing here.",
+      "noFailures": "No recent failures — everything is flowing."
+    },
+    "col": {
+      "startAt": "Appointment",
+      "reminderAt": "Reminder",
+      "patient": "Patient",
+      "dentist": "Dentist",
+      "status": "Status",
+      "dueDate": "Due date",
+      "kind": "Kind",
+      "reason": "Reason",
+      "when": "When",
+      "action": "Action",
+      "target": "Target",
+      "error": "Error"
+    },
+    "status": {
+      "queued": "Queued",
+      "sent": "Sent"
     }
   },
   "Recalls": {

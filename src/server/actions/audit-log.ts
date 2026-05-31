@@ -19,8 +19,8 @@ export async function listAuditLog(
 ): Promise<Result<AuditLogPage>> {
   const session = await auth();
   if (!session?.user) return fail("UNAUTHORIZED", "Login required");
-  if (session.user.role !== UserRole.ADMIN) {
-    return fail("FORBIDDEN", "Admin role required");
+  if (session.user.role !== UserRole.SUPER_ADMIN) {
+    return fail("FORBIDDEN", "Super-admin role required");
   }
 
   const take = Math.min(Math.max(q.pageSize ?? 50, 1), 200);
@@ -85,8 +85,8 @@ export async function listAuditLog(
 export async function listAuditEntities(): Promise<Result<string[]>> {
   const session = await auth();
   if (!session?.user) return fail("UNAUTHORIZED", "Login required");
-  if (session.user.role !== UserRole.ADMIN) {
-    return fail("FORBIDDEN", "Admin role required");
+  if (session.user.role !== UserRole.SUPER_ADMIN) {
+    return fail("FORBIDDEN", "Super-admin role required");
   }
 
   const rows = await db.auditLog.findMany({

@@ -54,7 +54,7 @@ export const patientBaseSchema = z.object({
     .or(z.literal("").transform(() => undefined)),
   medicalHistory: z.string().trim().max(2000).optional(),
   preferredChannel: z.nativeEnum(CommunicationChannel).default(CommunicationChannel.WHATSAPP),
-  preferredLocale: z.enum(["fr", "en", "ar"]).default("fr"),
+  preferredLocale: z.enum(["fr", "en"]).default("fr"),
   photoConsent: z.coerce.boolean().default(false),
   allergies: allergiesSchema,
 });

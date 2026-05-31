@@ -4,8 +4,16 @@ import { LocaleSwitcher } from "@/components/locale-switcher";
 import { UserMenu } from "@/components/user-menu";
 import { CmdKTrigger } from "@/components/cmdk-trigger";
 import { NotificationBell } from "@/components/notification-bell";
+import { MobileNavTrigger } from "@/components/mobile-nav-trigger";
 import { getNotifications } from "@/server/actions/dashboard";
 
+/**
+ * Floating glass topbar — Apple Liquid Glass.
+ *
+ * Sticky at the top of the main column with the same 16px inset as the
+ * sidebar. Rounded `rounded-3xl` matches the sidebar pill so the whole
+ * chrome feels like a single floating shell.
+ */
 export async function AppTopbar({
   fullName,
   email,
@@ -22,37 +30,18 @@ export async function AppTopbar({
   return (
     <header
       data-app-topbar
-      className="border-border/60 bg-card flex h-14 shrink-0 items-center gap-3 border-b px-4 lg:px-6"
+      className="glass-thin sticky top-4 z-40 flex h-14 items-center gap-3 rounded-2xl px-4 md:rounded-3xl"
     >
-      {/* Left: mobile menu (also reserves space so the centered search stays centered) */}
+      {/* Left: mobile menu (reserves space so the centered search stays centered) */}
       <div className="flex flex-1 items-center">
-        <button
-          type="button"
-          aria-label={tTop("openMenu")}
-          className="hover:bg-muted rounded p-1.5 md:hidden"
-        >
-          <svg
-            className="size-5"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2"
-            viewBox="0 0 24 24"
-            aria-hidden
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5"
-            />
-          </svg>
-        </button>
+        <MobileNavTrigger ariaLabel={tTop("openMenu")} />
       </div>
 
       {/* Center: search (Cmd+K palette) */}
       <CmdKTrigger />
 
       {/* Right: notifications + language + profile */}
-      <div className="flex flex-1 items-center justify-end gap-2">
+      <div className="flex flex-1 items-center justify-end gap-1.5">
         <NotificationBell items={notifications} ariaLabel={tTop("notifications")} />
         <LocaleSwitcher />
         <UserMenu fullName={fullName} email={email} roleLabel={tRole(role)} />

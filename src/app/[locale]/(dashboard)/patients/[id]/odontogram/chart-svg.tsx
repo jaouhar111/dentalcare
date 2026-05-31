@@ -53,7 +53,9 @@ export function ChartSVG({
   const COL = TOOTH_W + TOOTH_GAP;
   const ROW_WIDTH = 8 * COL - TOOTH_GAP;
   const GAP_X = 16;
-  const PAD_X = 40;
+  // Bumped from 40 → 88 so MAXILLAIRE / MANDIBULAIRE labels fit in the
+  // left gutter without being clipped by the SVG viewBox.
+  const PAD_X = 88;
   const TOP_PAD = 40;
   const ROW_GAP_Y = 80;
 

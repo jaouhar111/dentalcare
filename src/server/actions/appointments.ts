@@ -1,9 +1,10 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { AppointmentStatus, UserRole } from "@prisma/client";
+import { AppointmentSource, AppointmentStatus, UserRole } from "@prisma/client";
 import { db } from "@/lib/db/client";
 import { audit } from "@/lib/audit";
+import { dispatchPendingEvents, publishEvent } from "@/lib/events";
 import { requireRole } from "@/lib/auth/rbac";
 import { fail, ok, type Result } from "@/lib/utils/result";
 import {
@@ -135,6 +136,11 @@ export interface AppointmentListItem {
   reason: string | null;
   cancellationReason: string | null;
   confirmationReceivedAt: Date | null;
+  /// Origin channel — drives the "🤖 IA" pill on calendar cards.
+  source: AppointmentSource;
+  /// Display name of the user (or AI bot proxy) that created the row.
+  /// Surfaced on the edit page so staff can trace any RDV back.
+  createdByName: string | null;
 }
 
 export async function listAppointments(
@@ -171,6 +177,7 @@ export async function listAppointments(
     include: {
       patient: { select: { id: true, firstName: true, lastName: true } },
       dentist: { select: { id: true, firstName: true, lastName: true, color: true } },
+      createdBy: { select: { fullName: true } },
     },
   });
 
@@ -188,6 +195,8 @@ export async function listAppointments(
       reason: a.reason,
       cancellationReason: a.cancellationReason,
       confirmationReceivedAt: a.confirmationReceivedAt,
+      source: a.source,
+      createdByName: a.createdBy?.fullName ?? null,
     })),
   );
 }
@@ -199,6 +208,7 @@ export async function getAppointment(id: string) {
     include: {
       patient: { select: { id: true, firstName: true, lastName: true, phone: true } },
       dentist: { select: { id: true, firstName: true, lastName: true, color: true } },
+      createdBy: { select: { fullName: true } },
     },
   });
 }
@@ -315,10 +325,10 @@ export async function createAppointment(
   });
   if (conflict) return fail("CONFLICT", "Another appointment overlaps this slot");
 
-  // Create the appointment and (optionally) link a PLANNED treatment
-  // application in the same transaction so the dentist sees the intended
-  // act in the séance editor and recall pipeline knows what to fire on
-  // COMPLETED.
+  // Create the appointment + (optional) PLANNED treatment + outbox event
+  // in the same transaction so the recall pipeline + Inngest fanout are
+  // atomic with the data write. The outbox row is forwarded to Inngest
+  // by `dispatchPendingEvents()` AFTER commit (see below).
   const created = await db.$transaction(async (tx) => {
     const appt = await tx.appointment.create({
       data: {
@@ -347,6 +357,18 @@ export async function createAppointment(
         },
       });
     }
+    // Outbox: Inngest function `appointment-created-canary` listens for this.
+    // Until Phase AI-2 lands, the function just logs — but the wiring is real.
+    await publishEvent(tx, {
+      clinicId: user.clinicId,
+      name: "appointment.created",
+      payload: {
+        id: appt.id,
+        patientId,
+        dentistId,
+        startAt: start.toISOString(),
+      },
+    });
     return appt;
   });
 
@@ -364,6 +386,11 @@ export async function createAppointment(
       ...(catalogItem ? { catalogItemId: catalogItem.id } : {}),
     },
   });
+
+  // Best-effort: forward outbox rows to Inngest. Failures stay PENDING in
+  // the DB and a future replay (or periodic dispatcher) picks them up,
+  // so we don't block the response on Inngest availability.
+  void dispatchPendingEvents();
 
   revalidatePath("/appointments");
   revalidatePath("/[locale]", "page"); // dashboard KPIs

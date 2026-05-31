@@ -31,7 +31,10 @@ export default async function EditPatientPage({
     bloodGroup: patient.bloodGroup ?? "",
     medicalHistory: patient.medicalHistory ?? "",
     preferredChannel: patient.preferredChannel,
-    preferredLocale: (patient.preferredLocale as "fr" | "en" | "ar") ?? "fr",
+    preferredLocale:
+      (patient.preferredLocale === "fr" || patient.preferredLocale === "en"
+        ? patient.preferredLocale
+        : "fr") as "fr" | "en",
     photoConsent: patient.photoConsent,
     allergies: patient.allergies.map((a) => a.label),
   };

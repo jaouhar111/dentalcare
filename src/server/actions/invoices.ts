@@ -202,7 +202,7 @@ export async function getInvoice(id: string): Promise<Result<InvoiceDetail>> {
         },
       },
       clinic: {
-        select: { name: true, address: true, phone: true, vatNumber: true },
+        select: { name: true, address: true, phone: true, vatNumber: true, logoUrl: true },
       },
       lines: { orderBy: { sortOrder: "asc" } },
       payments: {
@@ -268,6 +268,7 @@ export async function getInvoice(id: string): Promise<Result<InvoiceDetail>> {
     clinicAddress: row.clinic.address,
     clinicPhone: row.clinic.phone,
     clinicVatNumber: row.clinic.vatNumber,
+    clinicLogoUrl: row.clinic.logoUrl,
     hasPaymentPlan: row.paymentPlan !== null,
   });
 }

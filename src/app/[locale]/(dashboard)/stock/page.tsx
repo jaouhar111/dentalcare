@@ -43,11 +43,11 @@ export default async function StockListPage({
   const canManage = me.role === UserRole.ADMIN;
 
   return (
-    <div className="mx-auto max-w-7xl p-6 lg:p-8">
-      <header className="mb-6 flex flex-wrap items-end justify-between gap-3">
+    <div className="mx-auto max-w-7xl px-4 py-6 md:px-2 lg:py-2">
+      <header className="page-h1-row">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight">{t("title")}</h1>
-          <p className="text-muted-foreground mt-0.5 text-sm">
+          <h1 className="page-h1">{t("title")}</h1>
+          <p className="page-sub">
             <span className="num">{items.length}</span>{" "}
             {t("subtitle", { count: items.length }).replace(`${items.length} `, "")}
           </p>

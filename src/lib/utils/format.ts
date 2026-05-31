@@ -7,7 +7,6 @@ import type { Locale } from "@/i18n/routing";
 const INTL_LOCALE: Record<Locale, string> = {
   fr: "fr-MA",
   en: "en-US",
-  ar: "ar-MA",
 };
 
 /**
@@ -15,7 +14,6 @@ const INTL_LOCALE: Record<Locale, string> = {
  *
  * fr → "1 500,00 DH"
  * en → "MAD 1,500.00"
- * ar → "1٬500٫00 د.م.‏"
  */
 export function formatCurrency(amount: number, locale: Locale): string {
   return new Intl.NumberFormat(INTL_LOCALE[locale], {

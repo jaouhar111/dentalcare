@@ -76,12 +76,40 @@ export interface DashboardAlert {
   details: string[];
 }
 
+/// Recent WhatsApp conversation preview — last 5 active threads for the
+/// dashboard inbox card.
+export interface DashboardConversation {
+  id: string;
+  patientName: string;
+  patientPhone: string;
+  lastMessage: string | null;
+  lastActivityAt: Date;
+  status: string;
+  isUnread: boolean;
+}
+
+/// Recently added patient row — for the dashboard "Patients récents" card.
+export interface DashboardPatient {
+  id: string;
+  name: string;
+  createdAt: Date;
+}
+
 export interface DashboardData {
   role: UserRole;
   kpi: KpiBundle;
   monthlyRevenue: MonthlyRevenuePoint[];
   topTreatments: TopTreatment[];
   todayAppointments: TodayAppointment[];
+  /// Count of appointments tomorrow (cabinet TZ) — for the "RDV demain"
+  /// teaser on the dashboard hero.
+  tomorrowApptsCount: number;
+  /// No-show rate over the last 30 days (0-100). Alert if > 15 %.
+  noShowRate30d: number;
+  /// Last 5 WhatsApp conversations — for the inbox preview card.
+  recentConversations: DashboardConversation[];
+  /// Last 5 patients created — for the "Patients récents" card.
+  recentPatients: DashboardPatient[];
   alerts: DashboardAlert[];
   generatedAt: Date;
 }
@@ -194,6 +222,11 @@ async function computeDashboard(clinicId: string, role: UserRole): Promise<Dashb
     recallsThisWeekKinds,
     openInvoicesCount,
     apptDurations,
+    tomorrowApptsCount,
+    noShows30d,
+    total30dApptCount,
+    recentConvRows,
+    recentPatientRows,
   ] = await Promise.all([
     db.payment.aggregate({
       where: { clinicId, receivedAt: { gte: monthStart } },
@@ -314,6 +347,50 @@ async function computeDashboard(clinicId: string, role: UserRole): Promise<Dashb
         status: { not: AppointmentStatus.CANCELLED },
       },
       select: { startAt: true, endAt: true },
+    }),
+    // Tomorrow's count — single integer for the hero "RDV demain" teaser.
+    db.appointment.count({
+      where: {
+        clinicId,
+        startAt: { gte: addDays(today, 1), lt: addDays(today, 2) },
+        status: { in: [AppointmentStatus.SCHEDULED, AppointmentStatus.CONFIRMED] },
+      },
+    }),
+    // No-show stats over the last 30 days — for the dashboard health KPI.
+    db.appointment.count({
+      where: {
+        clinicId,
+        startAt: { gte: addDays(today, -30), lt: today },
+        status: AppointmentStatus.NO_SHOW,
+      },
+    }),
+    db.appointment.count({
+      where: {
+        clinicId,
+        startAt: { gte: addDays(today, -30), lt: today },
+        status: { not: AppointmentStatus.CANCELLED },
+      },
+    }),
+    // Last 5 conversations — preview only, full inbox lives at /conversations.
+    db.aIConversation.findMany({
+      where: { clinicId },
+      orderBy: { lastActivityAt: "desc" },
+      take: 5,
+      select: {
+        id: true,
+        patientPhone: true,
+        lastActivityAt: true,
+        status: true,
+        lastReadAt: true,
+        patient: { select: { firstName: true, lastName: true } },
+      },
+    }),
+    // Last 5 patients added — for the "récents" tile.
+    db.patient.findMany({
+      where: { clinicId, deletedAt: null },
+      orderBy: { createdAt: "desc" },
+      take: 5,
+      select: { id: true, firstName: true, lastName: true, createdAt: true },
     }),
   ]);
 
@@ -444,12 +521,45 @@ async function computeDashboard(clinicId: string, role: UserRole): Promise<Dashb
     occupancyPct,
   };
 
+  // ─── No-show rate ───────────────────────────────────────────────────────
+  // Guard against div/0 on brand-new cabinets — show 0 % when there's
+  // nothing to compare against.
+  const noShowRate30d =
+    total30dApptCount > 0
+      ? Math.round((noShows30d / total30dApptCount) * 100)
+      : 0;
+
+  // ─── Recent conversations ───────────────────────────────────────────────
+  const recentConversations: DashboardConversation[] = recentConvRows.map((c) => ({
+    id: c.id,
+    patientPhone: c.patientPhone,
+    patientName: c.patient
+      ? `${c.patient.firstName} ${c.patient.lastName}`
+      : c.patientPhone,
+    lastMessage: null, // history is stored as JSON; preview skipped to keep query lean
+    lastActivityAt: c.lastActivityAt,
+    status: c.status,
+    // Unread = inbound activity newer than the cabinet's last read.
+    isUnread: !c.lastReadAt || c.lastActivityAt > c.lastReadAt,
+  }));
+
+  // ─── Recent patients ────────────────────────────────────────────────────
+  const recentPatients: DashboardPatient[] = recentPatientRows.map((p) => ({
+    id: p.id,
+    name: `${p.firstName} ${p.lastName}`,
+    createdAt: p.createdAt,
+  }));
+
   return {
     role,
     kpi,
     monthlyRevenue,
     topTreatments,
     todayAppointments,
+    tomorrowApptsCount,
+    noShowRate30d,
+    recentConversations,
+    recentPatients,
     alerts,
     generatedAt: new Date(),
   };

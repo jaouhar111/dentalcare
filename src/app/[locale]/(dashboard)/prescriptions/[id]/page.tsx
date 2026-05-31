@@ -36,7 +36,7 @@ export default async function PrescriptionPrintPage({
 
   // Force the document locale to whatever was set at issue time so a patient
   // viewing in `/en/` still sees their French/Arabic prescription.
-  const docLocale = (["fr", "en", "ar"].includes(p.locale) ? p.locale : "fr") as Locale;
+  const docLocale = (["fr", "en"].includes(p.locale) ? p.locale : "fr") as Locale;
   const t = await getTranslations({ locale: docLocale, namespace: "Prescriptions.doc" });
   const tList = await getTranslations({ locale: docLocale, namespace: "Prescriptions" });
   const dir = isRtl(docLocale) ? "rtl" : "ltr";

@@ -23,9 +23,56 @@ model Meta {
 // ─────────────────────────────────────────────────────────────────────────────
 
 /// Cabinet = tenant. Every domain row is scoped by `clinicId` (multi-tenant prep).
+/// Subscription state of a cabinet. Drives the marketing-site CTA
+/// ("Try free for 14 days") and gates dashboard access when the
+/// trial expires or billing fails. Wired to Stripe later — for now
+/// the value is set by the signup flow + admin actions.
+enum SubscriptionStatus {
+  /// Default for fresh sign-ups. Full feature access for 14 days.
+  TRIAL
+  /// Paid subscription in good standing.
+  ACTIVE
+  /// Stripe webhook reported a failed renewal. Dashboard read-only.
+  PAST_DUE
+  /// Admin cancelled or trial expired without conversion.
+  CANCELLED
+
+  @@map("subscription_status")
+}
+
+/// Plan tier mirrors the 3 cards on the landing pricing section.
+/// `STARTER`     = 0 MAD/month, 1 dentist, 100 patients.
+/// `PRO`         = 499 MAD/month, AI bot, recalls, plans.
+/// `CABINET_PLUS`= 999 MAD/month, unlimited everything + voice.
+enum SubscriptionPlan {
+  STARTER
+  PRO
+  CABINET_PLUS
+
+  @@map("subscription_plan")
+}
+
+/// Tone for the AI Receptionist's WhatsApp replies. Drives the system
+/// prompt the engine builds for each tenant.
+enum AIReceptionistStyle {
+  /// "Bonjour Madame, je vous prie de bien vouloir…"
+  FORMAL
+  /// "Salut Sara, je te propose mardi 14h, ça te va ?"
+  FRIENDLY
+
+  @@map("ai_receptionist_style")
+}
+
 model Clinic {
   id                    String   @id @default(cuid())
   name                  String
+  /// URL-safe identifier — used for marketing subdomains
+  /// (`hdoud-otmane.dentalcare.ma`) and for the public booking
+  /// portal route. Generated from `name` at signup, lowercased,
+  /// dash-separated, deduped with a numeric suffix on collision.
+  /// Nullable while we backfill pre-existing clinics; the signup
+  /// flow always sets it, so new rows are guaranteed to carry one.
+  slug                  String?  @unique
   address               String?
   phone                 String?
   email                 String?
@@ -36,6 +83,39 @@ model Clinic {
   /// — obscures billing volume (cf. SPEC §4.8).
   invoiceStartingNumber Int
   settingsJson          Json?
+  /// Meta phone-number-id this cabinet's WhatsApp is bound to.
+  /// Inbound webhooks carry it in `metadata.phone_number_id` —
+  /// that's how we route a Meta message to the right clinic in
+  /// multi-tenant mode. Null = not yet configured (still uses the
+  /// shared dev test number).
+  whatsappPhoneId       String?  @unique
+  subscriptionStatus    SubscriptionStatus @default(TRIAL)
+  /// Which landing-page tier this cabinet is on. Defaults to PRO so a
+  /// fresh signup on TRIAL gets the most-popular set of features for
+  /// the trial window; the SUPER_ADMIN can move them to STARTER or
+  /// CABINET_PLUS from /super-admin/clinics/[id].
+  plan                  SubscriptionPlan   @default(PRO)
+  trialEndsAt           DateTime?
+  /// Timestamp when the cabinet completed the 5-step onboarding wizard.
+  /// `null` = wizard never completed → /onboarding page blocks all other
+  /// routes until the cabinet finishes setup (or explicitly skips).
+  onboardingCompletedAt DateTime?
+  /// AI Receptionist kill switch. `true` = bot answers WhatsApp inbound.
+  /// `false` = bot replies with a "transferring you" message and creates
+  /// a handover ticket so the cabinet team picks up manually. Defaults
+  /// to true per the Phase 10 positioning ("AI ON by default").
+  aiEnabled             Boolean            @default(true)
+  /// Tone used by the bot when composing replies.
+  aiStyle               AIReceptionistStyle @default(FRIENDLY)
+  /// Signature appended to every bot reply (e.g. "— Cabinet Hdoud").
+  /// Empty by default; the cabinet sets it in the AI Receptionist
+  /// settings page.
+  aiSignature           String?            @db.VarChar(80)
+  /// Cabinet-customised templates that override the bot defaults for
+  /// the 5 most common interaction types (book RDV, urgence, opening
+  /// hours, address, off-topic). Shape: `{ bookRdv?: string; ... }`.
+  /// Null = use built-in defaults.
+  aiTemplatesJson       Json?
   createdAt             DateTime @default(now())
   updatedAt             DateTime @updatedAt
 
@@ -57,11 +137,16 @@ model Clinic {
   stockItems            StockItem[]
   stockMovements        StockMovement[]
   recallReminders       RecallReminder[]
+  aiConversations       AIConversation[]
+  supportTickets        SupportTicket[]
 
   @@map("clinics")
 }
 
 enum UserRole {
+  /// Platform owner. Cross-tenant access (every clinic), super-admin
+  /// dashboard, audit log, billing controls. Not delegable.
+  SUPER_ADMIN
   ADMIN
   DENTIST
   RECEPTIONIST
@@ -97,8 +182,14 @@ model User {
   createdPaymentPlans  PaymentPlan[]          @relation("PaymentPlanCreator")
   recordedStockMoves   StockMovement[]        @relation("StockMovementCreator")
   createdRecalls       RecallReminder[]       @relation("RecallCreator")
+  aiConversationHandovers AIConversation[]    @relation("AIConversationHandover")
   /// Reverse 1-1 — set when this user IS a dentist (and only then).
   dentist              Dentist?               @relation("UserDentist")
+  /// Support tickets this user opened (cabinet-side) OR replied to
+  /// (either side). Two separate relations so we keep the audit trail
+  /// of WHO created vs WHO last responded clean.
+  openedSupportTickets SupportTicket[]        @relation("SupportTicketCreator")
+  supportTicketReplies SupportTicketReply[]   @relation("SupportTicketReplyAuthor")
 
   @@index([clinicId])
   @@index([role])
@@ -195,6 +286,7 @@ model Patient {
   invoices              Invoice[]
   paymentPlans          PaymentPlan[]
   recallReminders       RecallReminder[]
+  aiConversations       AIConversation[]
 
   // CIN is unique within a clinic when present. Postgres treats NULLs as distinct,
   // so multiple patients without CIN are allowed.
@@ -292,6 +384,22 @@ model DentistAbsence {
 // Appointments
 // ─────────────────────────────────────────────────────────────────────────────
 
+/// Channel that originated the appointment — surfaces in the UI so
+/// admins can distinguish bot-booked RDV from manual entries, and
+/// powers per-source analytics (e.g. % of bookings handled by AI).
+enum AppointmentSource {
+  /// Default — created from the dashboard by a human user.
+  MANUAL
+  /// Booked by the WhatsApp AI booking flow via `create_appointment`.
+  AI_WHATSAPP
+  /// Created by a recall follow-up (future automation).
+  RECALL_FOLLOWUP
+  /// Created from a waitlist proposal accepted by the patient.
+  WAITLIST_ACCEPT
+
+  @@map("appointment_source")
+}
+
 enum AppointmentStatus {
   SCHEDULED
   CONFIRMED
@@ -345,12 +453,19 @@ model Appointment {
   /// Generated lazily when the first reminder is queued.
   confirmationToken      String?           @unique
   reminderSentAt         DateTime?
+  /// Same-day morning reminder timestamp (separate from J-1 above).
+  /// The 08:00 Casablanca cron sweep stamps this so the same patient
+  /// never gets two morning reminders for the same RDV across retries.
+  morningReminderSentAt  DateTime?
   confirmationReceivedAt DateTime?
   cancelledAt            DateTime?
   cancellationReason     String?
   /// `true` when the patient cancelled less than 24h before the start —
   /// useful for cabinet stats (no-show rate proxy).
   cancelledLate          Boolean           @default(false)
+  /// Where this RDV came from. NULL fallback would be ambiguous — every
+  /// row carries a source so dashboards / filters can group cleanly.
+  source                 AppointmentSource @default(MANUAL)
   createdById            String
   createdAt              DateTime          @default(now())
   updatedAt              DateTime          @updatedAt
@@ -1105,4 +1220,225 @@ model AuditLog {
   @@index([entity, entityId])
   @@index([userId])
   @@map("audit_log")
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// AI-0 — Event Outbox (transactional event publishing)
+// ─────────────────────────────────────────────────────────────────────────────
+
+enum EventStatus {
+  /// Inserted in the same DB transaction as the business mutation but not
+  /// yet shipped to the orchestrator. The dispatcher cron / post-commit
+  /// hook will pick it up.
+  PENDING
+  /// Successfully forwarded to Inngest. Kept for audit + replay.
+  DISPATCHED
+  /// Dispatch attempts exhausted — manual intervention via the
+  /// `/super-admin/events/replay` UI (future).
+  FAILED
+
+  @@map("event_status")
+}
+
+/// Outbox row that decouples the business transaction from the
+/// orchestrator delivery. Pattern: write the row in the same transaction
+/// as the data mutation; a post-commit dispatcher forwards it to Inngest
+/// (or any downstream queue). If the dispatcher dies mid-flight, the row
+/// stays `PENDING` and replays.
+///
+/// Why not call Inngest directly from the Server Action? Because the
+/// HTTP call would happen *before* the DB transaction commits — if the
+/// DB then rollbacks, we'd have emitted a phantom event. Outbox + post-
+/// commit dispatch eliminates that race.
+model EventOutbox {
+  id            String      @id @default(cuid())
+  clinicId      String
+  /// Event name — dot-namespaced, e.g. "appointment.created",
+  /// "invoice.emitted", "recall.generated". Drives Inngest function
+  /// routing.
+  name          String
+  payloadJson   Json
+  status        EventStatus @default(PENDING)
+  /// When the orchestrator confirmed receipt.
+  dispatchedAt  DateTime?
+  /// Last error from a failed dispatch — null on PENDING / DISPATCHED.
+  lastError     String?
+  attempts      Int         @default(0)
+  createdAt     DateTime    @default(now())
+
+  @@index([status, createdAt])
+  @@index([clinicId, name])
+  @@map("event_outbox")
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// AI-1 — Conversational booking (WhatsApp)
+// ─────────────────────────────────────────────────────────────────────────────
+
+enum AIConversationStatus {
+  /// Bot is actively handling the conversation.
+  ACTIVE
+  /// Admin took over from the dashboard — the bot must stop replying
+  /// even if new messages come in.
+  HANDED_OFF
+  /// Idle for > N days, or patient explicitly closed it. Lookup still
+  /// works (e.g. for audit) but no further bot replies.
+  CLOSED
+
+  @@map("ai_conversation_status")
+}
+
+/// One row per (clinic × WhatsApp phone). Stores the rolling conversation
+/// history that the engine feeds back into the model on each new inbound
+/// message so the bot remembers earlier turns.
+///
+/// The `patientId` link is nullable on purpose: a brand-new number messages
+/// the cabinet *before* it exists in the patient DB. The webhook handler
+/// resolves it lazily — first by exact phone match, then by asking the
+/// patient to identify themselves. Once resolved we store the id here so
+/// tools like `create_appointment` and `list_my_appointments` can act on
+/// the right patient.
+///
+/// `historyJson` is the canonical ChatMessage[] (system prompt stripped —
+/// it is rebuilt fresh each turn so we can evolve it without rewriting
+/// stored rows). Cap enforced by the engine, not by the schema.
+model AIConversation {
+  id              String               @id @default(cuid())
+  clinicId        String
+  /// E.164 normalised number, e.g. "+212638256271". Unique within a
+  /// clinic so we never accidentally double-track a patient.
+  patientPhone    String
+  patientId       String?
+  status          AIConversationStatus @default(ACTIVE)
+  /// Rolling array of `ChatMessage` objects (typed in TS but stored as
+  /// JSON here so we don't fight Prisma's typed JSON support).
+  historyJson     Json                 @default("[]")
+  /// Cumulative count across the conversation's lifetime — used in the
+  /// admin UI to flag chatty conversations.
+  totalTurns      Int                  @default(0)
+  /// Sum of tokens consumed by the AI cascade. Powers the per-clinic
+  /// quota UI (free tier guardrail).
+  totalTokens     Int                  @default(0)
+  /// When the LAST inbound message landed — drives "recent
+  /// conversations" sorting + auto-close cron.
+  lastActivityAt  DateTime             @default(now())
+  /// When the LAST *patient* (inbound) message landed. Used together
+  /// with `lastReadAt` to compute the unread badge: a conversation is
+  /// unread iff `lastInboundAt > lastReadAt`.
+  lastInboundAt   DateTime?
+  /// When an admin last opened this conversation in the dashboard.
+  /// `null` = never opened (treat any inbound as unread).
+  lastReadAt      DateTime?
+  /// When an admin clicked "Take over" — set together with status =
+  /// HANDED_OFF. Null otherwise.
+  handedOffAt     DateTime?
+  handedOffById   String?
+  createdAt       DateTime             @default(now())
+  updatedAt       DateTime             @updatedAt
+
+  clinic          Clinic               @relation(fields: [clinicId], references: [id], onDelete: Cascade)
+  patient         Patient?             @relation(fields: [patientId], references: [id], onDelete: SetNull)
+  handedOffBy     User?                @relation("AIConversationHandover", fields: [handedOffById], references: [id], onDelete: SetNull)
+
+  @@unique([clinicId, patientPhone])
+  @@index([clinicId, lastActivityAt])
+  @@index([clinicId, status])
+  @@index([patientId])
+  @@map("ai_conversation")
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Support tickets — cabinets ↔ super-admin two-way conversation
+// ─────────────────────────────────────────────────────────────────────────────
+
+/// Lifecycle of a support thread. State machine:
+///   OPEN → IN_PROGRESS (super-admin replied) → WAITING_USER (cabinet replied)
+///   ↔ IN_PROGRESS ↔ WAITING_USER (back-and-forth) → RESOLVED (closed)
+/// Either side can RESOLVE; either side can re-open by adding a reply.
+enum SupportTicketStatus {
+  OPEN
+  IN_PROGRESS
+  WAITING_USER
+  RESOLVED
+
+  @@map("support_ticket_status")
+}
+
+/// Severity hint — super-admin sorts the inbox by this.
+enum SupportTicketPriority {
+  LOW
+  NORMAL
+  HIGH
+  URGENT
+
+  @@map("support_ticket_priority")
+}
+
+/// Used by the cabinet's "submit a ticket" form. Drives the inbox
+/// filter on the super-admin side ("show me all WhatsApp issues").
+enum SupportTicketCategory {
+  /// "I can't add a patient", form errors, broken UI.
+  TECHNICAL_BUG
+  /// "How do I configure recalls?", training questions.
+  HOW_TO
+  /// Plan changes, invoices, payment failures.
+  BILLING
+  /// WhatsApp Cloud API setup, templates, webhook problems.
+  WHATSAPP
+  /// "Please add X feature".
+  FEATURE_REQUEST
+  /// User account, password, permissions.
+  ACCOUNT
+  OTHER
+
+  @@map("support_ticket_category")
+}
+
+/// One support thread. The originating message lives in `body`;
+/// follow-ups live in `SupportTicketReply` rows. We keep the
+/// original separate so the inbox can show "subject + first line"
+/// without a JOIN.
+model SupportTicket {
+  id          String                 @id @default(cuid())
+  clinicId    String
+  /// Cabinet user (admin / dentist / réceptionniste) who opened it.
+  createdById String
+  subject     String                 @db.VarChar(160)
+  body        String                 @db.Text
+  category    SupportTicketCategory  @default(OTHER)
+  priority    SupportTicketPriority  @default(NORMAL)
+  status      SupportTicketStatus    @default(OPEN)
+  /// When super-admin set status = RESOLVED. Null while open.
+  resolvedAt  DateTime?
+  /// When either side last added a reply (or the ticket was created).
+  /// Used for the inbox "Last activity" column + outer ORDER BY.
+  lastActivityAt DateTime            @default(now())
+  createdAt   DateTime               @default(now())
+  updatedAt   DateTime               @updatedAt
+
+  clinic    Clinic               @relation(fields: [clinicId], references: [id], onDelete: Cascade)
+  createdBy User                 @relation("SupportTicketCreator", fields: [createdById], references: [id])
+  replies   SupportTicketReply[]
+
+  @@index([clinicId, status])
+  @@index([status, lastActivityAt])
+  @@index([priority, lastActivityAt])
+  @@map("support_tickets")
+}
+
+/// One reply in a ticket thread. `isFromSuperAdmin` lets us style
+/// bubbles per side without re-querying the user's role on render.
+model SupportTicketReply {
+  id               String   @id @default(cuid())
+  ticketId         String
+  userId           String
+  body             String   @db.Text
+  isFromSuperAdmin Boolean  @default(false)
+  createdAt        DateTime @default(now())
+
+  ticket SupportTicket @relation(fields: [ticketId], references: [id], onDelete: Cascade)
+  user   User          @relation("SupportTicketReplyAuthor", fields: [userId], references: [id])
+
+  @@index([ticketId, createdAt])
+  @@map("support_ticket_replies")
 }

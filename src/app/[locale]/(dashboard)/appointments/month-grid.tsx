@@ -91,13 +91,20 @@ export async function MonthGrid({
                         borderInlineStartStyle: "solid",
                         borderInlineStartColor: ev.dentistColor,
                       }}
-                      title={`${ev.patientName} — ${ev.reason ?? ""}`}
+                      title={`${ev.patientName} — ${ev.reason ?? ""}${
+                        ev.source === "AI_WHATSAPP" ? " (IA)" : ""
+                      }`}
                     >
                       <span className="num font-semibold">
                         {String(ev.startAt.getHours()).padStart(2, "0")}:
                         {String(ev.startAt.getMinutes()).padStart(2, "0")}
                       </span>{" "}
                       <span className="truncate">{ev.patientName}</span>
+                      {ev.source === "AI_WHATSAPP" ? (
+                        <span className="ml-1 inline-block rounded-sm bg-linear-to-br from-emerald-500 to-teal-600 px-1 text-[8px] font-bold text-white align-middle">
+                          IA
+                        </span>
+                      ) : null}
                     </div>
                   );
                 })}

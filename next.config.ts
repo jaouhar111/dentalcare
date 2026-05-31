@@ -14,6 +14,43 @@ const nextConfig: NextConfig = {
   // bottom of the screen in dev). It overlaps our own loading spinner and
   // confuses the dentist when they see "rendering…" between clicks.
   devIndicators: false,
+
+  /**
+   * Security headers — applied to every response globally.
+   *
+   * - `Strict-Transport-Security` forces HTTPS for 2 years + preload eligibility.
+   * - `X-Content-Type-Options: nosniff` blocks MIME-sniffing attacks.
+   * - `X-Frame-Options: DENY` blocks clickjacking (iframe embedding).
+   * - `Referrer-Policy` limits the URL info leaked to third parties.
+   * - `Permissions-Policy` denies access to sensitive browser APIs we don't use.
+   * - `X-DNS-Prefetch-Control` opts into faster DNS resolution.
+   *
+   * CSP is intentionally NOT set here — Next.js's `<Script>` strategy and the
+   * nonces required for inline `<style>` from styled-jsx make a static CSP
+   * fragile. To be added in a follow-up via the `next-safe-middleware` pattern
+   * with per-request nonces.
+   */
+  async headers() {
+    return [
+      {
+        source: "/:path*",
+        headers: [
+          {
+            key: "Strict-Transport-Security",
+            value: "max-age=63072000; includeSubDomains; preload",
+          },
+          { key: "X-Content-Type-Options", value: "nosniff" },
+          { key: "X-Frame-Options", value: "DENY" },
+          { key: "Referrer-Policy", value: "strict-origin-when-cross-origin" },
+          {
+            key: "Permissions-Policy",
+            value: "camera=(), microphone=(), geolocation=(), interest-cohort=()",
+          },
+          { key: "X-DNS-Prefetch-Control", value: "on" },
+        ],
+      },
+    ];
+  },
 };
 
 // Sentry config — wraps the build to upload source maps + tree-shake the SDK.

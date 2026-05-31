@@ -55,7 +55,7 @@ export default async function PatientDetailPage({
   const age = ageInYears(patient.dob);
 
   return (
-    <div className="mx-auto max-w-7xl p-6 lg:p-8">
+    <div className="mx-auto max-w-7xl px-4 py-6 md:px-2 lg:py-2">
       <Link
         href={"/patients" as never}
         className="text-muted-foreground hover:text-foreground mb-4 inline-flex items-center gap-1.5 text-sm"
@@ -85,8 +85,8 @@ export default async function PatientDetailPage({
           <div className="min-w-0 flex-1">
             <div className="flex flex-wrap items-start justify-between gap-3">
               <div>
-                <h1 className="text-2xl font-bold tracking-tight">{fullName}</h1>
-                <p className="text-muted-foreground mt-0.5 text-sm">
+                <h1 className="page-h1">{fullName}</h1>
+                <p className="page-sub">
                   <span className="num">{tPatients("agePattern", { years: age })}</span>
                   {" · "}
                   {t("bornOn")}{" "}
@@ -176,7 +176,9 @@ export default async function PatientDetailPage({
               />
               <InfoRow
                 icon={<IconGlobe />}
-                value={tForm(`locale.${patient.preferredLocale as "fr" | "en" | "ar"}`)}
+                value={tForm(
+                  `locale.${(patient.preferredLocale === "fr" || patient.preferredLocale === "en" ? patient.preferredLocale : "fr") as "fr" | "en"}`,
+                )}
               />
             </div>
 
@@ -291,14 +293,14 @@ async function InfoTabContent({
               href={`/patients/${patient.id}?tab=records` as never}
               className="text-muted-foreground hover:text-foreground text-xs"
             >
-              {t("viewFullRecord") ?? "Voir le dossier complet"} →
+              {t("viewFullRecord")} →
             </Link>
           </div>
 
           {patient.medicalHistory && (
             <div className="bg-muted/40 text-foreground/90 mb-3 rounded-lg p-4 text-sm">
               <p className="text-muted-foreground mb-1 text-xs uppercase tracking-wider">
-                Antécédents
+                {t("antecedents")}
               </p>
               <p className="whitespace-pre-wrap">{patient.medicalHistory}</p>
             </div>
@@ -313,7 +315,7 @@ async function InfoTabContent({
           ) : (
             <div className="space-y-2">
               <p className="text-muted-foreground text-xs uppercase tracking-wider">
-                Notes cliniques ({notes.length})
+                {t("clinicalNotes")} ({notes.length})
               </p>
               <ul className="space-y-2">
                 {notes.slice(0, 5).map((n) => (
@@ -585,7 +587,9 @@ async function InfoTabContent({
             />
             <PrefRow
               label={t("localeLabel")}
-              value={tForm(`locale.${patient.preferredLocale as "fr" | "en" | "ar"}`)}
+              value={tForm(
+                `locale.${(patient.preferredLocale === "fr" || patient.preferredLocale === "en" ? patient.preferredLocale : "fr") as "fr" | "en"}`,
+              )}
             />
             <PrefRow
               label={t("consentLabel")}

@@ -9,7 +9,13 @@ import { loginAction } from "@/server/actions/auth";
 
 type ErrorCode = "INVALID_INPUT" | "INVALID_CREDENTIALS" | "RATE_LIMITED" | "GENERIC";
 
-export function LoginForm({ redirectTo }: { redirectTo: string }) {
+export function LoginForm({
+  redirectTo,
+  defaultEmail,
+}: {
+  redirectTo: string;
+  defaultEmail?: string | null;
+}) {
   const t = useTranslations("Login");
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
@@ -45,6 +51,7 @@ export function LoginForm({ redirectTo }: { redirectTo: string }) {
           type="email"
           autoComplete="email"
           required
+          defaultValue={defaultEmail ?? undefined}
           placeholder={t("emailPlaceholder")}
         />
       </div>

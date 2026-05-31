@@ -13,6 +13,19 @@ const TOTAL_HEIGHT = (HOUR_END - HOUR_START) * PX_PER_HOUR;
 type DayMeta = { date: Date; isToday: boolean };
 
 /** Map AppointmentStatus → background + border + text Tailwind classes. */
+/**
+ * Detects RDV flagged urgent by the AI booking flow: the
+ * `find_emergency_slot` tool's protocol mandates `reason` prefixed with
+ * "URGENCE — " (also "urgent", "URG", or "أرجنت" in case the model
+ * fell back to AR). Match is case-insensitive against the first 10
+ * chars to avoid pattern-matching mid-sentence.
+ */
+function isUrgentReason(reason: string | null): boolean {
+  if (!reason) return false;
+  const head = reason.trim().slice(0, 12).toLowerCase();
+  return head.startsWith("urgence") || head.startsWith("urgent") || head.startsWith("urg ") || head.startsWith("urg—") || head.startsWith("urg-");
+}
+
 function statusClasses(status: AppointmentStatus): string {
   switch (status) {
     case AppointmentStatus.CANCELLED:
@@ -50,7 +63,11 @@ export async function WeekGrid({
   const t = await getTranslations("Appointments");
 
   return (
-    <div className="bg-card border-border/60 overflow-hidden rounded-xl border">
+    <div className="bg-card border-border/60 overflow-x-auto rounded-xl border">
+      {/* Inner wrapper forces a min-width on small screens so each day
+          column stays touch-friendly; on tablet+ the grid fills the
+          container naturally. */}
+      <div className="min-w-[640px] md:min-w-0">
       {/* ─── Days header ─── */}
       <div
         className="border-border/60 bg-muted/30 grid border-b"
@@ -174,27 +191,54 @@ export async function WeekGrid({
                   const height = Math.max(24, (endMin - startMin) * PX_PER_MIN);
                   const cls = statusClasses(evt.status);
                   const isCancelled = evt.status === AppointmentStatus.CANCELLED;
+                  const isUrgent = isUrgentReason(evt.reason);
                   return (
                     <Link
                       key={evt.id}
                       href={`/appointments/${evt.id}/edit` as never}
-                      className={`absolute inset-x-1 overflow-hidden rounded-md p-1.5 text-[11px] leading-tight ring-1 ring-black/5 transition hover:translate-y-[-1px] hover:shadow-sm ${cls}`}
+                      className={`absolute inset-x-1 overflow-hidden rounded-md p-1.5 text-[11px] leading-tight ring-1 transition hover:translate-y-[-1px] hover:shadow-sm ${cls} ${
+                        isUrgent && !isCancelled
+                          ? "ring-red-500/60 ring-2 shadow-[0_0_0_1px_rgba(239,68,68,0.25),0_3px_10px_rgba(239,68,68,0.25)]"
+                          : "ring-black/5"
+                      }`}
                       style={{
                         top: `${top + 1}px`,
                         height: `${height - 2}px`,
-                        borderLeftColor: evt.dentistColor,
-                        backgroundColor: isCancelled ? undefined : `${evt.dentistColor}1A`, // 10% alpha
+                        borderLeftColor: isUrgent && !isCancelled ? "#ef4444" : evt.dentistColor,
+                        backgroundColor: isCancelled
+                          ? undefined
+                          : isUrgent
+                            ? "rgba(239,68,68,0.10)"
+                            : `${evt.dentistColor}1A`,
                       }}
-                      title={`${evt.patientName} — ${evt.reason ?? ""}`}
+                      title={`${isUrgent ? "🚨 URGENCE — " : ""}${evt.patientName} — ${evt.reason ?? ""}${
+                        evt.source === "AI_WHATSAPP" ? " (créé par IA WhatsApp)" : ""
+                      }`}
                     >
                       <div
-                        className={`truncate font-semibold ${isCancelled ? "line-through" : ""}`}
+                        className={`flex items-center gap-1 truncate font-semibold ${isCancelled ? "line-through" : ""}`}
                       >
+                        {isUrgent && !isCancelled ? (
+                          <span
+                            className="shrink-0 rounded-sm bg-red-500 px-1 text-[8px] font-bold text-white"
+                            aria-label="Urgence"
+                          >
+                            URG
+                          </span>
+                        ) : null}
                         <span className="num">
                           {String(evt.startAt.getHours()).padStart(2, "0")}:
                           {String(evt.startAt.getMinutes()).padStart(2, "0")}
-                        </span>{" "}
-                        · {evt.patientName}
+                        </span>
+                        <span className="truncate">· {evt.patientName}</span>
+                        {evt.source === "AI_WHATSAPP" ? (
+                          <span
+                            className="ml-auto shrink-0 rounded-sm bg-linear-to-br from-emerald-500 to-teal-600 px-1 text-[8px] font-bold text-white shadow-[0_1px_3px_rgba(16,185,129,0.4)]"
+                            aria-label="Créé par IA"
+                          >
+                            IA
+                          </span>
+                        ) : null}
                       </div>
                       <div
                         className="truncate"
@@ -212,6 +256,7 @@ export async function WeekGrid({
             );
           })}
         </div>
+      </div>
       </div>
     </div>
   );

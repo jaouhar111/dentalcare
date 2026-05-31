@@ -84,7 +84,7 @@ export async function POST(req: NextRequest) {
       await sendTemplate({
         to: inst.plan.patient.phone,
         template: PAYMENT_DUE,
-        locale: loc === "fr" || loc === "en" || loc === "ar" ? loc : "fr",
+        locale: loc === "fr" || loc === "en" ? loc : "fr",
         params: {
           patientFirstName: inst.plan.patient.firstName,
           amount: formatCurrency(Number(inst.amount), loc),
@@ -114,7 +114,7 @@ export async function POST(req: NextRequest) {
       await sendTemplate({
         to: inst.plan.patient.phone,
         template: PAYMENT_DUE,
-        locale: loc === "fr" || loc === "en" || loc === "ar" ? loc : "fr",
+        locale: loc === "fr" || loc === "en" ? loc : "fr",
         params: {
           patientFirstName: inst.plan.patient.firstName,
           amount: formatCurrency(Number(inst.amount), loc),

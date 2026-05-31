@@ -27,6 +27,17 @@ export const updateClinicSchema = z.object({
     .max(40)
     .optional()
     .or(z.literal("").transform(() => undefined)),
-  defaultLocale: z.enum(["fr", "en", "ar"]).default("fr"),
+  /**
+   * Cloudinary delivery URL (or empty to remove). Stored as a plain string
+   * — we don't keep the `publicId` separately because the URL itself
+   * already contains all we need for delivery + delete-on-replace.
+   */
+  logoUrl: z
+    .string()
+    .trim()
+    .max(500)
+    .optional()
+    .or(z.literal("").transform(() => undefined)),
+  defaultLocale: z.enum(["fr", "en"]).default("fr"),
 });
 export type UpdateClinicInput = z.infer<typeof updateClinicSchema>;

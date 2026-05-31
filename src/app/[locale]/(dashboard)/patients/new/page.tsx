@@ -21,7 +21,7 @@ export default async function NewPatientPage({ params }: { params: Promise<{ loc
     bloodGroup: "",
     medicalHistory: "",
     preferredChannel: CommunicationChannel.WHATSAPP,
-    preferredLocale: (locale as "fr" | "en" | "ar") ?? "fr",
+    preferredLocale: (locale as "fr" | "en") ?? "fr",
     photoConsent: false,
     allergies: [],
   };

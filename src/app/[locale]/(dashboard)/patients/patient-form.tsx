@@ -25,7 +25,7 @@ const CHANNELS: CommunicationChannel[] = [
   CommunicationChannel.EMAIL,
   CommunicationChannel.PHONE,
 ];
-const LOCALES = ["fr", "en", "ar"] as const;
+const LOCALES = ["fr", "en"] as const;
 
 export interface PatientFormValues {
   id?: string;
@@ -41,7 +41,7 @@ export interface PatientFormValues {
   bloodGroup: BloodGroup | "";
   medicalHistory: string;
   preferredChannel: CommunicationChannel;
-  preferredLocale: "fr" | "en" | "ar";
+  preferredLocale: "fr" | "en";
   photoConsent: boolean;
   allergies: string[];
 }
@@ -311,7 +311,7 @@ export function PatientForm({
         <Field label={t("fields.preferredLocale")}>
           <Select
             value={values.preferredLocale}
-            onChange={(v) => set("preferredLocale", v as "fr" | "en" | "ar")}
+            onChange={(v) => set("preferredLocale", v as "fr" | "en")}
           >
             {LOCALES.map((l) => (
               <option key={l} value={l}>

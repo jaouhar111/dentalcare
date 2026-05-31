@@ -60,12 +60,12 @@ export default async function PatientsListPage({
   };
 
   return (
-    <div className="mx-auto max-w-7xl p-6 lg:p-8">
+    <div className="mx-auto max-w-7xl px-4 py-6 md:px-2 lg:py-2">
       {/* ─── Header ──────────────────────────────────────────────────────── */}
-      <header className="mb-6 flex flex-wrap items-end justify-between gap-3">
+      <div className="page-h1-row">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight">{t("title")}</h1>
-          <p className="text-muted-foreground mt-0.5 text-sm">
+          <h1 className="page-h1">{t("title")}</h1>
+          <p className="page-sub">
             <span className="num">{total}</span>{" "}
             {t("subtitle", { count: total }).replace(`${total} `, "")}
             {newThisMonth > 0 && (
@@ -82,7 +82,7 @@ export default async function PatientsListPage({
           <button
             type="button"
             disabled
-            className="border-input hover:bg-muted bg-background text-foreground inline-flex items-center gap-1.5 rounded-lg border px-3 py-2 text-sm font-medium transition disabled:opacity-50"
+            className="border-border/60 bg-white/65 text-foreground hover:bg-white/85 inline-flex items-center gap-1.5 rounded-full border px-4 py-2 text-sm font-semibold backdrop-blur-md transition disabled:opacity-50"
           >
             <svg
               className="size-4"
@@ -102,22 +102,30 @@ export default async function PatientsListPage({
           </button>
           <Link
             href={"/patients/new" as never}
-            className="bg-primary text-primary-foreground hover:bg-primary/90 inline-flex items-center gap-1.5 rounded-lg px-3 py-2 text-sm font-medium transition"
+            className="inline-flex items-center gap-1.5 rounded-full px-4 py-2 text-sm font-semibold text-white transition hover:brightness-105"
+            style={{
+              background: "linear-gradient(180deg, var(--accent-1), var(--accent-2))",
+              boxShadow:
+                "inset 0 1px 0 rgba(255,255,255,0.3), 0 4px 14px var(--accent-glow)",
+            }}
           >
             <svg
               className="size-4"
               fill="none"
               stroke="currentColor"
-              strokeWidth="2"
+              strokeWidth="2.5"
               viewBox="0 0 24 24"
+              strokeLinecap="round"
+              strokeLinejoin="round"
               aria-hidden
             >
-              <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+              <line x1="12" x2="12" y1="5" y2="19" />
+              <line x1="5" x2="19" y1="12" y2="12" />
             </svg>
             {t("new")}
           </Link>
         </div>
-      </header>
+      </div>
 
       {/* ─── Filters + Table card ────────────────────────────────────────── */}
       <div className="bg-card border-border/60 overflow-hidden rounded-xl border">

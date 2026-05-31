@@ -9,6 +9,7 @@ import {
 } from "@prisma/client";
 import { db } from "@/lib/db/client";
 import { audit } from "@/lib/audit";
+import { dispatchPendingEvents, publishEvent } from "@/lib/events";
 import { requireRole } from "@/lib/auth/rbac";
 import { fail, ok, type Result } from "@/lib/utils/result";
 import {
@@ -111,17 +112,32 @@ export async function createRecall(
   });
   if (!patient) return fail("PATIENT_NOT_FOUND", "Patient not found");
 
-  const row = await db.recallReminder.create({
-    data: {
+  const dueDateValue = new Date(`${data.dueDate}T12:00:00`);
+  const row = await db.$transaction(async (tx) => {
+    const created = await tx.recallReminder.create({
+      data: {
+        clinicId: user.clinicId,
+        patientId: data.patientId,
+        kind: data.kind,
+        dueDate: dueDateValue,
+        reason: data.reason ?? null,
+        createdById: user.id,
+      },
+      select: { id: true },
+    });
+    await publishEvent(tx, {
       clinicId: user.clinicId,
-      patientId: data.patientId,
-      kind: data.kind,
-      dueDate: new Date(`${data.dueDate}T12:00:00`),
-      reason: data.reason ?? null,
-      createdById: user.id,
-    },
-    select: { id: true },
+      name: "recall.created",
+      payload: {
+        id: created.id,
+        patientId: data.patientId,
+        dueDate: dueDateValue.toISOString(),
+        kind: data.kind,
+      },
+    });
+    return created;
   });
+  void dispatchPendingEvents();
   await audit({
     clinicId: user.clinicId,
     userId: user.id,
@@ -319,14 +335,30 @@ export async function generateRecallsFromApplication(args: {
   });
   if (existing) return;
 
-  await db.recallReminder.create({
-    data: {
+  const created = await db.$transaction(async (tx) => {
+    const r = await tx.recallReminder.create({
+      data: {
+        clinicId: args.clinicId,
+        patientId: args.patientId,
+        kind: rule.kind,
+        dueDate,
+        reason: rule.reason,
+        createdById: args.createdById,
+      },
+      select: { id: true },
+    });
+    await publishEvent(tx, {
       clinicId: args.clinicId,
-      patientId: args.patientId,
-      kind: rule.kind,
-      dueDate,
-      reason: rule.reason,
-      createdById: args.createdById,
-    },
+      name: "recall.created",
+      payload: {
+        id: r.id,
+        patientId: args.patientId,
+        dueDate: dueDate.toISOString(),
+        kind: rule.kind,
+      },
+    });
+    return r;
   });
+  void dispatchPendingEvents();
+  void created;
 }
