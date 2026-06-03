@@ -24,6 +24,8 @@ import {
   sendMorningReminderForAppointment,
 } from "@/lib/whatsapp/reminders";
 import { sendRecallReminderById } from "@/lib/whatsapp/recalls";
+import { autoCancelOnSilence } from "@/lib/whatsapp/auto-cancel";
+import { sendMonthlyInsightsToAllClinics } from "@/lib/insights/monthly-report";
 
 /**
  * Typed event schema — drives autocompletion + payload validation when
@@ -292,6 +294,57 @@ export const waitlistPromoteOnCancel = inngest.createFunction(
 );
 
 /**
+ * Phase 11 — Stage B
+ *
+ * Auto-cancel an appointment at `startAt − 2h` when the patient never
+ * clicked « Je confirme » via the J-1 quick-reply.
+ *
+ * Triggered on `appointment.created`. We sleep until 2h before the
+ * slot, then call `autoCancelOnSilence(id)` which checks
+ * `confirmationReceivedAt`, flips status to CANCELLED, publishes
+ * `appointment.cancelled` (which triggers waitlist auto-promote), and
+ * pings the patient with a courtesy message.
+ *
+ * Idempotence : the helper short-circuits when status already moved.
+ * If the cabinet booked the slot < 2h ahead (rare same-day urgency),
+ * we skip the sleep entirely — there's no time window to wait.
+ */
+export const appointmentAutoCancelOnSilence = inngest.createFunction(
+  {
+    id: "appointment-auto-cancel-on-silence",
+    name: "Appointment — auto-cancel at H-2h if no confirmation",
+    triggers: [{ event: "appointment.created" }],
+  },
+  async ({ event, step, logger }) => {
+    const target = new Date(
+      new Date(event.data.startAt).getTime() - 2 * 60 * 60 * 1000,
+    );
+
+    if (target.getTime() <= Date.now()) {
+      // Same-day urgent booking: less than 2h away on create, no point
+      // sleeping into the past. The cabinet probably booked manually
+      // for a walk-in — leave it alone.
+      logger.info("auto-cancel skip — booked less than 2h ahead", {
+        appointmentId: event.data.id,
+      });
+      return { ok: true, skipped: "less_than_2h" };
+    }
+
+    await step.sleepUntil("wait-until-H-2h", target);
+
+    const result = await step.run("auto-cancel-if-silent", async () =>
+      autoCancelOnSilence(event.data.id),
+    );
+
+    logger.info("auto-cancel result", {
+      appointmentId: event.data.id,
+      result,
+    });
+    return { ok: true, appointmentId: event.data.id, result };
+  },
+);
+
+/**
  * Daily 08:00 Casablanca morning-of reminder sweep.
  *
  * Casablanca = UTC+1, no DST since 2018. So 08:00 local = 07:00 UTC.
@@ -367,10 +420,42 @@ export const dailyMorningRemindersSweep = inngest.createFunction(
  * Ordered list of functions to serve at `/api/inngest`. New functions
  * must be added here AND exported from this file.
  */
+/**
+ * Phase 12 — Stage E
+ *
+ * Monthly insights PDF — fires on the 1st of each month at 06:00
+ * Casablanca, computes the previous month's metrics for every active
+ * clinic, renders a single-page A4 PDF, and emails it via Resend.
+ *
+ * Idempotence : the helper checks for an existing
+ * `monthly_report.sent` audit row with the matching `period`. Manual
+ * re-trigger from the Inngest dashboard for a missed month is safe.
+ *
+ * Dev fallback : when `RESEND_API_KEY` is missing, the helper logs
+ * the recipient + PDF size and skips the actual send so we can test
+ * the cron locally without a Resend account.
+ */
+export const monthlyInsightsPdfSweep = inngest.createFunction(
+  {
+    id: "monthly-insights-pdf-sweep",
+    name: "Monthly insights PDF — 1st of each month at 06:00 Casablanca",
+    triggers: [{ cron: "TZ=Africa/Casablanca 0 6 1 * *" }],
+  },
+  async ({ step, logger }) => {
+    const result = await step.run("send-monthly-reports", async () =>
+      sendMonthlyInsightsToAllClinics({}),
+    );
+    logger.info("monthly-insights sweep", result);
+    return { ok: true, ...result };
+  },
+);
+
 export const functions = [
   onAppointmentCreated,
   appointmentJ1Reminder,
+  appointmentAutoCancelOnSilence,
   recallReminderDueDate,
   waitlistPromoteOnCancel,
   dailyMorningRemindersSweep,
+  monthlyInsightsPdfSweep,
 ];

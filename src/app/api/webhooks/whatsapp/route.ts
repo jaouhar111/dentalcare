@@ -196,7 +196,12 @@ async function confirmNextAppointment(phone: string) {
       status: { in: [AppointmentStatus.SCHEDULED, AppointmentStatus.RESCHEDULE_REQUESTED] },
     },
     orderBy: { startAt: "asc" },
-    select: { id: true, clinicId: true },
+    select: {
+      id: true,
+      clinicId: true,
+      startAt: true,
+      patient: { select: { firstName: true } },
+    },
   });
   if (!appt) return;
 
@@ -214,6 +219,25 @@ async function confirmNextAppointment(phone: string) {
     entityId: appt.id,
     payload: { source: "whatsapp-button" },
   });
+
+  // Phase 11 — close the loop visually. Without an acknowledgement the
+  // patient sees their button disappear and wonders if anything happened.
+  // The day-of-week + HH:mm formatting is in French because that's the
+  // default locale; AR/EN polish lives in a Phase 11.1 follow-up.
+  const day = appt.startAt.toLocaleDateString("fr-FR", {
+    weekday: "long",
+    day: "numeric",
+    month: "long",
+  });
+  const time = `${String(appt.startAt.getHours()).padStart(2, "0")}h${String(
+    appt.startAt.getMinutes(),
+  ).padStart(2, "0")}`;
+  await sendText({
+    to: phone,
+    body: `C'est noté, ${appt.patient.firstName} — votre RDV du ${day} à ${time} est confirmé 🎉\n\nÀ très vite.`,
+  }).catch((err) => {
+    console.error("[whatsapp:webhook] confirm ack failed", { phone, err });
+  });
 }
 
 /** Flags the next appointment as "patient asked to reschedule". */
@@ -228,7 +252,11 @@ async function requestRescheduleForNext(phone: string) {
       status: { in: [AppointmentStatus.SCHEDULED, AppointmentStatus.CONFIRMED] },
     },
     orderBy: { startAt: "asc" },
-    select: { id: true, clinicId: true },
+    select: {
+      id: true,
+      clinicId: true,
+      patient: { select: { firstName: true } },
+    },
   });
   if (!appt) return;
 
@@ -242,5 +270,14 @@ async function requestRescheduleForNext(phone: string) {
     entity: "Appointment",
     entityId: appt.id,
     payload: { source: "whatsapp-button" },
+  });
+
+  // Phase 11 — invite the patient to write back. The bot then proposes
+  // 3 alternative slots via the standard AI engine flow (Stage C).
+  await sendText({
+    to: phone,
+    body: `Pas de souci ${appt.patient.firstName} — envoyez-moi vos disponibilités (ex. « jeudi matin ») et je vous propose de nouveaux créneaux 🙂`,
+  }).catch((err) => {
+    console.error("[whatsapp:webhook] reschedule ack failed", { phone, err });
   });
 }

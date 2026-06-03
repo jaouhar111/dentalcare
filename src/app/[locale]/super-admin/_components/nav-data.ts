@@ -27,6 +27,11 @@ export const SA_NAV: SaNavItem[] = [
     icon: "M2.25 8.25h19.5M2.25 9h19.5m-16.5 5.25h6m-6 2.25h3m-3.75 3h15a2.25 2.25 0 002.25-2.25V6.75A2.25 2.25 0 0019.5 4.5h-15a2.25 2.25 0 00-2.25 2.25v10.5A2.25 2.25 0 004.5 19.5z",
   },
   {
+    label: "Business Intelligence",
+    href: "/super-admin/business-intelligence",
+    icon: "M9 17V7m4 10V11m4 6V4M3 21h18",
+  },
+  {
     label: "Support",
     href: "/super-admin/support",
     icon: "M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.86 9.86 0 01-4-.85L3 21l1.97-3.94A8.97 8.97 0 013 12c0-4.418 4.03-8 9-8s9 3.582 9 8z",

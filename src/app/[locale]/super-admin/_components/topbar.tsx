@@ -1,3 +1,4 @@
+import { UserRole } from "@prisma/client";
 import { LocaleSwitcher } from "@/components/locale-switcher";
 import { UserMenu } from "@/components/user-menu";
 import { MobileNavTrigger } from "@/components/mobile-nav-trigger";
@@ -26,7 +27,12 @@ export function SuperAdminTopbar({
       </div>
       <div className="flex flex-1 items-center justify-end gap-1.5">
         <LocaleSwitcher />
-        <UserMenu fullName={fullName} email={email} roleLabel="Propriétaire" />
+        <UserMenu
+          fullName={fullName}
+          email={email}
+          role={UserRole.SUPER_ADMIN}
+          roleLabel="Propriétaire"
+        />
       </div>
     </header>
   );

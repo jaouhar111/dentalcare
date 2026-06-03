@@ -245,11 +245,44 @@ export async function findWaitlistCandidates(args: {
         { OR: [{ notAfter: null }, { notAfter: { gte: args.startAt } }] },
       ],
     },
+    // Phase 11 Stage F : pull a wider raw set + score in-memory so the
+    // top candidates are notified first (more relevant) rather than
+    // every match getting the same template (spammy).
     orderBy: { createdAt: "asc" },
-    take: MAX_CANDIDATES_PER_SLOT,
-    select: { id: true, patientId: true },
+    take: MAX_CANDIDATES_PER_SLOT * 3,
+    select: {
+      id: true,
+      patientId: true,
+      dentistId: true,
+      durationMin: true,
+      timePreference: true,
+      createdAt: true,
+      reason: true,
+    },
   });
-  return candidates;
+
+  // ── Phase 11 Stage F — score & prioritise ───────────────────────────
+  // Lower score = better candidate. Three signals :
+  //   1. dentistId match (-30) — patient explicitly asked for THIS dentist
+  //   2. waiting time — older entries get a small bonus per day waited
+  //   3. urgency keyword in `reason` ("douleur", "urgence", "mal") → -20
+  const URGENCY_RX = /\b(urgence|douleur|mal|saigne|abc[eè]s|gonfl|cass[eé])\b/i;
+  const now = Date.now();
+  const scored = candidates.map((c) => {
+    let score = 0;
+    if (c.dentistId === args.dentistId) score -= 30;
+    if (c.timePreference !== WaitlistTimePreference.ANY) score -= 5;
+    const daysWaiting = Math.floor((now - c.createdAt.getTime()) / 86_400_000);
+    score -= Math.min(daysWaiting, 30); // cap at 30 days
+    if (c.reason && URGENCY_RX.test(c.reason)) score -= 20;
+    return { id: c.id, patientId: c.patientId, score };
+  });
+
+  scored.sort((a, b) => a.score - b.score);
+
+  return scored
+    .slice(0, MAX_CANDIDATES_PER_SLOT)
+    .map(({ id, patientId }) => ({ id, patientId }));
 }
 
 /**

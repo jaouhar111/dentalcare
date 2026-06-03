@@ -172,14 +172,17 @@ export function CmdKTrigger() {
 
   return (
     <>
-      {/* Trigger pill — same visual as the previous disabled search input. */}
+      {/* Trigger — collapses to an icon button on mobile so the topbar
+          right cluster (notif + locale + user menu) stays reachable.
+          From sm: up, the full pill is shown with placeholder + ⌘K hint. */}
       <button
         type="button"
         onClick={() => setOpen(true)}
-        className="border-input bg-muted/30 hover:bg-muted/60 text-muted-foreground relative w-full max-w-xl rounded-lg border py-2 ps-9 pe-16 text-start text-sm outline-none transition"
+        aria-label={t("placeholder")}
+        className="border-input bg-muted/30 hover:bg-muted/60 text-muted-foreground relative flex shrink-0 items-center justify-center rounded-lg border outline-none transition sm:w-full sm:max-w-xl sm:flex-1 sm:shrink size-10 sm:size-auto sm:py-2 sm:ps-9 sm:pe-16 sm:text-start sm:text-sm"
       >
         <svg
-          className="pointer-events-none absolute inset-s-3 top-2.5 size-4"
+          className="size-4 sm:pointer-events-none sm:absolute sm:inset-s-3 sm:top-2.5"
           fill="none"
           stroke="currentColor"
           strokeWidth="2"
@@ -192,8 +195,8 @@ export function CmdKTrigger() {
             d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z"
           />
         </svg>
-        {t("placeholder")}
-        <kbd className="text-muted-foreground bg-background border-border absolute inset-e-2 top-2 rounded border px-1.5 py-0.5 font-mono text-[10px]">
+        <span className="hidden sm:inline">{t("placeholder")}</span>
+        <kbd className="text-muted-foreground bg-background border-border absolute inset-e-2 top-2 hidden rounded border px-1.5 py-0.5 font-mono text-[10px] sm:inline">
           ⌘K
         </kbd>
       </button>

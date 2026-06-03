@@ -26,6 +26,7 @@ import { listMyAppointmentsTool } from "./list-my-appointments";
 import { createPatientTool } from "./create-patient";
 import { createAppointmentTool } from "./create-appointment";
 import { cancelAppointmentTool } from "./cancel-appointment";
+import { proposeRescheduleSlotsTool } from "./propose-reschedule-slots";
 
 export function buildBookingTools(ctx: AIToolContext): AITool[] {
   return [
@@ -33,6 +34,7 @@ export function buildBookingTools(ctx: AIToolContext): AITool[] {
     searchAvailableSlotsTool(ctx),
     findEmergencySlotTool(ctx),
     listMyAppointmentsTool(ctx),
+    proposeRescheduleSlotsTool(ctx),
     createPatientTool(ctx),
     createAppointmentTool(ctx),
     cancelAppointmentTool(ctx),

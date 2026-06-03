@@ -44,7 +44,12 @@ export async function AppTopbar({
       <div className="flex flex-1 items-center justify-end gap-1.5">
         <NotificationBell items={notifications} ariaLabel={tTop("notifications")} />
         <LocaleSwitcher />
-        <UserMenu fullName={fullName} email={email} roleLabel={tRole(role)} />
+        <UserMenu
+          fullName={fullName}
+          email={email}
+          role={role}
+          roleLabel={tRole(role)}
+        />
       </div>
     </header>
   );

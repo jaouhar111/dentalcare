@@ -33,6 +33,11 @@ export const NAV_SECTIONS: NavSection[] = [
         href: "/dashboard",
         icon: "M3.75 3v11.25A2.25 2.25 0 006 16.5h2.25M3.75 3h-1.5m1.5 0h16.5m0 0h1.5m-1.5 0v11.25A2.25 2.25 0 0118 16.5h-2.25m-7.5 0h7.5m-7.5 0l-1 3m8.5-3l1 3",
       },
+      {
+        label: "Insights",
+        href: "/insights",
+        icon: "M3 13h2l3-8 4 16 3-8h6",
+      },
     ],
   },
   {

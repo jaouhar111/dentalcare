@@ -435,15 +435,16 @@ Au-delà des horaires + dentistes + WhatsApp Phone ID :
 - App Review Meta WhatsApp → Advanced Access (envoi sans allowlist)
 - Documentation onboarding cabinet (vidéos + guide PDF)
 
-### 🚧 Phase 10 — AI Receptionist as product (Q4 2026) ★ PRIORITAIRE
+### ✅ Phase 10 — AI Receptionist as product (juin 2026) — LIVRÉE
 Le pivot positionnement : on arrête de vendre « un logiciel », on vend « la réceptionniste IA ».
-- **Toggle global AI Receptionist ON/OFF** par cabinet
-- **Onboarding wizard** 5 étapes en ≤ 5 min (cf. § 4.12)
-- **Page Monitoring IA & WhatsApp** super-admin (cf. § 4.10.4) avec alerte Slack
-- Refonte landing : « AI Front Desk » au lieu de « SaaS cabinet »
-- Refonte dashboard cabinet : RDV du jour + inbox WhatsApp en hero, le reste below-fold (cf. § 4.13)
-- Page settings « AI Receptionist » dédiée (style, langue, signature, templates personnalisables)
-- Démo vidéo 60s sur la landing montrant un vrai échange WhatsApp end-to-end
+- ✅ **Toggle global AI Receptionist ON/OFF** par cabinet ([/settings/ai-receptionist](../src/app/[locale]/(dashboard)/settings/ai-receptionist/page.tsx))
+- ✅ **Onboarding wizard** 5 étapes en ≤ 5 min ([/onboarding](../src/app/[locale]/onboarding/page.tsx))
+- ✅ **Page Monitoring IA & WhatsApp** super-admin ([/super-admin/monitoring](../src/app/[locale]/super-admin/monitoring/page.tsx))
+- ✅ Refonte landing : apple.com vocabulary, FR/EN i18n complet
+- ✅ Refonte dashboard cabinet : RDV jour + inbox WhatsApp hero + 4 KPIs ([/dashboard](../src/app/[locale]/(dashboard)/dashboard/page.tsx))
+- ✅ Page settings « AI Receptionist » dédiée (style FORMAL/FRIENDLY, signature, 5 templates personnalisables, **câblés dans `buildDentalSystemPrompt`**)
+- ⏳ Démo vidéo 60s sur la landing — à tourner après le 1er cabinet pilote
+- ⏳ Alerte Slack super-admin sur erreurs webhook > 5 % — à câbler avec Sentry / Resend
 
 ### 🚧 Phase 11 — Smart automation (Q1 2027)
 Automatisations agressives qui font passer le bot de « répond aux messages » à « gère le cycle de vie complet d'un RDV » :
