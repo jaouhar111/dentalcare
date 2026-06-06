@@ -37,7 +37,7 @@ export async function getOnboardingProgress(): Promise<
   const c = await db.clinic.findUnique({
     where: { id: me.clinicId },
     select: {
-      whatsappPhoneId: true,
+      openwaSessionId: true,
       aiEnabled: true,
       onboardingCompletedAt: true,
       _count: { select: { patients: true, dentists: true } },
@@ -53,7 +53,7 @@ export async function getOnboardingProgress(): Promise<
     })) > 0;
 
   return ok({
-    hasWhatsApp: c.whatsappPhoneId !== null,
+    hasWhatsApp: c.openwaSessionId !== null,
     hasSchedule,
     hasDentist: c._count.dentists > 0,
     patientsCount: c._count.patients,
@@ -63,15 +63,20 @@ export async function getOnboardingProgress(): Promise<
 }
 
 /**
- * Step 1 — Connect WhatsApp. Saves the 15-digit Meta Phone Number ID.
- * Accepts an empty string = "skip for now" → field stays null and the
- * webhook keeps using the platform fallback.
+ * Step 1 — Connect WhatsApp. Saves the OpenWA session UUID once the
+ * cabinet owner has scanned the QR (the UI flow lives in
+ * `/settings/ai-receptionist`). Accepts an empty string = "skip for
+ * now" → field stays null and outbound messages mock to console.log
+ * until a real session is bound.
  */
 const whatsappSchema = z.object({
-  phoneId: z
+  sessionId: z
     .string()
     .trim()
-    .regex(/^[0-9]{10,20}$/u, "Phone ID Meta = 15 chiffres environ")
+    .regex(
+      /^[0-9a-fA-F-]{20,40}$/u,
+      "L'identifiant de session OpenWA est un UUID (~36 caractères)",
+    )
     .or(z.literal("")),
 });
 
@@ -81,12 +86,12 @@ export async function onboardingStepWhatsApp(
   const me = await requireRole([UserRole.ADMIN]);
   const parsed = whatsappSchema.safeParse(raw);
   if (!parsed.success) {
-    return fail("INVALID_INPUT", "ID Meta invalide");
+    return fail("INVALID_INPUT", "Identifiant de session OpenWA invalide");
   }
-  const phoneId = parsed.data.phoneId.trim();
+  const sessionId = parsed.data.sessionId.trim();
   await db.clinic.update({
     where: { id: me.clinicId },
-    data: { whatsappPhoneId: phoneId || null },
+    data: { openwaSessionId: sessionId || null },
   });
   await audit({
     clinicId: me.clinicId,
@@ -94,7 +99,7 @@ export async function onboardingStepWhatsApp(
     action: "onboarding.step1_whatsapp",
     entity: "Clinic",
     entityId: me.clinicId,
-    payload: { connected: phoneId !== "" },
+    payload: { connected: sessionId !== "" },
   });
   revalidatePath("/onboarding");
   return ok({ id: me.clinicId });

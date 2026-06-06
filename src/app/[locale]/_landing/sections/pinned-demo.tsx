@@ -188,10 +188,10 @@ export function PinnedDemo() {
   );
 
   return (
-    <section id="demo" ref={wrapRef} className="relative h-screen overflow-hidden bg-[#f5f5f7] px-3">
+    <section id="demo" ref={wrapRef} className="relative h-screen overflow-hidden bg-[#faf7f2] px-3">
       <div className="relative mx-auto grid h-full max-w-[1024px] grid-cols-1 items-center gap-12 px-6 md:grid-cols-[1fr_1.1fr] md:gap-16">
         <div className="relative order-2 md:order-1">
-          <div className="mb-3 text-[13px] font-semibold tracking-[0.04em] text-[#0066cc] uppercase">
+          <div className="mb-3 text-[13px] font-semibold tracking-[0.04em] text-[#128c7e] uppercase">
             {t("kicker")}
           </div>
           <h2
@@ -210,7 +210,7 @@ export function PinnedDemo() {
                 }}
                 className="absolute inset-0"
               >
-                <div className="text-[12px] font-semibold tracking-[0.04em] text-[#0066cc] uppercase">
+                <div className="text-[12px] font-semibold tracking-[0.04em] text-[#128c7e] uppercase">
                   {tt.caption.label}
                 </div>
                 <p className="text-[var(--lp-ink)] mt-3 text-[19px] leading-[1.4]">
@@ -223,8 +223,8 @@ export function PinnedDemo() {
 
         <div className="relative order-1 mx-auto flex h-full max-h-[80vh] w-full max-w-sm items-center md:order-2">
           <div
-            className="relative h-[640px] w-full overflow-hidden rounded-[36px] border border-[var(--lp-line)] bg-white shadow-[0_40px_80px_-30px_rgba(0,0,0,0.18),0_20px_50px_-25px_rgba(0,113,227,0.18)]"
-            style={{ padding: 16 }}
+            className="win11-card-elevated relative h-[640px] w-full overflow-hidden"
+            style={{ padding: 16, borderRadius: 36 }}
           >
             <div className="absolute top-3 left-1/2 z-10 h-5 w-24 -translate-x-1/2 rounded-full bg-[#1a1d20]" />
             <div className="mt-8 flex items-center gap-3 border-b border-[var(--lp-line)] px-1 pb-3">
@@ -253,8 +253,8 @@ export function PinnedDemo() {
                   }}
                   className={
                     tt.side === "patient"
-                      ? "ml-auto max-w-[80%] rounded-2xl rounded-br-md bg-[#0071e3] px-3.5 py-2 text-[13px] leading-snug text-white"
-                      : "mr-auto max-w-[85%] rounded-2xl rounded-bl-md border border-[var(--lp-line)] bg-[#f5f5f7] px-3.5 py-2 text-[13px] leading-snug text-[var(--lp-ink)]"
+                      ? "ml-auto max-w-[80%] rounded-2xl rounded-br-md bg-[#dcf8c6] px-3.5 py-2 text-[13px] leading-snug text-[#0c3927]"
+                      : "mr-auto max-w-[85%] rounded-2xl rounded-bl-md border border-[var(--lp-line)] bg-[#faf7f2] px-3.5 py-2 text-[13px] leading-snug text-[var(--lp-ink)]"
                   }
                 >
                   {tt.text}

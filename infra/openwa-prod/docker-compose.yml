@@ -1,0 +1,102 @@
+# OpenWA — production docker-compose (1 cabinet → 1 session, multi-tenant)
+#
+# Where to run this:
+#   - Hetzner CX11 (~4€/mois, Falkenstein DE, < 50ms RTT depuis le Maroc)
+#   - Any Linux box with Docker 26+ and 1 vCPU / 2 GB RAM minimum
+#
+# Bring-up:
+#   docker compose up -d
+#
+# Tear-down:
+#   docker compose down --remove-orphans
+#
+# Sessions are persisted in ./data; do not delete that folder unless
+# you want every cabinet to re-scan the QR. Back it up daily (it's
+# small — a few MB even with 50 cabinets).
+
+services:
+  openwa:
+    image: ghcr.io/rmyndharis/openwa:latest
+    # If you prefer building from source, swap the image: line for:
+    #   build:
+    #     context: ../../OpenWA
+    #     dockerfile: Dockerfile
+    container_name: openwa-api
+    restart: unless-stopped
+    # Bound to 127.0.0.1 — only nginx (running on the same host) can
+    # reach the API. Public ingress goes through TLS on port 443.
+    ports:
+      - "127.0.0.1:2785:2785"
+    environment:
+      - NODE_ENV=production
+      - PORT=2785
+      # Switch to PostgreSQL once you have more than 10 cabinets — SQLite
+      # is fine for the first launch and dodges another service to babysit.
+      - DATABASE_TYPE=sqlite
+      - DATABASE_NAME=/app/data/openwa.sqlite
+      - DATABASE_SYNCHRONIZE=true
+      - ENGINE_TYPE=whatsapp-web.js
+      - SESSION_DATA_PATH=/app/data/sessions
+      - PUPPETEER_HEADLESS=true
+      - PUPPETEER_ARGS=--no-sandbox,--disable-setuid-sandbox,--disable-dev-shm-usage,--disable-gpu
+      - STORAGE_TYPE=local
+      - STORAGE_LOCAL_PATH=/app/data/media
+      - WEBHOOK_TIMEOUT=10000
+      - WEBHOOK_MAX_RETRIES=3
+      - QUEUE_ENABLED=false
+      # CIDR whitelist — only Vercel's egress IPs and your office can
+      # call the API. Update this when Vercel publishes new ranges OR
+      # when you move office. See: https://vercel.com/docs/edge-network/regions
+      - ALLOWED_CIDRS=${ALLOWED_CIDRS:-0.0.0.0/0}
+    volumes:
+      - ./data:/app/data
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "node",
+          "-e",
+          "require('http').get('http://localhost:2785/api/health', (r) => process.exit(r.statusCode === 200 ? 0 : 1))",
+        ]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+
+  nginx:
+    image: nginx:1.27-alpine
+    container_name: openwa-nginx
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx/conf.d:/etc/nginx/conf.d:ro
+      - ./certs:/etc/nginx/certs:ro
+      - ./certbot-www:/var/www/certbot:ro
+    depends_on:
+      openwa:
+        condition: service_healthy
+
+  # Lets-Encrypt cert renewal — runs once at boot, then twice a day.
+  # First-time issuance: see runbook step 4.
+  certbot:
+    image: certbot/certbot:latest
+    container_name: openwa-certbot
+    restart: unless-stopped
+    volumes:
+      - ./certs:/etc/letsencrypt
+      - ./certbot-www:/var/www/certbot
+    entrypoint:
+      - sh
+      - -c
+      - |
+        trap exit TERM
+        while :; do
+          certbot renew --webroot -w /var/www/certbot --quiet
+          sleep 12h & wait $${!}
+        done
+
+networks:
+  default:
+    name: openwa-prod

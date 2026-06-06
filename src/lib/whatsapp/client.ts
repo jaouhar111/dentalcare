@@ -1,532 +1,491 @@
 import { createHmac, timingSafeEqual } from "node:crypto";
-import {
-  ALL_TEMPLATES,
-  META_LANGUAGE_CODE,
-  type TemplateSpec,
-  type WhatsAppLocale,
-} from "./templates";
+import { env } from "@/lib/env";
 
-const META_GRAPH_BASE = "https://graph.facebook.com/v21.0";
+/**
+ * OpenWA gateway client — self-hosted WhatsApp Web bridge that replaces
+ * Meta's Cloud API for sending and receiving messages.
+ *
+ * Why OpenWA over Meta Cloud API:
+ *   - No Facebook Business verification or app review required
+ *   - No 24h customer-care window — free-form text any time
+ *   - No template pre-approval — every message is plain text
+ *   - Per-cabinet onboarding via QR scan (≈2 minutes vs 3-5 days)
+ *
+ * Trade-offs (informational — engineering knows, the SaaS owner accepts):
+ *   - Runs against unofficial whatsapp-web.js; numbers CAN be banned by WA
+ *   - Requires a separately-hosted gateway (this codebase does not embed it)
+ *   - One Puppeteer/Chromium session per cabinet at the gateway
+ *
+ * Two-mode service (per project convention):
+ *   - env.OPENWA_BASE_URL + env.OPENWA_API_KEY present → real call
+ *   - either missing → console.log mock so dev can run without the gateway
+ *
+ * Public surface kept compatible with the old Meta client where possible
+ * so callers (reminders, AI handler) only need minor tweaks:
+ *   sendText({ to, body, sessionId })
+ *   sendAudio({ to, sessionId, buffer, mimetype })   // inline base64
+ *   verifyWebhookSignature(rawBody, signatureHeader)
+ *   parseTextMessages(body) → { from, body, messageId, sessionId }[]
+ *   parseAudioMessages(body) → inline buffer + mimetype, no download step
+ *   parseOwnerOutboundMessages(body) → uses native `fromMe` flag
+ *
+ * NEW (session management for /settings/ai-receptionist onboarding):
+ *   openwaCreateSession, openwaStartSession, openwaGetQr,
+ *   openwaSessionStatus, openwaRegisterWebhook
+ */
 
-interface MetaCreds {
-  token: string;
-  phoneId: string;
-  appSecret: string;
+interface OpenWaCreds {
+  baseUrl: string;
+  apiKey: string;
 }
 
-function readCreds(): MetaCreds | null {
-  const token = process.env.WHATSAPP_TOKEN;
-  const phoneId = process.env.WHATSAPP_PHONE_ID;
-  const appSecret = process.env.WHATSAPP_APP_SECRET;
-  if (!token || !phoneId || !appSecret) return null;
-  return { token, phoneId, appSecret };
+function readCreds(): OpenWaCreds | null {
+  const baseUrl = env.OPENWA_BASE_URL;
+  const apiKey = env.OPENWA_API_KEY;
+  if (!baseUrl || !apiKey) return null;
+  return { baseUrl: baseUrl.replace(/\/+$/, ""), apiKey };
 }
 
 /**
- * Send a pre-approved template message to a Moroccan E.164 phone number.
+ * Convert a phone/identifier into the OpenWA `chatId` format.
  *
- * Dev mode (no Meta creds): log to console + return `{ ok, mocked: true }`.
- * Prod mode: POST to Meta Graph API and surface its response.
+ * Three input shapes are accepted:
+ *   - `+212663448449`           → `212663448449@c.us`   (E.164 phone)
+ *   - `+lid_278017930723384`    → `278017930723384@lid` (LID round-trip)
+ *   - `212663448449@c.us`       → unchanged             (already chatId)
  *
- * The caller (Server Action) provides only the typed parameter map — this
- * function flattens it to the Meta API `components[0].parameters` ordering.
+ * The `@lid` round-trip handles WhatsApp's privacy-preserving Linked ID
+ * format: non-saved contacts now arrive with an opaque `<digits>@lid`
+ * identifier instead of their phone number. We stash the LID into the
+ * patient-phone slot prefixed with `lid_` so the conversation key stays
+ * deterministic, then unwrap it here when replying.
  */
-export async function sendTemplate<P extends Record<string, string>>(args: {
-  to: string;
-  template: TemplateSpec<P>;
-  locale: WhatsAppLocale;
-  params: P;
-  /** Optional URL-button suffix used when the template has a dynamic URL slot. */
-  urlButtonParam?: string;
-}): Promise<{ ok: true; messageId?: string; mocked?: boolean } | { ok: false; error: string }> {
-  const creds = readCreds();
-
-  // Build a flat string array in the order declared by the template spec.
-  const paramValues = args.template.params.map((k) => args.params[k] ?? "");
-
-  if (!creds) {
-    console.log(
-      `[whatsapp:mock] template=${args.template.name} lang=${args.locale} to=${args.to}`,
-      paramValues,
-    );
-    return { ok: true, mocked: true };
+function toChatId(input: string): string {
+  if (input.includes("@")) return input;
+  if (input.startsWith("+lid_")) {
+    return `${input.slice("+lid_".length)}@lid`;
   }
+  const digits = input.replace(/[^\d]/g, "");
+  return `${digits}@c.us`;
+}
 
-  const body: Record<string, unknown> = {
-    messaging_product: "whatsapp",
-    to: args.to,
-    type: "template",
-    template: {
-      name: args.template.name,
-      language: { code: META_LANGUAGE_CODE[args.locale] },
-      components: [
-        {
-          type: "body",
-          parameters: paramValues.map((text) => ({ type: "text", text })),
-        },
-        ...(args.urlButtonParam
-          ? [
-              {
-                type: "button",
-                sub_type: "url",
-                index: "0",
-                parameters: [{ type: "text", text: args.urlButtonParam }],
-              },
-            ]
-          : []),
-      ],
-    },
-  };
+/**
+ * Inverse of `toChatId`. `@c.us` → `+digits`, `@lid` → `+lid_digits`.
+ * Anything else returns the raw chatId so opaque identifiers (groups,
+ * channels) stay traceable in audit logs.
+ */
+function chatIdToPhone(chatId: string): string {
+  const [head, suffix] = chatId.split("@");
+  if (!head) return chatId;
+  if (suffix === "c.us") return `+${head}`;
+  if (suffix === "lid") return `+lid_${head}`;
+  return chatId;
+}
 
+async function openwaFetch<T>(
+  creds: OpenWaCreds,
+  method: "GET" | "POST" | "PUT" | "DELETE",
+  path: string,
+  body?: unknown,
+): Promise<{ ok: true; data: T } | { ok: false; status: number; error: string }> {
   try {
-    const res = await fetch(`${META_GRAPH_BASE}/${creds.phoneId}/messages`, {
-      method: "POST",
+    const res = await fetch(`${creds.baseUrl}${path}`, {
+      method,
       headers: {
-        Authorization: `Bearer ${creds.token}`,
+        "X-API-Key": creds.apiKey,
         "Content-Type": "application/json",
       },
-      body: JSON.stringify(body),
+      body: body !== undefined ? JSON.stringify(body) : undefined,
     });
-    const json = (await res.json()) as {
-      messages?: Array<{ id: string }>;
-      error?: { message: string };
-    };
+    const text = await res.text();
+    const json = text ? (JSON.parse(text) as unknown) : undefined;
     if (!res.ok) {
-      const err = json.error?.message ?? `Meta API ${res.status}`;
-      console.error("[whatsapp] send failed", { template: args.template.name, to: args.to, err });
-      return { ok: false, error: err };
+      const errMsg =
+        (json as { message?: string } | undefined)?.message ??
+        `OpenWA ${res.status} ${res.statusText}`;
+      return { ok: false, status: res.status, error: errMsg };
     }
-    return { ok: true, messageId: json.messages?.[0]?.id };
+    return { ok: true, data: json as T };
   } catch (err) {
     const message = err instanceof Error ? err.message : String(err);
-    console.error("[whatsapp] network error", { err: message });
-    return { ok: false, error: message };
+    return { ok: false, status: 0, error: message };
   }
 }
 
+// ─── Outbound messaging ───────────────────────────────────────────────────────
+
 /**
- * Send a plain-text WhatsApp message (no template). Used by the AI
- * booking flow to reply mid-conversation.
+ * Send a plain-text WhatsApp message via OpenWA.
  *
- * Constraint: Meta only allows free-form text within a 24h
- * customer-care window after the user's last inbound message. The AI
- * webhook always satisfies that because the patient JUST messaged us,
- * but generic outbound messaging (reminders, recalls) must still go
- * through `sendTemplate`.
- *
- * Dev mode (no Meta creds): log + return `{ ok, mocked: true }`.
+ * `sessionId` identifies which cabinet's WABA session sends the message.
+ * Usually pulled from `Clinic.openwaSessionId`. When null/undefined or
+ * when OpenWA creds are missing, the call mocks to console.log so the
+ * dev workflow keeps running without a real gateway.
  */
 export async function sendText(args: {
   to: string;
   body: string;
+  sessionId?: string | null;
 }): Promise<{ ok: true; messageId?: string; mocked?: boolean } | { ok: false; error: string }> {
   const creds = readCreds();
-
-  if (!creds) {
-    console.log(`[whatsapp:mock-text] to=${args.to} :: ${args.body}`);
+  if (!creds || !args.sessionId) {
+    console.log(
+      `[whatsapp:mock-text] session=${args.sessionId ?? "none"} to=${args.to} :: ${args.body}`,
+    );
     return { ok: true, mocked: true };
   }
 
-  const body = {
-    messaging_product: "whatsapp",
-    to: args.to,
-    type: "text",
-    text: { body: args.body, preview_url: false },
-  };
-
-  try {
-    const res = await fetch(`${META_GRAPH_BASE}/${creds.phoneId}/messages`, {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${creds.token}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(body),
-    });
-    const json = (await res.json()) as {
-      messages?: Array<{ id: string }>;
-      error?: { message: string };
-    };
-    if (!res.ok) {
-      const err = json.error?.message ?? `Meta API ${res.status}`;
-      console.error("[whatsapp] sendText failed", { to: args.to, err });
-      return { ok: false, error: err };
-    }
-    return { ok: true, messageId: json.messages?.[0]?.id };
-  } catch (err) {
-    const message = err instanceof Error ? err.message : String(err);
-    console.error("[whatsapp] sendText network error", { err: message });
-    return { ok: false, error: message };
-  }
-}
-
-/**
- * Uploads a binary blob to Meta's media endpoint and returns the
- * `media_id` we can then attach to an outbound audio/image message.
- * Meta keeps the file for 30 days, which is plenty for the immediate
- * send. Dev fallback: returns a fake id so callers can no-op without
- * network. Note: uses multipart/form-data — `Buffer` → `Blob` here.
- */
-export async function uploadMedia(args: {
-  buffer: Buffer;
-  mimeType: string;
-  filename?: string;
-}): Promise<{ ok: true; mediaId: string; mocked?: boolean } | { ok: false; error: string }> {
-  const creds = readCreds();
-  if (!creds) {
-    console.log(`[whatsapp:mock-upload] ${args.mimeType} ${args.buffer.length}b`);
-    return { ok: true, mediaId: "mock-media-id", mocked: true };
-  }
-  const form = new FormData();
-  form.append("messaging_product", "whatsapp");
-  form.append("type", args.mimeType);
-  form.append(
-    "file",
-    new Blob([args.buffer as unknown as ArrayBuffer], { type: args.mimeType }),
-    args.filename ?? "voice.wav",
+  const res = await openwaFetch<{ messageId?: string; timestamp?: number }>(
+    creds,
+    "POST",
+    `/api/sessions/${args.sessionId}/messages/send-text`,
+    { chatId: toChatId(args.to), text: args.body },
   );
-  const res = await fetch(`${META_GRAPH_BASE}/${creds.phoneId}/media`, {
-    method: "POST",
-    headers: { Authorization: `Bearer ${creds.token}` },
-    body: form,
-  });
-  const json = (await res.json()) as { id?: string; error?: { message: string } };
-  if (!res.ok || json.error || !json.id) {
-    return { ok: false, error: json.error?.message ?? `HTTP ${res.status}` };
+  if (!res.ok) {
+    console.error("[whatsapp] sendText failed", {
+      to: args.to,
+      sessionId: args.sessionId,
+      err: res.error,
+    });
+    return { ok: false, error: res.error };
   }
-  return { ok: true, mediaId: json.id };
+  return { ok: true, messageId: res.data.messageId };
 }
 
 /**
- * Sends a voice/audio message referencing a previously-uploaded
- * `media_id`. Mirrors `sendText` so the caller can swap one for the
- * other when a patient sent audio.
+ * Send a voice/audio message via OpenWA. Replaces the Meta Cloud API
+ * two-step "upload media → reference media_id" flow: OpenWA accepts the
+ * media inline as base64, so callers hand us the buffer directly.
  */
 export async function sendAudio(args: {
   to: string;
-  mediaId: string;
+  sessionId?: string | null;
+  buffer: Buffer;
+  mimetype: string;
+  filename?: string;
 }): Promise<{ ok: true; messageId?: string; mocked?: boolean } | { ok: false; error: string }> {
   const creds = readCreds();
-  if (!creds) {
-    console.log(`[whatsapp:mock-audio] to=${args.to} mediaId=${args.mediaId}`);
+  if (!creds || !args.sessionId) {
+    console.log(
+      `[whatsapp:mock-audio] session=${args.sessionId ?? "none"} to=${args.to} ${args.mimetype} ${args.buffer.length}b`,
+    );
     return { ok: true, mocked: true };
   }
-  const body = {
-    messaging_product: "whatsapp",
-    to: args.to,
-    type: "audio",
-    audio: { id: args.mediaId },
-  };
-  const res = await fetch(`${META_GRAPH_BASE}/${creds.phoneId}/messages`, {
-    method: "POST",
-    headers: {
-      Authorization: `Bearer ${creds.token}`,
-      "Content-Type": "application/json",
+
+  const res = await openwaFetch<{ messageId?: string; timestamp?: number }>(
+    creds,
+    "POST",
+    `/api/sessions/${args.sessionId}/messages/send-audio`,
+    {
+      chatId: toChatId(args.to),
+      base64: args.buffer.toString("base64"),
+      mimetype: args.mimetype,
+      filename: args.filename ?? "voice.ogg",
     },
-    body: JSON.stringify(body),
-  });
-  const json = (await res.json()) as {
-    messages?: Array<{ id: string }>;
-    error?: { message: string };
-  };
-  if (!res.ok || json.error) {
-    return { ok: false, error: json.error?.message ?? `Meta API ${res.status}` };
+  );
+  if (!res.ok) {
+    console.error("[whatsapp] sendAudio failed", {
+      to: args.to,
+      sessionId: args.sessionId,
+      err: res.error,
+    });
+    return { ok: false, error: res.error };
   }
-  return { ok: true, messageId: json.messages?.[0]?.id };
+  return { ok: true, messageId: res.data.messageId };
 }
 
 // ─── Webhook signature verification ──────────────────────────────────────────
 
 /**
- * Verifies Meta's `X-Hub-Signature-256` header (HMAC-SHA256 of the raw body
- * keyed with `WHATSAPP_APP_SECRET`). Returns `true` on match.
+ * Verifies OpenWA's `X-OpenWA-Signature: sha256=<hex>` header against
+ * the raw request body using HMAC-SHA256 with `OPENWA_WEBHOOK_SECRET`.
  *
- * In dev mode (no creds), we accept everything — this lets tests POST mock
- * webhooks without juggling secrets.
- *
- * SECURITY: in production we MUST refuse missing creds. Otherwise a
- * mis-configured deploy (env var dropped, secret rotated without restart)
- * silently degrades to "accept everything", letting anyone forge inbound
- * patient messages, create appointments, and trigger billing actions.
+ * SECURITY: in production the secret MUST be set. If it's missing we
+ * refuse the webhook outright — otherwise a mis-configured deploy
+ * silently accepts forged messages and lets anyone create appointments
+ * or trigger billing actions. In dev (NODE_ENV !== "production") we
+ * accept everything so local testing without the secret works.
  */
-export function verifyWebhookSignature(rawBody: string, header: string | null): boolean {
-  const creds = readCreds();
-  if (!creds) {
-    if (process.env.NODE_ENV === "production") {
-      console.error("[whatsapp] CRITICAL: missing creds in production — rejecting webhook");
+export function verifyWebhookSignature(
+  rawBody: string,
+  header: string | null,
+): boolean {
+  const secret = env.OPENWA_WEBHOOK_SECRET;
+  if (!secret) {
+    if (env.NODE_ENV === "production") {
+      console.error("[whatsapp] CRITICAL: OPENWA_WEBHOOK_SECRET missing in prod — rejecting");
       return false;
     }
-    return true; // dev mode only
+    return true; // dev only
   }
-
   if (!header || !header.startsWith("sha256=")) return false;
-  const signature = header.slice("sha256=".length);
-  const expected = createHmac("sha256", creds.appSecret).update(rawBody).digest("hex");
-  const a = Buffer.from(signature, "hex");
+  const provided = header.slice("sha256=".length);
+  const expected = createHmac("sha256", secret).update(rawBody).digest("hex");
+  const a = Buffer.from(provided, "hex");
   const b = Buffer.from(expected, "hex");
   if (a.length !== b.length) return false;
   return timingSafeEqual(a, b);
 }
 
-/**
- * Validates the Meta GET-verification handshake: when first registering the
- * webhook URL, Meta hits it with `?hub.mode=subscribe&hub.verify_token=…
- * &hub.challenge=…`. We echo back `challenge` iff `verify_token` matches the
- * one we configured.
- */
-export function verifyWebhookChallenge(searchParams: URLSearchParams): string | null {
-  const mode = searchParams.get("hub.mode");
-  const token = searchParams.get("hub.verify_token");
-  const challenge = searchParams.get("hub.challenge");
-  const expected = process.env.WHATSAPP_VERIFY_TOKEN;
-  if (mode === "subscribe" && token && expected && token === expected && challenge) {
-    return challenge;
-  }
-  return null;
+// ─── Inbound webhook payload parsers ─────────────────────────────────────────
+
+interface OpenWaWebhookEnvelope {
+  event?: string;
+  timestamp?: string;
+  sessionId?: string;
+  idempotencyKey?: string;
+  data?: OpenWaMessageData;
 }
 
-// ─── Quick-reply parsing helpers ─────────────────────────────────────────────
+interface OpenWaMessageData {
+  id?: string;
+  from?: string;
+  to?: string;
+  chatId?: string;
+  body?: string;
+  type?: string;
+  timestamp?: number;
+  fromMe?: boolean;
+  isGroup?: boolean;
+  media?: {
+    mimetype?: string;
+    filename?: string | null;
+    data?: string; // base64
+  };
+}
+
+function asEnvelope(body: unknown): OpenWaWebhookEnvelope | null {
+  if (!body || typeof body !== "object") return null;
+  return body as OpenWaWebhookEnvelope;
+}
 
 /**
- * Walks the Meta webhook payload for incoming button clicks. Returns an array
- * of `{ from, payload }` for every quick-reply button pressed in this batch.
- * Unknown payloads are surfaced as-is for the caller to ignore.
- */
-/**
- * Walks the Meta webhook payload for plain-text inbound messages.
- * Returns `{ from, body, messageId }` for each text message in the
- * batch — those are the ones the AI engine handles.
- *
- * Button replies are NOT included here (use `parseQuickReplies` for
- * those) so the two paths stay separate in the route handler.
+ * Inbound text messages from the patient. Group messages and
+ * owner-mobile echoes are filtered out — those go through
+ * `parseOwnerOutboundMessages`.
  */
 export function parseTextMessages(
   body: unknown,
-): Array<{ from: string; body: string; messageId: string }> {
-  const out: Array<{ from: string; body: string; messageId: string }> = [];
-  if (!body || typeof body !== "object") return out;
-  const entries = (body as { entry?: unknown[] }).entry;
-  if (!Array.isArray(entries)) return out;
-  for (const entry of entries) {
-    const changes = (entry as { changes?: unknown[] }).changes;
-    if (!Array.isArray(changes)) continue;
-    for (const change of changes) {
-      const value = (change as { value?: { messages?: unknown[] } }).value;
-      const messages = value?.messages;
-      if (!Array.isArray(messages)) continue;
-      for (const msg of messages) {
-        const m = msg as {
-          from?: string;
-          id?: string;
-          type?: string;
-          text?: { body?: string };
-        };
-        if (m.type === "text" && m.from && m.id && m.text?.body) {
-          out.push({ from: m.from, body: m.text.body, messageId: m.id });
-        }
-      }
-    }
+): Array<{ from: string; body: string; messageId: string; sessionId: string }> {
+  const env = asEnvelope(body);
+  if (!env || env.event !== "message.received") return [];
+  const d = env.data;
+  if (!d) return [];
+  // `chat` is whatsapp-web.js's name for plain text — `text` is the
+  // Cloud API name. Accept both so callers stay portable.
+  if ((d.type !== "chat" && d.type !== "text") || !d.from || !d.id || !d.body) {
+    return [];
   }
-  return out;
+  if (d.fromMe) return [];
+  if (d.isGroup) return [];
+  return [
+    {
+      from: chatIdToPhone(d.from),
+      body: d.body,
+      messageId: d.id,
+      sessionId: env.sessionId ?? "",
+    },
+  ];
 }
 
 /**
- * Walks the Meta webhook payload for inbound audio messages (voice notes).
- * Returns `{ from, mediaId, mimeType, messageId }` per audio so the
- * caller can download + transcribe before feeding the result to the AI
- * engine as if it were a text message.
- *
- * Meta classifies both `voice` (recorded inside WhatsApp) and `audio`
- * (attached audio file) types — we accept both because patients use
- * either interchangeably.
+ * Inbound voice notes / audio. OpenWA delivers the media inline as
+ * base64 alongside the message so there is no separate download step —
+ * the caller receives a ready-to-transcribe buffer.
  */
 export function parseAudioMessages(
   body: unknown,
-): Array<{ from: string; mediaId: string; mimeType: string; messageId: string }> {
-  const out: Array<{ from: string; mediaId: string; mimeType: string; messageId: string }> = [];
-  if (!body || typeof body !== "object") return out;
-  const entries = (body as { entry?: unknown[] }).entry;
-  if (!Array.isArray(entries)) return out;
-  for (const entry of entries) {
-    const changes = (entry as { changes?: unknown[] }).changes;
-    if (!Array.isArray(changes)) continue;
-    for (const change of changes) {
-      const value = (change as { value?: { messages?: unknown[] } }).value;
-      const messages = value?.messages;
-      if (!Array.isArray(messages)) continue;
-      for (const msg of messages) {
-        const m = msg as {
-          from?: string;
-          id?: string;
-          type?: string;
-          audio?: { id?: string; mime_type?: string };
-          voice?: { id?: string; mime_type?: string };
-        };
-        const audio = m.audio ?? m.voice;
-        if ((m.type === "audio" || m.type === "voice") && m.from && m.id && audio?.id) {
-          out.push({
-            from: m.from,
-            mediaId: audio.id,
-            mimeType: audio.mime_type ?? "audio/ogg",
-            messageId: m.id,
-          });
-        }
-      }
-    }
-  }
-  return out;
+): Array<{
+  from: string;
+  buffer: Buffer;
+  mimetype: string;
+  messageId: string;
+  sessionId: string;
+}> {
+  const env = asEnvelope(body);
+  if (!env || env.event !== "message.received") return [];
+  const d = env.data;
+  if (!d) return [];
+  // whatsapp-web.js uses `ptt` for push-to-talk voice notes; `audio` for
+  // attached audio files. Cloud API used `voice` and `audio`. Accept all.
+  if (d.type !== "voice" && d.type !== "audio" && d.type !== "ptt") return [];
+  if (!d.from || !d.id || !d.media?.data) return [];
+  if (d.fromMe) return [];
+  if (d.isGroup) return [];
+  return [
+    {
+      from: chatIdToPhone(d.from),
+      buffer: Buffer.from(d.media.data, "base64"),
+      mimetype: d.media.mimetype ?? "audio/ogg",
+      messageId: d.id,
+      sessionId: env.sessionId ?? "",
+    },
+  ];
 }
 
 /**
- * Downloads a media file (voice note, image, etc.) referenced by its
- * Meta media id. Returns `{ buffer, mimeType }` ready to be handed to
- * Gemini (which accepts inline base64).
+ * Coexistence-style detection — messages the cabinet owner wrote from
+ * their mobile WhatsApp Business app, echoed back to us by OpenWA so we
+ * can keep the AIConversation history in sync and mute the bot for the
+ * suppression window.
  *
- * Two HTTP hops by design: Meta API returns a signed CDN URL that
- * itself needs the bearer token to fetch — that's the documented flow,
- * no shortcut.
- */
-export async function downloadMedia(mediaId: string): Promise<
-  { ok: true; buffer: Buffer; mimeType: string } | { ok: false; error: string }
-> {
-  const token = process.env.WHATSAPP_TOKEN;
-  if (!token) return { ok: false, error: "WHATSAPP_TOKEN missing" };
-
-  const metaRes = await fetch(`${META_GRAPH_BASE}/${mediaId}`, {
-    headers: { Authorization: `Bearer ${token}` },
-  });
-  const meta = (await metaRes.json()) as {
-    url?: string;
-    mime_type?: string;
-    error?: { message: string };
-  };
-  if (!metaRes.ok || meta.error || !meta.url) {
-    return { ok: false, error: meta.error?.message ?? `metadata ${metaRes.status}` };
-  }
-  const blobRes = await fetch(meta.url, {
-    headers: { Authorization: `Bearer ${token}` },
-  });
-  if (!blobRes.ok) {
-    return { ok: false, error: `blob ${blobRes.status}` };
-  }
-  const arr = await blobRes.arrayBuffer();
-  return { ok: true, buffer: Buffer.from(arr), mimeType: meta.mime_type ?? "audio/ogg" };
-}
-
-/**
- * Coexistence Mode — when the cabinet owner sends a message from the
- * mobile WhatsApp Business app on a number that's also linked to our
- * Cloud API, Meta echoes the outbound message into the same webhook so
- * we can keep the conversation history in sync.
- *
- * Detection: the message's `from` equals `metadata.display_phone_number`
- * (the WABA's own number). The patient's number lives in `to` — most
- * recent Cloud API versions include it on the message; if it's absent
- * the row is skipped (we audit upstream so the gap is visible).
- *
- * Returns one entry per text message authored from the mobile app.
+ * With OpenWA this is trivial: the `fromMe` flag is set natively (vs the
+ * Cloud API which required comparing `display_phone_number` against
+ * `from`). Group messages are excluded — owner replies in a group chat
+ * are not patient conversations and shouldn't trigger handoff.
  */
 export function parseOwnerOutboundMessages(
   body: unknown,
 ): Array<{
-  ownerNumber: string;
   patientPhone: string;
   body: string;
   messageId: string;
   sentAt: Date;
+  sessionId: string;
 }> {
-  const out: Array<{
-    ownerNumber: string;
-    patientPhone: string;
-    body: string;
-    messageId: string;
-    sentAt: Date;
-  }> = [];
-  if (!body || typeof body !== "object") return out;
-  const entries = (body as { entry?: unknown[] }).entry;
-  if (!Array.isArray(entries)) return out;
-  for (const entry of entries) {
-    const changes = (entry as { changes?: unknown[] }).changes;
-    if (!Array.isArray(changes)) continue;
-    for (const change of changes) {
-      const value = (change as {
-        value?: {
-          metadata?: { display_phone_number?: string };
-          messages?: unknown[];
-        };
-      }).value;
-      const owner = value?.metadata?.display_phone_number;
-      const messages = value?.messages;
-      if (!owner || !Array.isArray(messages)) continue;
-      for (const msg of messages) {
-        const m = msg as {
-          from?: string;
-          to?: string;
-          id?: string;
-          type?: string;
-          timestamp?: string;
-          text?: { body?: string };
-        };
-        // Owner-outbound iff `from` matches the WABA's own number. The
-        // patient-inbound branch (parseTextMessages) drops these because
-        // it doesn't filter on the sender — but the handler routes by
-        // checking equality first so they never double-process.
-        if (
-          m.type !== "text" ||
-          !m.from ||
-          !m.id ||
-          !m.text?.body ||
-          !m.to
-        ) {
-          continue;
-        }
-        if (m.from !== owner) continue;
-        const ts = m.timestamp
-          ? new Date(Number(m.timestamp) * 1000)
-          : new Date();
-        out.push({
-          ownerNumber: m.from,
-          patientPhone: m.to,
-          body: m.text.body,
-          messageId: m.id,
-          sentAt: Number.isNaN(ts.getTime()) ? new Date() : ts,
-        });
-      }
-    }
+  const env = asEnvelope(body);
+  if (!env || env.event !== "message.received") return [];
+  const d = env.data;
+  if (!d || !d.fromMe || d.isGroup) return [];
+  if ((d.type !== "chat" && d.type !== "text") || !d.to || !d.id || !d.body) {
+    return [];
   }
-  return out;
+  const sentAt = d.timestamp ? new Date(d.timestamp * 1000) : new Date();
+  return [
+    {
+      patientPhone: chatIdToPhone(d.to),
+      body: d.body,
+      messageId: d.id,
+      sentAt: Number.isNaN(sentAt.getTime()) ? new Date() : sentAt,
+      sessionId: env.sessionId ?? "",
+    },
+  ];
 }
 
-export function parseQuickReplies(
-  body: unknown,
-): Array<{ from: string; payload: string; messageId: string }> {
-  const out: Array<{ from: string; payload: string; messageId: string }> = [];
-  if (!body || typeof body !== "object") return out;
-  const entries = (body as { entry?: unknown[] }).entry;
-  if (!Array.isArray(entries)) return out;
-  for (const entry of entries) {
-    const changes = (entry as { changes?: unknown[] }).changes;
-    if (!Array.isArray(changes)) continue;
-    for (const change of changes) {
-      const value = (change as { value?: { messages?: unknown[] } }).value;
-      const messages = value?.messages;
-      if (!Array.isArray(messages)) continue;
-      for (const msg of messages) {
-        const m = msg as {
-          from?: string;
-          id?: string;
-          type?: string;
-          button?: { payload?: string };
-          interactive?: { button_reply?: { id?: string } };
-        };
-        const payload = m.button?.payload ?? m.interactive?.button_reply?.id;
-        if (m.from && m.id && payload) {
-          out.push({ from: m.from, payload, messageId: m.id });
-        }
-      }
-    }
-  }
-  return out;
+// ─── Session management (QR onboarding for /settings/ai-receptionist) ────────
+
+export interface OpenWaSession {
+  id: string;
+  name: string;
+  /// Engine-reported lifecycle. We treat `ready` and `authenticated`
+  /// as "connected and able to send/receive". Everything else means
+  /// "not yet ready" (the UI shows a QR or a retry button).
+  status:
+    | "created"
+    | "initializing"
+    | "qr_ready"
+    | "authenticated"
+    | "ready"
+    | "disconnected"
+    | "failed"
+    | string;
+  phone?: string | null;
+  pushName?: string | null;
 }
 
-export { ALL_TEMPLATES };
+export async function openwaCreateSession(args: {
+  name: string;
+}): Promise<{ ok: true; session: OpenWaSession } | { ok: false; error: string }> {
+  const creds = readCreds();
+  if (!creds) return { ok: false, error: "OpenWA gateway not configured" };
+  const res = await openwaFetch<OpenWaSession>(creds, "POST", "/api/sessions", {
+    name: args.name,
+    config: { autoReconnect: true },
+  });
+  if (!res.ok) return { ok: false, error: res.error };
+  return { ok: true, session: res.data };
+}
+
+/**
+ * List every session known to the gateway. Used by `startOpenwaConnection`
+ * to recover when the clinic.openwaSessionId was lost (manual unlink,
+ * DB rollback, etc.) but the OpenWA session still exists under the
+ * cabinet's slug-derived name. Avoids dangling sessions and duplicate-
+ * name errors.
+ */
+export async function openwaListSessions(): Promise<
+  { ok: true; sessions: OpenWaSession[] } | { ok: false; error: string }
+> {
+  const creds = readCreds();
+  if (!creds) return { ok: false, error: "OpenWA gateway not configured" };
+  const res = await openwaFetch<OpenWaSession[]>(creds, "GET", "/api/sessions");
+  if (!res.ok) return { ok: false, error: res.error };
+  return { ok: true, sessions: Array.isArray(res.data) ? res.data : [] };
+}
+
+export async function openwaStartSession(
+  sessionId: string,
+): Promise<{ ok: true; session: OpenWaSession } | { ok: false; error: string }> {
+  const creds = readCreds();
+  if (!creds) return { ok: false, error: "OpenWA gateway not configured" };
+  const res = await openwaFetch<OpenWaSession>(
+    creds,
+    "POST",
+    `/api/sessions/${sessionId}/start`,
+  );
+  if (!res.ok) return { ok: false, error: res.error };
+  return { ok: true, session: res.data };
+}
+
+/**
+ * Fetch the current QR code for a session. The QR is returned as a data
+ * URL ready to drop into an `<img src=…>`. Returns `qrCode: null` when
+ * the session is already connected (no QR needed) — the UI should then
+ * show the connected state instead.
+ */
+export async function openwaGetQr(
+  sessionId: string,
+): Promise<
+  | { ok: true; qrCode: string | null; status: OpenWaSession["status"] }
+  | { ok: false; error: string }
+> {
+  const creds = readCreds();
+  if (!creds) return { ok: false, error: "OpenWA gateway not configured" };
+  const res = await openwaFetch<{ qrCode?: string; status: OpenWaSession["status"] }>(
+    creds,
+    "GET",
+    `/api/sessions/${sessionId}/qr`,
+  );
+  if (!res.ok) return { ok: false, error: res.error };
+  return { ok: true, qrCode: res.data.qrCode ?? null, status: res.data.status };
+}
+
+export async function openwaSessionStatus(
+  sessionId: string,
+): Promise<{ ok: true; session: OpenWaSession } | { ok: false; error: string }> {
+  const creds = readCreds();
+  if (!creds) return { ok: false, error: "OpenWA gateway not configured" };
+  const res = await openwaFetch<OpenWaSession>(
+    creds,
+    "GET",
+    `/api/sessions/${sessionId}`,
+  );
+  if (!res.ok) return { ok: false, error: res.error };
+  return { ok: true, session: res.data };
+}
+
+/**
+ * Register the inbound-message webhook for a session. Idempotent —
+ * re-registering with the same URL just refreshes the secret. Returns
+ * the webhook id so the caller can store it (e.g. to delete later).
+ */
+export async function openwaRegisterWebhook(args: {
+  sessionId: string;
+  url: string;
+  secret: string;
+}): Promise<{ ok: true; webhookId: string } | { ok: false; error: string }> {
+  const creds = readCreds();
+  if (!creds) return { ok: false, error: "OpenWA gateway not configured" };
+  const res = await openwaFetch<{ id: string }>(
+    creds,
+    "POST",
+    `/api/sessions/${args.sessionId}/webhooks`,
+    {
+      url: args.url,
+      events: ["message.received"],
+      secret: args.secret,
+    },
+  );
+  if (!res.ok) return { ok: false, error: res.error };
+  return { ok: true, webhookId: res.data.id };
+}

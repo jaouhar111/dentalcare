@@ -20,8 +20,8 @@ import {
 } from "@prisma/client";
 import { db } from "@/lib/db/client";
 import { audit } from "@/lib/audit";
-import { sendTemplate } from "./client";
-import { CHECKUP_REMINDER } from "./templates";
+import { sendText } from "./client";
+import { buildCheckupReminder } from "./templates";
 import { formatDate } from "@/lib/utils/format";
 import type { Locale } from "@/i18n/routing";
 
@@ -49,7 +49,7 @@ export async function sendRecallReminderById(
       patient: {
         select: { id: true, firstName: true, phone: true, preferredLocale: true },
       },
-      clinic: { select: { name: true, phone: true } },
+      clinic: { select: { name: true, phone: true, openwaSessionId: true } },
     },
   });
   if (!r) return { ok: false, reason: "NOT_FOUND" };
@@ -99,21 +99,22 @@ export async function sendRecallReminderById(
   const checkupType =
     r.reason ?? (r.kind === "SCALING" ? "Détartrage de suivi" : "Contrôle");
 
-  const send = await sendTemplate({
+  const body = buildCheckupReminder({
+    patientFirstName: r.patient.firstName,
+    checkupType,
+    sinceLast: formatDate(r.dueDate, loc, {
+      day: "numeric",
+      month: "long",
+      year: "numeric",
+    }),
+    clinicName: r.clinic.name,
+    clinicPhone: r.clinic.phone ?? "—",
+    locale: loc,
+  });
+  const send = await sendText({
     to: r.patient.phone,
-    template: CHECKUP_REMINDER,
-    locale: loc === "fr" || loc === "en" ? loc : "fr",
-    params: {
-      patientFirstName: r.patient.firstName,
-      checkupType,
-      sinceLast: formatDate(r.dueDate, loc, {
-        day: "numeric",
-        month: "long",
-        year: "numeric",
-      }),
-      clinicName: r.clinic.name,
-      clinicPhone: r.clinic.phone ?? "—",
-    },
+    body,
+    sessionId: r.clinic.openwaSessionId,
   });
   if (!send.ok) {
     await audit({

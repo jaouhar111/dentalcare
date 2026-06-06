@@ -1,28 +1,26 @@
 /**
- * Glue between the Meta webhook (HTTP layer) and the AI engine
- * (pure logic). Kept separate from the route file so we can call it
- * directly from scripts/tests without spinning up Next.js HTTP.
+ * Glue between the OpenWA webhook (HTTP layer) and the AI booking
+ * engine (pure logic). Kept separate from the route file so we can
+ * call it directly from scripts/tests without spinning up Next.js HTTP.
  *
  * Flow per inbound text message:
  *
  *     normalizePhone(from)
- *     resolveClinic()                    ← multi-clinic TODO
+ *     resolveClinic(sessionId)           ← OpenWA session → clinic
  *     resolvePatientByPhone(clinic, phone)
  *     loadOrCreateConversation(...)
- *     if !shouldAutoReply → drop + log   ← human took over
- *     resolveBotUser(clinic)             ← createdBy for create_appointment
+ *     if !shouldAutoReply → drop + log   ← human took over OR mobile
+ *                                          coexistence suppression
+ *     resolveBotUser(clinic)
  *     runBookingConversation({...})
  *     persistConversationTurn(...)
  *     audit("ai.conversation.turn", ...)
- *     sendText(to=phone, body=text)      ← cabinet-side reply
- *
- * Returns a structured result so the route can log + the tests can
- * assert without parsing logs.
+ *     sendText(to=phone, body=text, sessionId)
  */
 
 import { db } from "@/lib/db/client";
 import { audit } from "@/lib/audit";
-import { sendAudio, sendText, uploadMedia } from "@/lib/whatsapp/client";
+import { sendAudio, sendText } from "@/lib/whatsapp/client";
 import { runBookingConversation } from "./engine";
 import { buildDentalSystemPrompt } from "./prompts/dental";
 import { synthesizeSpeech } from "./synthesize";
@@ -35,21 +33,19 @@ import {
 } from "./conversation";
 
 export interface InboundMessage {
-  /// Raw `from` field from Meta (no leading `+`, e.g. "212638256271").
+  /// E.164-ish phone of the patient (the parser already normalised it
+  /// to `+212XXX` from OpenWA's `212XXX@c.us` chatId).
   fromPhone: string;
-  /// Plain-text body the patient typed. For voice notes, this is the
-  /// Gemini transcript with a `🎙️ ` prefix added by the caller.
+  /// Plain text body. Voice-note callers prefix with `🎙️ `.
   body: string;
-  /// Meta's message id — included in audit logs for traceability.
+  /// OpenWA's wamid — included in audit logs for traceability.
   messageId: string;
-  /// Set to `true` when the inbound message was a voice note — the
-  /// handler will then try to reply in voice instead of text.
+  /// Set to `true` when the inbound was a voice note. The handler will
+  /// then try to reply in voice too (TTS via Gemini).
   replyInVoice?: boolean;
-  /// Meta's `metadata.phone_number_id` from the webhook payload — used
-  /// to route to the right clinic when the deployment is shared by
-  /// multiple cabinets. Falls back to the first clinic if absent or
-  /// not bound.
-  metaPhoneNumberId?: string | null;
+  /// OpenWA session UUID. Drives the multi-tenant clinic lookup and is
+  /// passed back to `sendText` so the reply leaves the correct WABA.
+  sessionId: string;
 }
 
 export type HandleInboundResult =
@@ -65,12 +61,6 @@ export type HandleInboundResult =
     }
   | { status: "error"; reason: string };
 
-/**
- * The single entry point the webhook route calls. Side-effectful
- * (writes the AIConversation row, audits, posts to Meta) so callers
- * shouldn't retry on `replied` results — Meta auto-retries on non-2xx,
- * and we ack 200 once the engine succeeds.
- */
 export async function handleInboundTextMessage(
   msg: InboundMessage,
 ): Promise<HandleInboundResult> {
@@ -80,15 +70,11 @@ export async function handleInboundTextMessage(
   }
   const patientPhone = normalizePhone(msg.fromPhone);
 
-  const clinic = await resolveClinic(msg.metaPhoneNumberId);
+  const clinic = await resolveClinic(msg.sessionId);
   if (!clinic) {
     return { status: "dropped", reason: "no_clinic" };
   }
 
-  // Phone-based patient lookup. Null is fine — the engine handles the
-  // "you don't know me yet" flow via the `create_appointment` tool's
-  // PATIENT_NOT_REGISTERED branch. We also pull firstName + lastName
-  // so the system prompt can personalize the greeting.
   const patient = await db.patient.findFirst({
     where: { clinicId: clinic.id, phone: patientPhone, deletedAt: null },
     select: { id: true, firstName: true, lastName: true },
@@ -100,25 +86,24 @@ export async function handleInboundTextMessage(
     patientId: patient?.id ?? null,
   });
 
-  // ─── AI Receptionist kill switch (Phase 10) ────────────────────────
+  // ─── AI Receptionist kill switch ────────────────────────────────────
   // When the cabinet has flipped `aiEnabled = false` in /settings/ai-
-  // receptionist, the bot doesn't run the engine at all. It replies
-  // with a "transferring you" message AND auto-promotes the
-  // conversation to HANDED_OFF so the admin UI shows it as needing
-  // human attention right away. Subsequent inbound messages will hit
-  // the `!shouldAutoReply` branch below and stay silent until the
-  // admin re-takes or re-enables.
+  // receptionist, the bot doesn't run at all. It replies "transferring
+  // you" + auto-promotes the conversation to HANDED_OFF so the admin
+  // UI shows it as needing human attention.
   if (!clinic.aiEnabled && conversation.status !== "HANDED_OFF") {
     const handoffText =
       "Un instant, je transfère votre message à un membre du cabinet 🙏";
-    const sent = await sendText({ to: "+" + patientPhone, body: handoffText });
+    const sent = await sendText({
+      to: patientPhone,
+      body: handoffText,
+      sessionId: msg.sessionId,
+    });
     await db.aIConversation.update({
       where: { id: conversation.id },
       data: {
         status: "HANDED_OFF",
         handedOffAt: new Date(),
-        // handedOffById left null — there's no specific user, the bot
-        // self-handed-off because it was turned off platform-wide.
         lastActivityAt: new Date(),
       },
     });
@@ -139,11 +124,6 @@ export async function handleInboundTextMessage(
   }
 
   if (!shouldAutoReply(conversation)) {
-    // Don't reply when an admin owns the conversation (HANDED_OFF /
-    // CLOSED) or when the cabinet owner just typed from their mobile
-    // WhatsApp Business app (Coexistence suppression window). We still
-    // audit the message so the conversation history in the admin UI
-    // stays complete.
     const isHumanSuppressed =
       conversation.status === "ACTIVE" && !!conversation.lastHumanReplyAt;
     const reason: "handed_off" | "closed" | "human_suppressed" =
@@ -167,9 +147,7 @@ export async function handleInboundTextMessage(
     return { status: "dropped", reason };
   }
 
-  // Need an admin user id to attribute create_appointment calls to.
-  // First admin acts as the "AI bot" actor — a future iteration can
-  // seed a dedicated AI_BOT role.
+  // Bot identity for create_appointment audit attribution.
   const botUser = await db.user.findFirst({
     where: { clinicId: clinic.id, role: "ADMIN" },
     select: { id: true },
@@ -182,9 +160,6 @@ export async function handleInboundTextMessage(
     todayIso,
     patientName: patient ? `${patient.firstName} ${patient.lastName}` : null,
     patientFirstName: patient?.firstName ?? null,
-    // Phase 10 — cabinet-specific tone, signature, and preferred phrasing.
-    // `aiTemplatesJson` is `Json?` in Prisma; cast to AITemplates shape
-    // (the settings page validates the structure via Zod on write).
     style: clinic.aiStyle,
     signature: clinic.aiSignature,
     templates: (clinic.aiTemplatesJson ?? null) as
@@ -225,41 +200,33 @@ export async function handleInboundTextMessage(
       },
     });
 
-    // If the patient sent a voice note, reply with a voice note too —
-    // mirrors the modality the patient picked. We always send the text
-    // as a fallback or alongside so admins viewing the conversation in
-    // the dashboard see the words, not just a media reference.
+    // Voice-note round-trip: synthesise TTS, send via send-audio. The
+    // text version is sent too so the admin UI sees the words, not just
+    // a media link.
     let voiceDelivered = false;
     if (msg.replyInVoice) {
       const tts = await synthesizeSpeech({ text: stripEmojis(result.text) });
       if (tts.ok) {
-        const upload = await uploadMedia({
+        const audio = await sendAudio({
+          to: patientPhone,
+          sessionId: msg.sessionId,
           buffer: tts.buffer,
-          mimeType: tts.mimeType,
-          filename: "reply.wav",
+          mimetype: tts.mimeType,
+          filename: "reply.ogg",
         });
-        if (upload.ok) {
-          const audio = await sendAudio({ to: patientPhone, mediaId: upload.mediaId });
-          if (audio.ok) {
-            voiceDelivered = true;
-          } else {
-            console.error("[ai/webhook] sendAudio failed", { err: audio.error });
-          }
-        } else {
-          console.error("[ai/webhook] uploadMedia failed", { err: upload.error });
-        }
+        if (audio.ok) voiceDelivered = true;
+        else console.error("[ai/webhook] sendAudio failed", { err: audio.error });
       } else {
         console.error("[ai/webhook] synthesizeSpeech failed", { err: tts.error });
       }
     }
 
-    const send = await sendText({ to: patientPhone, body: result.text });
+    const send = await sendText({
+      to: patientPhone,
+      body: result.text,
+      sessionId: msg.sessionId,
+    });
     if (!send.ok && !voiceDelivered) {
-      // Surface delivery failures in the audit log so admins can see
-      // *which* patients aren't getting bot replies (typically: phone
-      // not in Meta's allowed test list while the app is in dev mode,
-      // or 24h customer-service window closed). Without this trace the
-      // bot looks like it's silently dropping replies.
       console.error("[ai/webhook] sendText failed", {
         conversationId: conversation.id,
         to: patientPhone,
@@ -270,11 +237,7 @@ export async function handleInboundTextMessage(
         action: "ai.conversation.send_failed",
         entity: "AIConversation",
         entityId: conversation.id,
-        payload: {
-          to: patientPhone,
-          replyText: result.text,
-          error: send.error,
-        },
+        payload: { to: patientPhone, replyText: result.text, error: send.error },
       });
     }
 
@@ -295,37 +258,28 @@ export async function handleInboundTextMessage(
       entityId: conversation.id,
       payload: { messageId: msg.messageId, error: message },
     });
-    // Best-effort apology so the patient doesn't think we ghosted them.
     await sendText({
       to: patientPhone,
       body: "Désolé, un problème technique m'empêche de répondre. Le cabinet vous rappellera.",
+      sessionId: msg.sessionId,
     }).catch(() => undefined);
     return { status: "error", reason: message };
   }
 }
 
 /**
- * Coexistence Mode — called for every owner-outbound text echo Meta
- * delivers when the cabinet's WhatsApp Business mobile app sends a
- * message on the shared number.
- *
- * What it does:
- *   1. Resolves the clinic that owns the WABA (via Meta phone id)
- *   2. Appends the dentist's message to the AIConversation history with
- *      a `human_mobile` provenance tag
- *   3. Stamps `lastHumanReplyAt` so the bot stays muted for the next
- *      `HUMAN_HANDOFF_WINDOW_MS`
- *   4. Audits the event for /insights + /conversations UI
- *
- * Idempotent: if Meta re-delivers the same echo (rare but possible),
- * `appendOwnerOutboundTurn` deduplicates by Meta wamid.
+ * Coexistence-style sync — called when the cabinet owner writes from
+ * their mobile WhatsApp app (OpenWA echoes outbound messages back via
+ * `fromMe: true`). Appends the dentist's bubble to the conversation
+ * history, stamps `lastHumanReplyAt`, and the suppression window kicks
+ * in for the next 30 min.
  */
 export async function handleOwnerOutboundMessage(args: {
   patientPhone: string;
   body: string;
   messageId: string;
   sentAt: Date;
-  metaPhoneNumberId?: string | null;
+  sessionId: string;
 }): Promise<
   | { status: "appended"; conversationId: string }
   | { status: "skipped"; reason: "no_clinic" | "no_conversation" | "duplicate" }
@@ -335,20 +289,16 @@ export async function handleOwnerOutboundMessage(args: {
     return { status: "skipped", reason: "duplicate" };
   }
   const patientPhone = normalizePhone(args.patientPhone);
-  const clinic = await resolveClinic(args.metaPhoneNumberId);
+  const clinic = await resolveClinic(args.sessionId);
   if (!clinic) {
     return { status: "skipped", reason: "no_clinic" };
   }
 
-  // Only attach to a conversation that already exists — if the dentist
+  // Only attach to a conversation that already exists. If the dentist
   // is messaging a patient that never wrote to the bot before, there's
-  // nothing to attach to and we drop silently. Future iteration could
-  // create the conversation on the fly so the /conversations inbox
-  // shows owner-initiated threads too.
+  // nothing to attach to and we drop silently.
   const existing = await db.aIConversation.findUnique({
-    where: {
-      clinicId_patientPhone: { clinicId: clinic.id, patientPhone },
-    },
+    where: { clinicId_patientPhone: { clinicId: clinic.id, patientPhone } },
     select: { id: true },
   });
   if (!existing) {
@@ -361,9 +311,7 @@ export async function handleOwnerOutboundMessage(args: {
     sentAt: args.sentAt,
     messageId: args.messageId,
   });
-  if (duplicate) {
-    return { status: "skipped", reason: "duplicate" };
-  }
+  if (duplicate) return { status: "skipped", reason: "duplicate" };
 
   await audit({
     clinicId: clinic.id,
@@ -382,13 +330,7 @@ export async function handleOwnerOutboundMessage(args: {
 
 // ────────────────────────────────────────────────────────────────────────
 
-/**
- * Strips emojis + ornamental Unicode for TTS — Gemini TTS pronounces
- * them literally ("smiley face hand wave") which sounds ridiculous in a
- * voice note. We keep ASCII + Latin extended + Arabic.
- */
 function stripEmojis(s: string): string {
-  // Emoji ranges + dingbats + variation selectors + skin-tone modifiers.
   return s
     .replace(
       /[\u{1F300}-\u{1FAFF}\u{2600}-\u{27BF}\u{1F1E6}-\u{1F1FF}️‍]/gu,
@@ -398,27 +340,37 @@ function stripEmojis(s: string): string {
     .trim();
 }
 
-/** Meta sends `212638256271`; we store `+212638256271`. */
+/**
+ * Normalise the patient identifier we got from the webhook.
+ *
+ *   `+212638256271`        → unchanged (E.164 phone)
+ *   `+lid_278017930723384` → unchanged (LID opaque identifier)
+ *   `212638256271`         → `+212638256271`
+ *
+ * LID identifiers must be preserved as-is so the round-trip back to
+ * OpenWA's chatId (handled by `toChatId` in the client) lands on the
+ * right contact. Stripping the `lid_` prefix would silently mutate the
+ * patient identity and break replies.
+ */
 function normalizePhone(raw: string): string {
+  if (raw.startsWith("+lid_")) return raw;
   const digits = raw.replace(/[^\d+]/g, "");
   return digits.startsWith("+") ? digits : `+${digits}`;
 }
 
 /**
- * Multi-tenant clinic resolution.
+ * Multi-tenant clinic resolution by OpenWA sessionId.
  *
- *  1. If Meta provided `metadata.phone_number_id`, look up the clinic
- *     bound to it via `Clinic.whatsappPhoneId`. This is the prod path.
- *  2. Otherwise (legacy single-tenant dev), grab the first clinic so
- *     local testing without a `whatsappPhoneId` configuration still
- *     works.
+ *   1. If sessionId provided, look up `Clinic.openwaSessionId`. Prod path.
+ *   2. Otherwise (dev single-tenant), return the first clinic. Lets
+ *      local testing without a real session id still work via the
+ *      console-mock client.
  *
- * Returns null when there is genuinely no matching clinic — the
- * webhook handler drops the message with `reason: "no_clinic"` so
- * we don't accidentally cross-tenant a message.
+ * Returns null when there's no matching clinic — the route drops the
+ * message with `reason: "no_clinic"` so we don't cross-tenant.
  */
 async function resolveClinic(
-  metaPhoneNumberId?: string | null,
+  sessionId?: string | null,
 ): Promise<{
   id: string;
   name: string;
@@ -435,27 +387,17 @@ async function resolveClinic(
     aiSignature: true,
     aiTemplatesJson: true,
   } as const;
-  if (metaPhoneNumberId) {
-    const byPhone = await db.clinic.findUnique({
-      where: { whatsappPhoneId: metaPhoneNumberId },
+  if (sessionId) {
+    const bySession = await db.clinic.findUnique({
+      where: { openwaSessionId: sessionId },
       select,
     });
-    if (byPhone) return byPhone;
-    // No clinic claimed this phone yet — fall back to the first one
-    // only when there's exactly one (single-tenant dev). In a
-    // multi-tenant deployment this path returns null on purpose.
+    if (bySession) return bySession;
     const count = await db.clinic.count();
-    if (count === 1) {
-      return db.clinic.findFirst({ select });
-    }
+    if (count === 1) return db.clinic.findFirst({ select });
     return null;
   }
   return db.clinic.findFirst({ select });
 }
 
-/**
- * Returns a snapshot of the conversation as it exists right now — used
- * by the admin UI to render the live history without re-running the
- * engine. Re-exporting here so the route can call into a single module.
- */
 export type { ConversationRecord };

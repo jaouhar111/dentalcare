@@ -52,8 +52,8 @@ export function Pricing() {
   ];
 
   return (
-    <section id="pricing" className="bg-white px-3 py-3">
-      <div className="mx-auto max-w-[1024px] rounded-[18px] bg-white px-6 py-20 md:py-28">
+    <section id="pricing" className="relative px-3 py-3">
+      <div className="mx-auto max-w-[1024px] px-6 py-20 md:py-28">
         <div className="mx-auto mb-12 max-w-2xl text-center md:mb-16">
           <div className="text-[var(--lp-ink-muted)] text-[21px] leading-[1.19] font-semibold">
             {t("kicker")}
@@ -81,18 +81,36 @@ export function Pricing() {
                 duration: 0.55,
                 ease: [0.22, 1, 0.36, 1],
               }}
-              className="relative flex flex-col rounded-[18px] bg-[#f5f5f7] p-8"
+              className={`relative flex flex-col p-8 ${
+                p.highlighted ? "win11-card-elevated" : "win11-card"
+              }`}
               style={
                 p.highlighted
                   ? {
+                      border: "1px solid rgba(201, 169, 110, 0.45)",
                       boxShadow:
-                        "inset 0 0 0 2px #0071e3, 0 12px 30px -18px rgba(0, 113, 227, 0.4)",
+                        "0 1.5px 0 rgba(255, 255, 255, 0.9) inset, 0 -1px 0 rgba(0, 0, 0, 0.05) inset, 0 24px 48px -20px rgba(201, 169, 110, 0.32), 0 4px 14px rgba(0, 0, 0, 0.06)",
                     }
                   : undefined
               }
             >
               {p.highlighted ? (
-                <div className="absolute -top-3 left-1/2 -translate-x-1/2 rounded-full bg-[#0071e3] px-3 py-1 text-[11px] font-semibold tracking-[0.04em] text-white uppercase">
+                <div
+                  className="win11-chip win11-chip-gold absolute -top-3 left-1/2 -translate-x-1/2 z-10 whitespace-nowrap"
+                  style={{
+                    boxShadow:
+                      "0 4px 14px -4px rgba(201, 169, 110, 0.45), 0 0 0 1px rgba(255,255,255,0.5) inset",
+                  }}
+                >
+                  <svg
+                    width="10"
+                    height="10"
+                    viewBox="0 0 24 24"
+                    fill="currentColor"
+                    aria-hidden
+                  >
+                    <path d="M12 2l3 7h7l-5.5 4.5L18 21l-6-4-6 4 1.5-7.5L2 9h7z" />
+                  </svg>
                   {t("recommended")}
                 </div>
               ) : null}
@@ -115,7 +133,7 @@ export function Pricing() {
 
               <Link
                 href={"/signup" as never}
-                className="mt-6 inline-flex h-11 w-full items-center justify-center rounded-full bg-[#0071e3] px-6 text-[15px] font-normal text-white transition-colors hover:bg-[#0077ed]"
+                className="win11-btn-primary mt-6 inline-flex h-11 w-full items-center justify-center px-6 text-[15px]"
               >
                 {t(`${p.slug}Cta`)}
               </Link>
@@ -124,7 +142,7 @@ export function Pricing() {
                 {p.features.map((f) => (
                   <li key={f} className="flex items-start gap-2.5">
                     <svg
-                      className="mt-0.5 size-4 shrink-0 text-[#0066cc]"
+                      className="mt-0.5 size-4 shrink-0 text-[#128c7e]"
                       fill="none"
                       stroke="currentColor"
                       strokeWidth="2.5"

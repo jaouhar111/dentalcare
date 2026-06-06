@@ -39,7 +39,7 @@ export async function getClinicDetail(
       subscriptionStatus: true,
       plan: true,
       trialEndsAt: true,
-      whatsappPhoneId: true,
+      openwaSessionId: true,
       createdAt: true,
     },
   });
@@ -127,7 +127,7 @@ export async function getClinicDetail(
     plan: clinic.plan,
     trialEndsAt: clinic.trialEndsAt,
     trialDaysRemaining,
-    whatsappPhoneId: clinic.whatsappPhoneId,
+    openwaSessionId: clinic.openwaSessionId,
     createdAt: clinic.createdAt,
     totals: {
       patients: patientsCount,

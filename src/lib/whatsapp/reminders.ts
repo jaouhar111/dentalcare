@@ -15,8 +15,8 @@ import { randomBytes } from "node:crypto";
 import { AppointmentStatus, CommunicationChannel } from "@prisma/client";
 import { db } from "@/lib/db/client";
 import { audit } from "@/lib/audit";
-import { sendTemplate, sendText } from "./client";
-import { APPOINTMENT_REMINDER } from "./templates";
+import { sendText } from "./client";
+import { buildAppointmentReminder } from "./templates";
 import { formatDate } from "@/lib/utils/format";
 import type { Locale } from "@/i18n/routing";
 
@@ -60,7 +60,7 @@ export async function sendJ1ReminderForAppointment(
         select: { firstName: true, phone: true, preferredChannel: true, preferredLocale: true },
       },
       dentist: { select: { firstName: true, lastName: true } },
-      clinic: { select: { name: true } },
+      clinic: { select: { name: true, openwaSessionId: true } },
     },
   });
   if (!a) return { ok: false, reason: "NOT_FOUND" };
@@ -101,67 +101,35 @@ export async function sendJ1ReminderForAppointment(
   const timeStr = `${String(a.startAt.getHours()).padStart(2, "0")}:${String(a.startAt.getMinutes()).padStart(2, "0")}`;
 
   if (a.patient.preferredChannel === CommunicationChannel.WHATSAPP) {
-    const res = await sendTemplate({
-      to: a.patient.phone,
-      template: APPOINTMENT_REMINDER,
-      locale: locale === "en" ? "en" : "fr",
-      params: {
-        patientFirstName: a.patient.firstName,
-        date: dateStr,
-        time: timeStr,
-        dentistName: `Dr ${a.dentist.firstName} ${a.dentist.lastName}`,
-        clinicName: a.clinic.name,
-      },
-    });
-    if (res.ok) {
-      await markSent(a.id, a.clinicId, "whatsapp");
-      return {
-        ok: true,
-        channel: "whatsapp",
-        messageId: "messageId" in res ? res.messageId : undefined,
-        mocked: "mocked" in res ? res.mocked : undefined,
-      };
-    }
-    // Fallback to plain-text inside the 24h customer-care window. This
-    // recovers when the template is not yet approved (dev mode) OR if
-    // Meta dropped it for review. Only fires when the patient has
-    // messaged us in the last 24h — outside that window Meta will
-    // reject and the helper surfaces SEND_FAILED.
-    const text = buildReminderText({
-      firstName: a.patient.firstName,
-      dateStr,
-      timeStr,
+    const body = buildAppointmentReminder({
+      patientFirstName: a.patient.firstName,
+      date: dateStr,
+      time: timeStr,
       dentistName: `Dr ${a.dentist.firstName} ${a.dentist.lastName}`,
       clinicName: a.clinic.name,
       locale,
     });
-    const fallback = await sendText({ to: a.patient.phone, body: text });
-    if (!fallback.ok) {
+    const sent = await sendText({
+      to: a.patient.phone,
+      body,
+      sessionId: a.clinic.openwaSessionId,
+    });
+    if (!sent.ok) {
       await audit({
         clinicId: a.clinicId,
         action: "appointment.reminder.failed",
         entity: "Appointment",
         entityId: a.id,
-        payload: {
-          templateError: res.error,
-          fallbackError: fallback.error,
-        },
+        payload: { error: sent.error },
       });
-      return { ok: false, reason: "SEND_FAILED", detail: fallback.error };
+      return { ok: false, reason: "SEND_FAILED", detail: sent.error };
     }
     await markSent(a.id, a.clinicId, "whatsapp");
-    await audit({
-      clinicId: a.clinicId,
-      action: "appointment.reminder.fallback_text",
-      entity: "Appointment",
-      entityId: a.id,
-      payload: { templateError: res.error },
-    });
     return {
       ok: true,
       channel: "whatsapp",
-      messageId: "messageId" in fallback ? fallback.messageId : undefined,
-      mocked: "mocked" in fallback ? fallback.mocked : undefined,
+      messageId: "messageId" in sent ? sent.messageId : undefined,
+      mocked: "mocked" in sent ? sent.mocked : undefined,
     };
   }
 
@@ -171,37 +139,6 @@ export async function sendJ1ReminderForAppointment(
   console.log(`[reminder:email-mock] ${a.patient.phone} ${dateStr} ${timeStr} ${link}`);
   await markSent(a.id, a.clinicId, "email");
   return { ok: true, channel: "email", mocked: true };
-}
-
-/**
- * Plain-text version of the J-1 reminder, used when sending a template
- * fails inside the 24h customer-care window. Tone mirrors the template
- * body so the patient experience stays consistent.
- */
-function buildReminderText(args: {
-  firstName: string;
-  dateStr: string;
-  timeStr: string;
-  dentistName: string;
-  clinicName: string;
-  locale: Locale;
-}): string {
-  if (args.locale === "en") {
-    return (
-      `Hello ${args.firstName} 👋\n\n` +
-      `This is a reminder of your appointment at ${args.clinicName}:\n` +
-      `📅 ${args.dateStr} at ${args.timeStr}\n` +
-      `👩‍⚕️ ${args.dentistName}\n\n` +
-      `Please confirm or request a reschedule.`
-    );
-  }
-  return (
-    `Bonjour ${args.firstName} 👋\n\n` +
-    `Nous vous rappelons votre rendez-vous au cabinet ${args.clinicName} :\n` +
-    `📅 ${args.dateStr} à ${args.timeStr}\n` +
-    `👩‍⚕️ ${args.dentistName}\n\n` +
-    `Merci de confirmer votre présence ou de demander un report.`
-  );
 }
 
 async function markSent(appointmentId: string, clinicId: string, channel: "whatsapp" | "email") {
@@ -246,7 +183,7 @@ export async function sendMorningReminderForAppointment(
         select: { firstName: true, phone: true, preferredChannel: true, preferredLocale: true },
       },
       dentist: { select: { firstName: true, lastName: true } },
-      clinic: { select: { name: true } },
+      clinic: { select: { name: true, openwaSessionId: true } },
     },
   });
   if (!a) return { ok: false, reason: "NOT_FOUND" };
@@ -275,28 +212,6 @@ export async function sendMorningReminderForAppointment(
   const timeStr = `${String(a.startAt.getHours()).padStart(2, "0")}:${String(a.startAt.getMinutes()).padStart(2, "0")}`;
 
   if (a.patient.preferredChannel === CommunicationChannel.WHATSAPP) {
-    const res = await sendTemplate({
-      to: a.patient.phone,
-      template: APPOINTMENT_REMINDER,
-      locale: locale === "en" ? "en" : "fr",
-      params: {
-        patientFirstName: a.patient.firstName,
-        date: dateStr,
-        time: timeStr,
-        dentistName: `Dr ${a.dentist.firstName} ${a.dentist.lastName}`,
-        clinicName: a.clinic.name,
-      },
-    });
-    if (res.ok) {
-      await markMorningSent(a.id, a.clinicId, "whatsapp");
-      return {
-        ok: true,
-        channel: "whatsapp",
-        messageId: "messageId" in res ? res.messageId : undefined,
-        mocked: "mocked" in res ? res.mocked : undefined,
-      };
-    }
-    // Fallback to plain-text inside the 24h customer-care window.
     const text = buildMorningReminderText({
       firstName: a.patient.firstName,
       timeStr,
@@ -304,30 +219,27 @@ export async function sendMorningReminderForAppointment(
       clinicName: a.clinic.name,
       locale,
     });
-    const fallback = await sendText({ to: a.patient.phone, body: text });
-    if (!fallback.ok) {
+    const sent = await sendText({
+      to: a.patient.phone,
+      body: text,
+      sessionId: a.clinic.openwaSessionId,
+    });
+    if (!sent.ok) {
       await audit({
         clinicId: a.clinicId,
         action: "appointment.morning_reminder.failed",
         entity: "Appointment",
         entityId: a.id,
-        payload: { templateError: res.error, fallbackError: fallback.error },
+        payload: { error: sent.error },
       });
-      return { ok: false, reason: "SEND_FAILED", detail: fallback.error };
+      return { ok: false, reason: "SEND_FAILED", detail: sent.error };
     }
     await markMorningSent(a.id, a.clinicId, "whatsapp");
-    await audit({
-      clinicId: a.clinicId,
-      action: "appointment.morning_reminder.fallback_text",
-      entity: "Appointment",
-      entityId: a.id,
-      payload: { templateError: res.error },
-    });
     return {
       ok: true,
       channel: "whatsapp",
-      messageId: "messageId" in fallback ? fallback.messageId : undefined,
-      mocked: "mocked" in fallback ? fallback.mocked : undefined,
+      messageId: "messageId" in sent ? sent.messageId : undefined,
+      mocked: "mocked" in sent ? sent.mocked : undefined,
     };
   }
 

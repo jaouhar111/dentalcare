@@ -9,6 +9,8 @@ import { isAllowed } from "@/lib/auth/rate-limit";
 import { hashPassword } from "@/lib/auth/password";
 import { db } from "@/lib/db/client";
 import { audit } from "@/lib/audit";
+import { sendWelcomeEmail } from "@/lib/email/send";
+import { env } from "@/lib/env";
 import { fail, ok, type Result } from "@/lib/utils/result";
 import { slugify } from "@/lib/utils/slug";
 
@@ -174,6 +176,30 @@ export async function signupAction(
       entityId: created.id,
       payload: { slug: created.slug, name: created.name, ip },
     });
+
+    // Best-effort welcome email — the signup itself already succeeded,
+    // so a Resend outage / dev-mode mock just logs and moves on. The
+    // recipient is the new admin, the deep link points at /onboarding
+    // so they land on step 1 (WhatsApp connection) the moment they sign
+    // in.
+    const baseUrl = env.NEXTAUTH_URL ?? "http://localhost:3000";
+    const adminFirstName = data.fullName.split(" ")[0] ?? data.fullName;
+    const trialEndsAtLabel = trialEndsAt.toLocaleDateString(data.locale, {
+      day: "numeric",
+      month: "long",
+      year: "numeric",
+    });
+    void sendWelcomeEmail({
+      to: data.email,
+      adminFirstName,
+      clinicName: data.clinicName,
+      onboardingUrl: `${baseUrl}/${data.locale}/onboarding`,
+      trialEndsAtLabel,
+    }).catch((err) => {
+      // eslint-disable-next-line no-console
+      console.error("[signup] welcome email failed", err);
+    });
+
     return ok({ redirectTo: `/login?email=${encodeURIComponent(data.email)}&signup=success` });
   } catch (e) {
     if (e instanceof Prisma.PrismaClientKnownRequestError && e.code === "P2002") {

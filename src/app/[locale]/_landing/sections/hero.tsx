@@ -17,7 +17,17 @@ export function Hero() {
   const t = useTranslations("Landing.hero");
 
   return (
-    <section className="bg-white pt-20 pb-12 text-center md:pt-24 md:pb-16">
+    <section className="relative pt-24 pb-16 text-center md:pt-32 md:pb-20">
+      {/* Mica accent — a soft green halo blooms from behind the wordmark
+          to anchor the WhatsApp angle without overwhelming the page. */}
+      <div
+        aria-hidden
+        className="pointer-events-none absolute inset-x-0 top-0 -z-10 h-[60vh] opacity-90"
+        style={{
+          background:
+            "radial-gradient(60% 80% at 50% 0%, rgba(37,211,102,0.16), transparent 70%), radial-gradient(40% 60% at 80% 20%, rgba(201,169,110,0.14), transparent 70%)",
+        }}
+      />
       <div className="mx-auto max-w-[1024px] px-6">
         <motion.h1
           initial={{ opacity: 0, y: 20 }}
@@ -54,15 +64,15 @@ export function Hero() {
         >
           <Link
             href={"/signup" as never}
-            className="inline-flex h-11 items-center justify-center rounded-full bg-[#0071e3] px-6 text-[17px] font-normal text-white transition-colors hover:bg-[#0077ed]"
+            className="win11-btn-primary inline-flex h-11 items-center justify-center px-6 text-[15px]"
           >
             {t("ctaPrimary")}
           </Link>
           <Link
             href={"#story" as never}
-            className="text-[17px] font-normal text-[#0066cc] hover:underline"
+            className="win11-btn-subtle inline-flex h-11 items-center justify-center px-5 text-[15px]"
           >
-            {t("ctaSecondary")} <span aria-hidden>›</span>
+            {t("ctaSecondary")} <span aria-hidden className="ml-1">›</span>
           </Link>
         </motion.div>
 
@@ -103,7 +113,7 @@ function ChatTile() {
   ];
 
   return (
-    <div className="relative w-full max-w-sm overflow-hidden rounded-[28px] border border-[var(--lp-line)] bg-white shadow-[0_30px_60px_-30px_rgba(0,0,0,0.18),0_18px_36px_-24px_rgba(0,113,227,0.18)]">
+    <div className="win11-card-elevated relative w-full max-w-sm overflow-hidden">
       <div className="flex items-center gap-3 border-b border-[var(--lp-line)] px-4 py-3">
         <span
           className="grid size-8 place-items-center rounded-full text-white"
@@ -127,7 +137,7 @@ function ChatTile() {
             transition={{ delay: m.delay, duration: 0.45, ease: [0.34, 1.56, 0.64, 1] }}
             className={
               m.side === "patient"
-                ? "ml-auto max-w-[78%] rounded-2xl rounded-br-md bg-[#0071e3] px-3.5 py-2 text-[13px] leading-snug text-white"
+                ? "ml-auto max-w-[78%] rounded-2xl rounded-br-md bg-[#dcf8c6] px-3.5 py-2 text-[13px] leading-snug text-[#0c3927]"
                 : "mr-auto max-w-[82%] rounded-2xl rounded-bl-md bg-[#f5f5f7] px-3.5 py-2 text-[13px] leading-snug text-[var(--lp-ink)]"
             }
           >

@@ -2,8 +2,8 @@ import { NextResponse, type NextRequest } from "next/server";
 import { InstallmentStatus, PaymentPlanStatus } from "@prisma/client";
 import { db } from "@/lib/db/client";
 import { audit } from "@/lib/audit";
-import { sendTemplate } from "@/lib/whatsapp/client";
-import { PAYMENT_DUE } from "@/lib/whatsapp/templates";
+import { sendText } from "@/lib/whatsapp/client";
+import { buildPaymentDue } from "@/lib/whatsapp/templates";
 import { formatCurrency, formatDate } from "@/lib/utils/format";
 import type { Locale } from "@/i18n/routing";
 
@@ -49,7 +49,7 @@ export async function POST(req: NextRequest) {
         include: {
           patient: { select: { firstName: true, phone: true, preferredLocale: true } },
           invoice: { select: { number: true } },
-          clinic: { select: { name: true } },
+          clinic: { select: { name: true, openwaSessionId: true } },
         },
       },
     },
@@ -68,7 +68,7 @@ export async function POST(req: NextRequest) {
         include: {
           patient: { select: { firstName: true, phone: true, preferredLocale: true } },
           invoice: { select: { number: true } },
-          clinic: { select: { name: true } },
+          clinic: { select: { name: true, openwaSessionId: true } },
         },
       },
     },
@@ -78,25 +78,29 @@ export async function POST(req: NextRequest) {
   let sentJ1 = 0;
   const errors: Array<{ installmentId: string; error: string }> = [];
 
+  function paymentDueBody(inst: typeof j3[number] | typeof j1[number]) {
+    const loc = (inst.plan.patient.preferredLocale ?? "fr") as Locale;
+    return buildPaymentDue({
+      patientFirstName: inst.plan.patient.firstName,
+      amount: formatCurrency(Number(inst.amount), loc),
+      dueDate: formatDate(inst.dueDate, loc, {
+        day: "numeric",
+        month: "long",
+        year: "numeric",
+      }),
+      installment: `${inst.sequence}/${inst.plan.installmentsCount}`,
+      invoiceNumber: inst.plan.invoice.number ?? "—",
+      clinicName: inst.plan.clinic.name,
+      locale: loc,
+    });
+  }
+
   for (const inst of j3) {
     try {
-      const loc = (inst.plan.patient.preferredLocale ?? "fr") as Locale;
-      await sendTemplate({
+      await sendText({
         to: inst.plan.patient.phone,
-        template: PAYMENT_DUE,
-        locale: loc === "fr" || loc === "en" ? loc : "fr",
-        params: {
-          patientFirstName: inst.plan.patient.firstName,
-          amount: formatCurrency(Number(inst.amount), loc),
-          dueDate: formatDate(inst.dueDate, loc, {
-            day: "numeric",
-            month: "long",
-            year: "numeric",
-          }),
-          installment: `${inst.sequence}/${inst.plan.installmentsCount}`,
-          invoiceNumber: inst.plan.invoice.number ?? "—",
-          clinicName: inst.plan.clinic.name,
-        },
+        body: paymentDueBody(inst),
+        sessionId: inst.plan.clinic.openwaSessionId,
       });
       await db.paymentPlanInstallment.update({
         where: { id: inst.id },
@@ -110,23 +114,10 @@ export async function POST(req: NextRequest) {
 
   for (const inst of j1) {
     try {
-      const loc = (inst.plan.patient.preferredLocale ?? "fr") as Locale;
-      await sendTemplate({
+      await sendText({
         to: inst.plan.patient.phone,
-        template: PAYMENT_DUE,
-        locale: loc === "fr" || loc === "en" ? loc : "fr",
-        params: {
-          patientFirstName: inst.plan.patient.firstName,
-          amount: formatCurrency(Number(inst.amount), loc),
-          dueDate: formatDate(inst.dueDate, loc, {
-            day: "numeric",
-            month: "long",
-            year: "numeric",
-          }),
-          installment: `${inst.sequence}/${inst.plan.installmentsCount}`,
-          invoiceNumber: inst.plan.invoice.number ?? "—",
-          clinicName: inst.plan.clinic.name,
-        },
+        body: paymentDueBody(inst),
+        sessionId: inst.plan.clinic.openwaSessionId,
       });
       await db.paymentPlanInstallment.update({
         where: { id: inst.id },

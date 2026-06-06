@@ -983,47 +983,180 @@ html[data-vertical="dental"] {
   }
 }
 
-/* ─── Apple-style landing-page tokens ───────────────────────────────
-   Inspired by apple.com — clean white / Apple gray (#f5f5f7) section
-   alternation, near-black text (#1d1d1f), SF Pro typography, Apple
-   link-blue (#0066cc) accent. Scoped to `.lp-light` so the dashboard
-   / cabinet shell keep their independent scheme.
+/* ─── Windows 11 Fluent landing-page tokens ────────────────────────
+   Mica + Acrylic + Reveal vocabulary. Surfaces are layered translucent
+   panels sitting on a tinted backdrop (Mica). Buttons follow Fluent 2:
+   subtle 1px stroke + soft fill + on-hover lift. Typography uses
+   Segoe UI Variable when available (Windows 11 default).
+
+   The accent stays WhatsApp green (product story) with Moroccan gold
+   reserved for premium signalling (recommended plan, hover sheen).
 */
 .lp-light {
-  /* Surfaces — Apple uses exactly two values for alternating cards */
-  --lp-bg: #ffffff;           /* default / hero */
-  --lp-bg-soft: #f5f5f7;      /* alternating story card (Apple's gray) */
-  --lp-bg-dark: #000000;      /* black story cards (iPhone Pro vibe) */
-  --lp-bg-tint: #fbfbfd;      /* very-soft gray for nested surfaces */
-  --lp-bg-elev: #ffffff;      /* floating cards, mockups */
-  /* Type — Apple uses #1d1d1f for headings, #6e6e73 for sub copy */
-  --lp-ink: #1d1d1f;
-  --lp-ink-muted: #6e6e73;
-  --lp-ink-dim: #86868b;      /* labels, footnotes */
-  --lp-ink-inverse: #f5f5f7;  /* on black cards */
-  --lp-ink-inverse-muted: #a1a1a6;
+  /* ── Backdrop (Mica) — a near-cream wash with a barely-visible
+     diagonal gradient that mimics Windows 11's "tinted desktop"
+     effect. Sections sit on top as acrylic panels. */
+  --lp-bg: #f3f3f3;           /* Win11 Mica base */
+  --lp-bg-soft: #ececec;      /* slightly deeper Mica for alt cards */
+  --lp-bg-dark: #1b1b1f;      /* Win11 dark surface (Settings dark) */
+  --lp-bg-tint: #faf9f6;      /* warm white for elevated panels */
+  --lp-bg-elev: rgba(255, 255, 255, 0.72);   /* Acrylic card fill */
+  /* Type — Fluent 2 text on light. */
+  --lp-ink: #1b1b1f;
+  --lp-ink-muted: #5a5a5e;
+  --lp-ink-dim: #8a8a8e;
+  --lp-ink-inverse: #f3f3f3;
+  --lp-ink-inverse-muted: #a6a6aa;
+  /* Strokes — Fluent uses very subtle 1px borders. */
   --lp-line: rgba(0, 0, 0, 0.08);
   --lp-line-strong: rgba(0, 0, 0, 0.16);
-  /* Accent — Apple's signature link blue + filled-button blue */
-  --lp-accent-1: #0071e3;     /* filled buttons */
-  --lp-accent-2: #0066cc;     /* link text */
-  --lp-accent-hi: #2997ff;    /* on-dark hover */
-  --lp-accent-soft: rgba(0, 113, 227, 0.08);
-  --lp-accent-glow: rgba(0, 113, 227, 0.18);
 
-  background: var(--lp-bg);
+  /* Accent — WhatsApp green dominant + Moroccan gold for premium. */
+  --lp-accent-1: #25d366;
+  --lp-accent-2: #128c7e;
+  --lp-accent-hi: #5fea91;
+  --lp-accent-soft: rgba(37, 211, 102, 0.10);
+  --lp-accent-glow: rgba(37, 211, 102, 0.22);
+  --lp-accent-gold: #c9a96e;
+  --lp-accent-gold-deep: #9c7d49;
+  --lp-accent-gold-soft: rgba(201, 169, 110, 0.16);
+
+  /* Acrylic + Mica surface tokens — used by .win11-card / .win11-acrylic
+     utility classes below. */
+  --lp-acrylic-fill: rgba(255, 255, 255, 0.72);
+  --lp-acrylic-stroke: rgba(255, 255, 255, 0.6);
+  --lp-acrylic-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.7) inset,
+    0 -1px 0 rgba(0, 0, 0, 0.04) inset,
+    0 12px 32px -16px rgba(0, 0, 0, 0.18),
+    0 2px 6px rgba(0, 0, 0, 0.05);
+  --lp-mica-noise:
+    radial-gradient(at 0% 0%, rgba(37, 211, 102, 0.10), transparent 50%),
+    radial-gradient(at 100% 0%, rgba(201, 169, 110, 0.10), transparent 50%),
+    radial-gradient(at 100% 100%, rgba(18, 140, 126, 0.08), transparent 55%),
+    radial-gradient(at 0% 100%, rgba(201, 169, 110, 0.06), transparent 50%);
+
+  background: var(--lp-bg) var(--lp-mica-noise);
+  background-attachment: fixed;
   color: var(--lp-ink);
-  /* SF Pro stack — falls back gracefully off Apple devices. */
+
+  /* Segoe UI Variable stack — Win 11 default. Falls back gracefully off
+     Windows (Inter on web, SF Pro on Mac). */
   --lp-font-system:
-    "SF Pro Display", "SF Pro Text", -apple-system, BlinkMacSystemFont,
-    "Helvetica Neue", Helvetica, Arial, sans-serif;
+    "Segoe UI Variable Display", "Segoe UI Variable", "Segoe UI",
+    Inter, -apple-system, BlinkMacSystemFont, "Helvetica Neue", Helvetica,
+    Arial, sans-serif;
   --lp-font-display: var(--lp-font-system);
-  --lp-font-mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, monospace;
+  --lp-font-mono:
+    "Cascadia Code", "Cascadia Mono", ui-monospace, SFMono-Regular,
+    "SF Mono", Consolas, Menlo, monospace;
 
   font-family: var(--lp-font-system);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  letter-spacing: -0.003em;
+  letter-spacing: -0.002em;
+}
+
+/* ─── Fluent 2 utility classes ──────────────────────────────────────
+   Reusable surface treatments that apply the Mica + Acrylic recipes
+   without dragging the same boxShadow / backdrop-filter into every
+   component. */
+
+/* Acrylic card — frosted translucent panel sitting on the Mica
+   background. Default elevation level (think Settings → Personalization
+   page card). Opacity tuned low enough that the cream Mica + brand
+   halos always read through; raise it back to 0.72 if you find the
+   text underneath distracting on a busy wallpaper. */
+.win11-card {
+  background: rgba(255, 255, 255, 0.55);
+  -webkit-backdrop-filter: saturate(180%) blur(40px);
+  backdrop-filter: saturate(180%) blur(40px);
+  border: 1px solid var(--lp-line);
+  border-radius: 12px;
+  box-shadow: var(--lp-acrylic-shadow);
+}
+
+/* Stronger acrylic — used for hero, pricing recommended plan, and
+   anything that should feel raised. Lower opacity than win11-card so
+   the Mica wallpaper still bleeds through and the card reads as real
+   glass. Extra inner highlight gives the "polished" look. */
+.win11-card-elevated {
+  background: rgba(255, 255, 255, 0.55);
+  -webkit-backdrop-filter: saturate(180%) blur(52px);
+  backdrop-filter: saturate(180%) blur(52px);
+  border: 1px solid rgba(255, 255, 255, 0.65);
+  border-radius: 16px;
+  box-shadow:
+    0 1.5px 0 rgba(255, 255, 255, 0.9) inset,
+    0 -1px 0 rgba(0, 0, 0, 0.05) inset,
+    0 24px 48px -20px rgba(0, 0, 0, 0.22),
+    0 4px 14px rgba(0, 0, 0, 0.06);
+}
+
+/* Acrylic nav bar — used by the sticky header. Thinner than card-level
+   blur so background text underneath stays readable. */
+.win11-acrylic-bar {
+  background: rgba(243, 243, 243, 0.72);
+  -webkit-backdrop-filter: saturate(180%) blur(28px);
+  backdrop-filter: saturate(180%) blur(28px);
+  border-bottom: 1px solid var(--lp-line);
+}
+
+/* Fluent button — primary fill with subtle gradient + 1px stroke. */
+.win11-btn-primary {
+  background:
+    linear-gradient(180deg, #2fe675 0%, #25d366 100%);
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  border-bottom-color: rgba(0, 0, 0, 0.2);
+  border-radius: 6px;
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.35) inset,
+    0 8px 22px -10px rgba(37, 211, 102, 0.5);
+  color: white;
+  font-weight: 500;
+  transition: filter 120ms ease, transform 120ms ease;
+}
+.win11-btn-primary:hover {
+  filter: brightness(1.05);
+}
+.win11-btn-primary:active {
+  transform: translateY(1px);
+  filter: brightness(0.97);
+}
+
+/* Fluent button — subtle/secondary variant on light surfaces. */
+.win11-btn-subtle {
+  background: rgba(255, 255, 255, 0.6);
+  border: 1px solid var(--lp-line);
+  border-radius: 6px;
+  color: var(--lp-ink);
+  font-weight: 500;
+  transition: background-color 120ms ease;
+}
+.win11-btn-subtle:hover {
+  background: rgba(255, 255, 255, 0.85);
+}
+
+/* Fluent chip — rounded-pill micro-label. The gold variant signals
+   "premium / recommended" via the Moroccan-gold accent. */
+.win11-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  background: var(--lp-accent-soft);
+  color: var(--lp-accent-2);
+  border: 1px solid rgba(37, 211, 102, 0.25);
+}
+.win11-chip-gold {
+  background: var(--lp-accent-gold-soft);
+  color: var(--lp-accent-gold-deep);
+  border-color: rgba(201, 169, 110, 0.35);
 }
 
 .lp-light ::selection {

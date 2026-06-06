@@ -185,10 +185,16 @@ export async function sendAdminReplyAction(args: {
   if (body.length === 0) return fail("EMPTY", "Message vide");
   if (body.length > 2000) return fail("TOO_LONG", "Message trop long (max 2000 caractères)");
 
-  const row = await db.aIConversation.findFirst({
-    where: { id: args.id, clinicId: user.clinicId },
-    select: { id: true, status: true, patientPhone: true, historyJson: true },
-  });
+  const [row, clinic] = await Promise.all([
+    db.aIConversation.findFirst({
+      where: { id: args.id, clinicId: user.clinicId },
+      select: { id: true, status: true, patientPhone: true, historyJson: true },
+    }),
+    db.clinic.findUnique({
+      where: { id: user.clinicId },
+      select: { openwaSessionId: true },
+    }),
+  ]);
   if (!row) return fail("NOT_FOUND", "Conversation introuvable");
   if (row.status !== AIConversationStatus.HANDED_OFF) {
     return fail(
@@ -218,7 +224,11 @@ export async function sendAdminReplyAction(args: {
     },
   });
 
-  const send = await sendText({ to: row.patientPhone, body });
+  const send = await sendText({
+    to: row.patientPhone,
+    body,
+    sessionId: clinic?.openwaSessionId ?? null,
+  });
   if (!send.ok) {
     return fail("SEND_FAILED", `Échec de l'envoi : ${send.error}`);
   }

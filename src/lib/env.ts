@@ -16,11 +16,20 @@ const envSchema = z.object({
   AUTH_SECRET: z.string().min(32),
   AUTH_TRUST_HOST: z.string().optional(),
 
-  // WhatsApp Cloud API (optional in dev — falls back to console logging)
-  WHATSAPP_TOKEN: z.string().optional(),
-  WHATSAPP_PHONE_ID: z.string().optional(),
-  WHATSAPP_APP_SECRET: z.string().optional(),
-  WHATSAPP_VERIFY_TOKEN: z.string().optional(),
+  // OpenWA gateway — self-hosted WhatsApp Web bridge that replaces the
+  // Meta Cloud API. Optional in dev (falls back to console logging so
+  // the booking flow can be developed without a running OpenWA).
+  // Required in prod once a real cabinet is live.
+  //   - OPENWA_BASE_URL   e.g. http://127.0.0.1:2785 (dev) or
+  //                       https://openwa.dentalcare.ma (prod VPS)
+  //   - OPENWA_API_KEY    Bootstrap key in dev: `dev-admin-key`. In prod,
+  //                       create a dedicated key via POST /api/auth/api-keys
+  //                       and rotate it from time to time.
+  //   - OPENWA_WEBHOOK_SECRET  HMAC SHA-256 secret used to verify the
+  //                       `X-OpenWA-Signature` header on inbound webhooks.
+  OPENWA_BASE_URL: z.string().url().optional(),
+  OPENWA_API_KEY: z.string().optional(),
+  OPENWA_WEBHOOK_SECRET: z.string().optional(),
 
   // Cron secret protects /api/cron/* endpoints
   CRON_SECRET: z.string().optional(),

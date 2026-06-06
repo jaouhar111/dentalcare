@@ -12,7 +12,7 @@ export function TrustStrip() {
 
   return (
     <section className="px-3 py-3">
-      <div className="mx-auto max-w-[1024px] rounded-[18px] bg-[#f5f5f7] px-6 py-16 text-center md:py-24">
+      <div className="win11-card mx-auto max-w-[1024px] px-6 py-16 text-center md:py-24">
         <div className="grid grid-cols-1 gap-12 md:grid-cols-3 md:gap-6">
           <Stat big={t("stat1Big")} caption={t("stat1Caption")} delay={0} />
           <Stat big={t("stat2Big")} caption={t("stat2Caption")} delay={0.1} />

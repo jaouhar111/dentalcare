@@ -450,6 +450,31 @@ export const monthlyInsightsPdfSweep = inngest.createFunction(
   },
 );
 
+/**
+ * Trial-expiring sweep — fires daily at 09:00 Casablanca. For every
+ * clinic on TRIAL whose `trialEndsAt` falls within 3, 1, or 0 days from
+ * today, send the corresponding nag email to the cabinet's first ADMIN
+ * user. Audited as `clinic.trial.email_sent` with a `daysLeft` payload
+ * so the same nag is never sent twice for the same day-count.
+ */
+export const dailyTrialExpiringSweep = inngest.createFunction(
+  {
+    id: "daily-trial-expiring-sweep",
+    name: "Trial expiring email — daily at 09:00 Casablanca",
+    triggers: [{ cron: "TZ=Africa/Casablanca 0 9 * * *" }],
+  },
+  async ({ step, logger }) => {
+    const result = await step.run("send-trial-expiring", async () => {
+      const { sendTrialExpiringSweep } = await import(
+        "./billing/trial-expiring"
+      );
+      return sendTrialExpiringSweep();
+    });
+    logger.info("trial-expiring sweep", result);
+    return { ok: true, ...result };
+  },
+);
+
 export const functions = [
   onAppointmentCreated,
   appointmentJ1Reminder,
@@ -458,4 +483,5 @@ export const functions = [
   waitlistPromoteOnCancel,
   dailyMorningRemindersSweep,
   monthlyInsightsPdfSweep,
+  dailyTrialExpiringSweep,
 ];

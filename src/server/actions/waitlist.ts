@@ -13,8 +13,8 @@ import { db } from "@/lib/db/client";
 import { audit } from "@/lib/audit";
 import { requireRole } from "@/lib/auth/rbac";
 import { fail, ok, type Result } from "@/lib/utils/result";
-import { sendTemplate } from "@/lib/whatsapp/client";
-import { WAITLIST_SLOT_OFFERED } from "@/lib/whatsapp/templates";
+import { sendText } from "@/lib/whatsapp/client";
+import { buildWaitlistSlotOffered } from "@/lib/whatsapp/templates";
 import { formatDate } from "@/lib/utils/format";
 import type { Locale } from "@/i18n/routing";
 import { addToWaitlistSchema, type AddToWaitlistInput } from "@/server/schemas/waitlist";
@@ -334,13 +334,20 @@ export async function proposeSlotToWaitlist(args: {
     }),
   );
 
-  // Fetch patient info needed for the template (one query, no N+1).
-  const entries = await db.waitlistEntry.findMany({
-    where: { id: { in: candidates.map((c) => c.id) } },
-    include: {
-      patient: { select: { firstName: true, phone: true, preferredLocale: true } },
-    },
-  });
+  // Fetch patient info + clinic session id (one query, no N+1).
+  const [entries, clinicForSession] = await Promise.all([
+    db.waitlistEntry.findMany({
+      where: { id: { in: candidates.map((c) => c.id) } },
+      include: {
+        patient: { select: { firstName: true, phone: true, preferredLocale: true } },
+      },
+    }),
+    db.clinic.findUnique({
+      where: { id: args.clinicId },
+      select: { openwaSessionId: true },
+    }),
+  ]);
+  const sessionId = clinicForSession?.openwaSessionId ?? null;
 
   const dateStr = formatDate(args.startAt, "fr");
   const timeStr = `${String(args.startAt.getHours()).padStart(2, "0")}:${String(args.startAt.getMinutes()).padStart(2, "0")}`;
@@ -348,20 +355,16 @@ export async function proposeSlotToWaitlist(args: {
   await Promise.allSettled(
     entries.map((e) => {
       const locale = (e.patient.preferredLocale as Locale) ?? "fr";
-      const lang = locale === "en" ? "en" : "fr";
-      return sendTemplate({
-        to: e.patient.phone,
-        template: WAITLIST_SLOT_OFFERED,
-        locale: lang,
-        params: {
-          patientFirstName: e.patient.firstName,
-          date: dateStr,
-          time: timeStr,
-          dentistName: `Dr ${args.dentistName}`,
-          clinicName: args.clinicName,
-          expiresIn: `${PROPOSAL_TTL_MIN} min`,
-        },
+      const body = buildWaitlistSlotOffered({
+        patientFirstName: e.patient.firstName,
+        date: dateStr,
+        time: timeStr,
+        dentistName: `Dr ${args.dentistName}`,
+        clinicName: args.clinicName,
+        expiresIn: `${PROPOSAL_TTL_MIN} min`,
+        locale,
       });
+      return sendText({ to: e.patient.phone, body, sessionId });
     }),
   );
 

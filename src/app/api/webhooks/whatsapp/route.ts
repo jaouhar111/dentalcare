@@ -1,15 +1,9 @@
 import { NextResponse, type NextRequest } from "next/server";
-import { AppointmentStatus } from "@prisma/client";
-import { db } from "@/lib/db/client";
-import { audit } from "@/lib/audit";
 import {
-  downloadMedia,
   parseAudioMessages,
   parseOwnerOutboundMessages,
-  parseQuickReplies,
   parseTextMessages,
   sendText,
-  verifyWebhookChallenge,
   verifyWebhookSignature,
 } from "@/lib/whatsapp/client";
 import {
@@ -22,28 +16,27 @@ export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
 /**
- * Meta verification handshake when registering the webhook URL.
- * Meta hits: GET /api/webhooks/whatsapp?hub.mode=subscribe&hub.verify_token=…&hub.challenge=…
- * We must echo `hub.challenge` iff the token matches our env value.
- */
-export async function GET(req: NextRequest) {
-  const challenge = verifyWebhookChallenge(req.nextUrl.searchParams);
-  if (challenge) return new NextResponse(challenge, { status: 200 });
-  return new NextResponse("Forbidden", { status: 403 });
-}
-
-/**
- * Webhook payload from Meta. Handles:
- *   - Quick-reply button presses (confirm / reschedule / waitlist accept|decline)
- *   - Delivery status updates (logged for now)
+ * OpenWA → DentalCare webhook.
  *
- * Lookup pattern for confirm/reschedule actions: the patient's phone is
- * matched against active appointments scheduled for the next 48h. We don't
- * trust the message content beyond the button payload.
+ * One POST endpoint, no GET handshake (OpenWA does not need the Meta-
+ * style `hub.challenge` verification). HMAC SHA-256 signed via
+ * `X-OpenWA-Signature` using `OPENWA_WEBHOOK_SECRET`.
+ *
+ * Per inbound payload we route in this order:
+ *   1. Owner-outbound (`fromMe: true`) → append to history + suppress AI
+ *      for 30 min (Coexistence). Processed first so the suppression flag
+ *      lands before any concurrent inbound from the same patient is
+ *      evaluated.
+ *   2. Inbound text → AI booking engine.
+ *   3. Inbound voice/audio → transcribe → AI engine (with replyInVoice).
+ *
+ * Quick-reply buttons no longer exist (consumer WhatsApp doesn't render
+ * them reliably via web.js). The AI engine handles free-text "oui",
+ * "non", "reporter", etc. naturally.
  */
 export async function POST(req: NextRequest) {
   const rawBody = await req.text();
-  const signature = req.headers.get("x-hub-signature-256");
+  const signature = req.headers.get("x-openwa-signature");
   if (!verifyWebhookSignature(rawBody, signature)) {
     return new NextResponse("Invalid signature", { status: 401 });
   }
@@ -55,33 +48,16 @@ export async function POST(req: NextRequest) {
     return new NextResponse("Bad JSON", { status: 400 });
   }
 
-  const buttons = parseQuickReplies(payload);
-  for (const b of buttons) {
-    await handleButton(b.from, b.payload).catch((err) => {
-      console.error("[whatsapp:webhook] handler failed", { from: b.from, payload: b.payload, err });
-    });
-  }
-
-  // Meta groups all change events under `entry[].changes[].value` and
-  // each `value` carries the `metadata.phone_number_id` that identifies
-  // *which* of our cabinets the message landed on. We pull it once so
-  // the per-message handlers can route by cabinet without re-parsing.
-  const metaPhoneNumberId = extractMetaPhoneNumberId(payload);
-
-  // Coexistence Mode — when the cabinet owner answers from their mobile
-  // WhatsApp Business app, Meta echoes the outbound message into this
-  // webhook so we can stay in sync. Process those FIRST so the
-  // suppression window is updated before any concurrent inbound from
-  // the same patient is evaluated.
+  // Owner-mobile echoes — process first so suppression lands before
+  // any concurrent inbound for the same patient is evaluated.
   const ownerOutbound = parseOwnerOutboundMessages(payload);
-  const ownerOutboundIds = new Set(ownerOutbound.map((m) => m.messageId));
   for (const o of ownerOutbound) {
     await handleOwnerOutboundMessage({
       patientPhone: o.patientPhone,
       body: o.body,
       messageId: o.messageId,
       sentAt: o.sentAt,
-      metaPhoneNumberId,
+      sessionId: o.sessionId,
     }).catch((err) => {
       console.error("[whatsapp:webhook] owner-outbound handler failed", {
         patient: o.patientPhone,
@@ -90,32 +66,32 @@ export async function POST(req: NextRequest) {
     });
   }
 
-  // Plain-text messages → AI booking engine. Run sequentially so a
-  // patient who sends two messages in rapid succession gets a coherent
-  // history (no interleaved persistence). Failures are caught so one
-  // bad message doesn't poison the whole batch. We skip messages whose
-  // id was already processed as an owner-outbound echo above — the
-  // generic `parseTextMessages` doesn't filter by sender, so the same
-  // wamid would be replayed against the AI engine.
+  // Plain-text patient messages → AI booking engine. Sequential so two
+  // rapid messages persist as a coherent history.
   const texts = parseTextMessages(payload);
   for (const t of texts) {
-    if (ownerOutboundIds.has(t.messageId)) continue;
     await handleInboundTextMessage({
       fromPhone: t.from,
       body: t.body,
       messageId: t.messageId,
-      metaPhoneNumberId,
+      sessionId: t.sessionId,
     }).catch((err) => {
       console.error("[whatsapp:webhook] AI handler failed", { from: t.from, err });
     });
   }
 
-  // Voice notes → download from Meta → Gemini transcribes → fed into
-  // the same engine as text. Failures fall back to a polite "désolé je
-  // n'ai pas compris" text so the patient knows to try again.
+  // Voice notes — media comes inline as a base64 buffer (no separate
+  // download hop like the Cloud API). Transcribe → feed into the same
+  // engine as text with `replyInVoice: true`.
   const audios = parseAudioMessages(payload);
   for (const a of audios) {
-    await handleInboundAudio({ ...a, metaPhoneNumberId }).catch((err) => {
+    await handleInboundAudio({
+      from: a.from,
+      buffer: a.buffer,
+      mimetype: a.mimetype,
+      messageId: a.messageId,
+      sessionId: a.sessionId,
+    }).catch((err) => {
       console.error("[whatsapp:webhook] audio handler failed", { from: a.from, err });
     });
   }
@@ -123,191 +99,36 @@ export async function POST(req: NextRequest) {
   return NextResponse.json({ ok: true });
 }
 
-function extractMetaPhoneNumberId(payload: unknown): string | null {
-  if (!payload || typeof payload !== "object") return null;
-  const entries = (payload as { entry?: unknown[] }).entry;
-  if (!Array.isArray(entries)) return null;
-  for (const entry of entries) {
-    const changes = (entry as { changes?: unknown[] }).changes;
-    if (!Array.isArray(changes)) continue;
-    for (const change of changes) {
-      const value = (change as { value?: { metadata?: { phone_number_id?: string } } })
-        .value;
-      const id = value?.metadata?.phone_number_id;
-      if (typeof id === "string" && id.length > 0) return id;
-    }
-  }
-  return null;
-}
-
+/**
+ * Voice-note pipeline. Same general shape as before but the buffer is
+ * already in hand thanks to OpenWA's inline media delivery.
+ */
 async function handleInboundAudio(a: {
   from: string;
-  mediaId: string;
-  mimeType: string;
+  buffer: Buffer;
+  mimetype: string;
   messageId: string;
-  metaPhoneNumberId?: string | null;
+  sessionId: string;
 }) {
-  const normalized = a.from.startsWith("+") ? a.from : `+${a.from}`;
-  const media = await downloadMedia(a.mediaId);
-  if (!media.ok) {
-    console.error("[whatsapp:webhook] downloadMedia failed", { mediaId: a.mediaId, err: media.error });
-    await sendText({
-      to: normalized,
-      body: "Désolé, je n'ai pas pu télécharger ton message vocal. Peux-tu réécrire ?",
-    }).catch(() => undefined);
-    return;
-  }
-  const transcript = await transcribeAudio({ buffer: media.buffer, mimeType: media.mimeType });
+  const transcript = await transcribeAudio({
+    buffer: a.buffer,
+    mimeType: a.mimetype,
+  });
   if (!transcript.ok) {
-    if (transcript.error === "INAUDIBLE") {
-      await sendText({
-        to: normalized,
-        body: "Je n'arrive pas à comprendre le vocal — il est peut-être trop court ou inaudible. Tu peux réessayer ou m'écrire en texte ?",
-      }).catch(() => undefined);
-      return;
-    }
-    console.error("[whatsapp:webhook] transcribe failed", { err: transcript.error });
-    await sendText({
-      to: normalized,
-      body: "Petit problème pour comprendre ton vocal — peux-tu réécrire ?",
-    }).catch(() => undefined);
+    const apologyBody =
+      transcript.error === "INAUDIBLE"
+        ? "Je n'arrive pas à comprendre le vocal — il est peut-être trop court ou inaudible. Tu peux réessayer ou m'écrire en texte ?"
+        : "Petit problème pour comprendre ton vocal — peux-tu réécrire ?";
+    await sendText({ to: a.from, body: apologyBody, sessionId: a.sessionId }).catch(
+      () => undefined,
+    );
     return;
   }
-  // Hand the transcript to the same engine that handles text messages.
-  // `replyInVoice: true` flips the handler into TTS mode: it generates
-  // a Gemini voice note, uploads it to Meta, and sends it back. The
-  // text version is still sent so the admin /conversations view shows
-  // the conversation as words, not just audio links.
   await handleInboundTextMessage({
     fromPhone: a.from,
     body: `🎙️ ${transcript.text}`,
     messageId: a.messageId,
+    sessionId: a.sessionId,
     replyInVoice: true,
-    metaPhoneNumberId: a.metaPhoneNumberId,
-  });
-}
-
-async function handleButton(fromPhone: string, payload: string) {
-  // Normalize incoming phone (Meta sends without "+" sometimes).
-  const normalized = fromPhone.startsWith("+") ? fromPhone : `+${fromPhone}`;
-
-  switch (payload) {
-    case "confirm_attendance":
-      await confirmNextAppointment(normalized);
-      return;
-    case "request_reschedule":
-      await requestRescheduleForNext(normalized);
-      return;
-    case "accept_waitlist_slot":
-    case "decline_waitlist_slot":
-      // Waitlist accept/decline is handled via the proposal token route
-      // (`/api/waitlist/respond`); the WhatsApp button is informational only.
-      console.log(`[whatsapp:webhook] waitlist button '${payload}' from ${normalized}`);
-      return;
-    case "remind_later":
-    case "mark_paid_acknowledged":
-      // Acknowledgement-only payloads — no DB mutation in V1.
-      console.log(`[whatsapp:webhook] ack '${payload}' from ${normalized}`);
-      return;
-    default:
-      console.log(`[whatsapp:webhook] unknown payload '${payload}' from ${normalized}`);
-  }
-}
-
-/** Marks the patient's next active appointment within 48h as CONFIRMED. */
-async function confirmNextAppointment(phone: string) {
-  const horizon = new Date();
-  horizon.setHours(horizon.getHours() + 48);
-
-  const appt = await db.appointment.findFirst({
-    where: {
-      patient: { phone },
-      startAt: { gt: new Date(), lt: horizon },
-      status: { in: [AppointmentStatus.SCHEDULED, AppointmentStatus.RESCHEDULE_REQUESTED] },
-    },
-    orderBy: { startAt: "asc" },
-    select: {
-      id: true,
-      clinicId: true,
-      startAt: true,
-      patient: { select: { firstName: true } },
-    },
-  });
-  if (!appt) return;
-
-  await db.appointment.update({
-    where: { id: appt.id },
-    data: {
-      status: AppointmentStatus.CONFIRMED,
-      confirmationReceivedAt: new Date(),
-    },
-  });
-  await audit({
-    clinicId: appt.clinicId,
-    action: "appointment.confirm.whatsapp",
-    entity: "Appointment",
-    entityId: appt.id,
-    payload: { source: "whatsapp-button" },
-  });
-
-  // Phase 11 — close the loop visually. Without an acknowledgement the
-  // patient sees their button disappear and wonders if anything happened.
-  // The day-of-week + HH:mm formatting is in French because that's the
-  // default locale; AR/EN polish lives in a Phase 11.1 follow-up.
-  const day = appt.startAt.toLocaleDateString("fr-FR", {
-    weekday: "long",
-    day: "numeric",
-    month: "long",
-  });
-  const time = `${String(appt.startAt.getHours()).padStart(2, "0")}h${String(
-    appt.startAt.getMinutes(),
-  ).padStart(2, "0")}`;
-  await sendText({
-    to: phone,
-    body: `C'est noté, ${appt.patient.firstName} — votre RDV du ${day} à ${time} est confirmé 🎉\n\nÀ très vite.`,
-  }).catch((err) => {
-    console.error("[whatsapp:webhook] confirm ack failed", { phone, err });
-  });
-}
-
-/** Flags the next appointment as "patient asked to reschedule". */
-async function requestRescheduleForNext(phone: string) {
-  const horizon = new Date();
-  horizon.setHours(horizon.getHours() + 48);
-
-  const appt = await db.appointment.findFirst({
-    where: {
-      patient: { phone },
-      startAt: { gt: new Date(), lt: horizon },
-      status: { in: [AppointmentStatus.SCHEDULED, AppointmentStatus.CONFIRMED] },
-    },
-    orderBy: { startAt: "asc" },
-    select: {
-      id: true,
-      clinicId: true,
-      patient: { select: { firstName: true } },
-    },
-  });
-  if (!appt) return;
-
-  await db.appointment.update({
-    where: { id: appt.id },
-    data: { status: AppointmentStatus.RESCHEDULE_REQUESTED },
-  });
-  await audit({
-    clinicId: appt.clinicId,
-    action: "appointment.reschedule_request.whatsapp",
-    entity: "Appointment",
-    entityId: appt.id,
-    payload: { source: "whatsapp-button" },
-  });
-
-  // Phase 11 — invite the patient to write back. The bot then proposes
-  // 3 alternative slots via the standard AI engine flow (Stage C).
-  await sendText({
-    to: phone,
-    body: `Pas de souci ${appt.patient.firstName} — envoyez-moi vos disponibilités (ex. « jeudi matin ») et je vous propose de nouveaux créneaux 🙂`,
-  }).catch((err) => {
-    console.error("[whatsapp:webhook] reschedule ack failed", { phone, err });
   });
 }

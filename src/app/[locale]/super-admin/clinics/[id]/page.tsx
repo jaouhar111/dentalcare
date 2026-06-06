@@ -102,7 +102,9 @@ export default async function ClinicDetailPage({
                 {c.phone ? <span>📞 {c.phone}</span> : null}
                 {c.address ? <span>📍 {c.address}</span> : null}
                 {c.vatNumber ? <span>TVA : {c.vatNumber}</span> : null}
-                {c.whatsappPhoneId ? <span>WA ID : {c.whatsappPhoneId}</span> : null}
+                {c.openwaSessionId ? (
+                  <span>WA session : {c.openwaSessionId.slice(0, 8)}…</span>
+                ) : null}
               </div>
             </div>
           </div>

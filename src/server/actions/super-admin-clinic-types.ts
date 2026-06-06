@@ -20,7 +20,7 @@ export interface ClinicDetail {
   plan: SubscriptionPlan;
   trialEndsAt: Date | null;
   trialDaysRemaining: number | null;
-  whatsappPhoneId: string | null;
+  openwaSessionId: string | null;
   createdAt: Date;
   totals: {
     patients: number;

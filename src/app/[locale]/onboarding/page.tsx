@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 import { UserRole } from "@prisma/client";
 import { requireRole } from "@/lib/auth/rbac";
 import { getOnboardingProgress } from "@/server/actions/onboarding";
+import { getOpenwaConnectionState } from "@/server/actions/openwa-session";
 import { OnboardingWizard } from "./onboarding-wizard";
 
 export const dynamic = "force-dynamic";
@@ -35,7 +36,10 @@ export default async function OnboardingPage({
     redirect(`/${locale}/dashboard`);
   }
 
-  const res = await getOnboardingProgress();
+  const [res, openwaRes] = await Promise.all([
+    getOnboardingProgress(),
+    getOpenwaConnectionState(),
+  ]);
   if (!res.ok) {
     return (
       <div className="p-6">
@@ -63,6 +67,7 @@ export default async function OnboardingPage({
         <OnboardingWizard
           initialStep={initialStep}
           progress={res.data}
+          initialOpenwaState={openwaRes.ok ? openwaRes.data : null}
         />
       </div>
     </div>

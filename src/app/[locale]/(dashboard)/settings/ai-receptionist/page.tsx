@@ -3,7 +3,9 @@ import { UserRole } from "@prisma/client";
 import { Link } from "@/i18n/navigation";
 import { requireRole } from "@/lib/auth/rbac";
 import { getAIReceptionistSettings } from "@/server/actions/ai-receptionist";
+import { getOpenwaConnectionState } from "@/server/actions/openwa-session";
 import { AIReceptionistForm } from "./ai-receptionist-form";
+import { WhatsAppConnectionPanel } from "./whatsapp-connection-panel";
 
 export const dynamic = "force-dynamic";
 
@@ -23,12 +25,15 @@ export default async function AIReceptionistPage({
   setRequestLocale(locale);
   await requireRole([UserRole.ADMIN]);
 
-  const res = await getAIReceptionistSettings();
-  if (!res.ok) {
+  const [settingsRes, openwaRes] = await Promise.all([
+    getAIReceptionistSettings(),
+    getOpenwaConnectionState(),
+  ]);
+  if (!settingsRes.ok) {
     return (
       <div className="p-6">
         <div className="bg-destructive/10 text-destructive rounded-md p-3 text-sm">
-          {res.error.message}
+          {settingsRes.error.message}
         </div>
       </div>
     );
@@ -57,7 +62,11 @@ export default async function AIReceptionistPage({
         </p>
       </header>
 
-      <AIReceptionistForm initial={res.data} />
+      {openwaRes.ok ? (
+        <WhatsAppConnectionPanel initial={openwaRes.data} />
+      ) : null}
+
+      <AIReceptionistForm initial={settingsRes.data} />
     </div>
   );
 }

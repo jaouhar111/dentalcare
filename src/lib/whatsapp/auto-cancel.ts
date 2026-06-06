@@ -46,6 +46,7 @@ export async function autoCancelOnSilence(
       status: true,
       confirmationReceivedAt: true,
       patient: { select: { firstName: true, phone: true } },
+      clinic: { select: { openwaSessionId: true } },
     },
   });
   if (!appt) return { ok: false, reason: "NOT_FOUND" };
@@ -112,6 +113,7 @@ export async function autoCancelOnSilence(
   // through the AI engine. Best-effort: failure here doesn't roll back.
   await sendText({
     to: appt.patient.phone,
+    sessionId: appt.clinic.openwaSessionId,
     body:
       `Bonjour ${appt.patient.firstName}, votre rendez-vous prévu dans 2h n'a pas été confirmé — nous l'avons libéré pour un autre patient. ` +
       `Si vous voulez le reporter, répondez-moi simplement et je vous propose des créneaux ✨`,

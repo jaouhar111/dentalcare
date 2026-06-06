@@ -13,6 +13,8 @@ import {
   onboardingStepWhatsApp,
   type OnboardingProgress,
 } from "@/server/actions/onboarding";
+import type { OpenwaConnectionState } from "@/server/actions/openwa-session-types";
+import { WhatsAppConnectionPanel } from "../(dashboard)/settings/ai-receptionist/whatsapp-connection-panel";
 
 /**
  * 5-step onboarding wizard (Phase 10, § 4.12 du cahier).
@@ -41,9 +43,11 @@ const STEPS = [
 export function OnboardingWizard({
   initialStep,
   progress,
+  initialOpenwaState,
 }: {
   initialStep: number;
   progress: OnboardingProgress;
+  initialOpenwaState: OpenwaConnectionState | null;
 }) {
   const router = useRouter();
   const [step, setStep] = useState<number>(initialStep);
@@ -131,9 +135,10 @@ export function OnboardingWizard({
         {step === 1 ? (
           <StepWhatsApp
             isPending={isPending}
+            initialOpenwaState={initialOpenwaState}
             onSkip={() =>
               startTransition(async () => {
-                const res = await onboardingStepWhatsApp({ phoneId: "" });
+                const res = await onboardingStepWhatsApp({ sessionId: "" });
                 if (!res.ok) {
                   toast.error(res.error.message);
                   return;
@@ -141,17 +146,7 @@ export function OnboardingWizard({
                 markDone(1, 2);
               })
             }
-            onSubmit={(phoneId) =>
-              startTransition(async () => {
-                const res = await onboardingStepWhatsApp({ phoneId });
-                if (!res.ok) {
-                  toast.error(res.error.message);
-                  return;
-                }
-                toast.success("Numéro WhatsApp connecté.");
-                markDone(1, 2);
-              })
-            }
+            onContinue={() => markDone(1, 2)}
           />
         ) : null}
 
@@ -242,31 +237,37 @@ export function OnboardingWizard({
 
 function StepWhatsApp({
   isPending,
-  onSubmit,
+  initialOpenwaState,
+  onContinue,
   onSkip,
 }: {
   isPending: boolean;
-  onSubmit: (phoneId: string) => void;
+  initialOpenwaState: OpenwaConnectionState | null;
+  onContinue: () => void;
   onSkip: () => void;
 }) {
-  const [phoneId, setPhoneId] = useState("");
+  // Fallback when the server failed to fetch state (gateway down, etc.) —
+  // we still render the panel so the user gets the "retry" button.
+  const fallback: OpenwaConnectionState = {
+    state: "not_connected",
+    sessionId: null,
+    qrCode: null,
+    phone: null,
+    pushName: null,
+    error: null,
+  };
   return (
     <div>
       <StepTitle eyebrow="Étape 1 / 5" title="Connecter WhatsApp" />
       <p className="text-[#6e6e73] mb-5 text-[14px] leading-[1.55]">
-        Collez le <strong>Phone Number ID</strong> de votre numéro WhatsApp Business
-        (15 chiffres environ). C&apos;est ce qui permet à notre bot de recevoir vos
-        messages patients. Vous pouvez le récupérer dans Meta Business Manager →
-        WhatsApp → Configuration.
+        Scannez le QR code avec l&apos;app <strong>WhatsApp Business</strong>{" "}
+        sur le téléphone du cabinet pour lier votre numéro. C&apos;est cette
+        liaison qui permet à la réceptionniste IA de répondre aux patients
+        sans interrompre votre utilisation normale de WhatsApp.
       </p>
-      <input
-        type="text"
-        value={phoneId}
-        onChange={(e) => setPhoneId(e.target.value.replace(/\D/g, ""))}
-        placeholder="ex. 123456789012345"
-        maxLength={20}
-        disabled={isPending}
-        className="bg-background placeholder:text-muted-foreground/60 focus-visible:ring-primary/40 w-full rounded-xl px-4 py-3 text-[15px] tabular-nums ring-1 ring-black/[0.06] transition-shadow focus-visible:ring-2 focus-visible:outline-none disabled:opacity-50"
+      <WhatsAppConnectionPanel
+        initial={initialOpenwaState ?? fallback}
+        autoStart
       />
       <div className="mt-5 flex items-center justify-between gap-3">
         <Button
@@ -279,11 +280,11 @@ function StepWhatsApp({
         </Button>
         <Button
           type="button"
-          disabled={isPending || phoneId.length < 10}
-          onClick={() => onSubmit(phoneId)}
+          disabled={isPending}
+          onClick={onContinue}
           className="rounded-full px-6"
         >
-          {isPending ? "…" : "Connecter →"}
+          Continuer →
         </Button>
       </div>
     </div>

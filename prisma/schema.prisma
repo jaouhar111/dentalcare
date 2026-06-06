@@ -85,10 +85,15 @@ model Clinic {
   settingsJson          Json?
   /// Meta phone-number-id this cabinet's WhatsApp is bound to.
   /// Inbound webhooks carry it in `metadata.phone_number_id` —
-  /// that's how we route a Meta message to the right clinic in
-  /// multi-tenant mode. Null = not yet configured (still uses the
-  /// shared dev test number).
+  /// Legacy — Meta Cloud API `phone_number_id`. Kept for migration
+  /// purposes only. New deployments use `openwaSessionId` (OpenWA
+  /// gateway). Safe to read but no new code should set this field.
   whatsappPhoneId       String?  @unique
+  /// OpenWA session UUID — the gateway's per-cabinet WhatsApp Web
+  /// session. Set when the cabinet completes the QR-onboarding flow in
+  /// `/settings/ai-receptionist`. Webhook routing uses this to find the
+  /// clinic when an inbound message lands. Null = onboarding pending.
+  openwaSessionId       String?  @unique
   subscriptionStatus    SubscriptionStatus @default(TRIAL)
   /// Which landing-page tier this cabinet is on. Defaults to PRO so a
   /// fresh signup on TRIAL gets the most-popular set of features for

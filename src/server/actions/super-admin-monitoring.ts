@@ -26,7 +26,7 @@ export interface MonitoringSnapshot {
     sendFailures24h: number;
     webhookErrors24h: number;
     activeClinics: number;
-    /// Clinics with `whatsappPhoneId` set AND `aiEnabled = true`.
+    /// Clinics with `openwaSessionId` bound AND `aiEnabled = true`.
     aiEnabledClinics: number;
     /// Clinics that have explicitly disabled the AI receptionist.
     aiDisabledClinics: number;
@@ -115,7 +115,7 @@ export async function getMonitoringSnapshot(): Promise<
       where: { subscriptionStatus: { in: ["TRIAL", "ACTIVE"] } },
     }),
     db.clinic.count({
-      where: { aiEnabled: true, whatsappPhoneId: { not: null } },
+      where: { aiEnabled: true, openwaSessionId: { not: null } },
     }),
     db.clinic.count({ where: { aiEnabled: false } }),
     // Latency samples — pull last 200 audit rows for AI conversation turns

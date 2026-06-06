@@ -21,7 +21,7 @@ export function HorizontalFeatures() {
   const t = useTranslations("Landing.features");
 
   return (
-    <section id="features" className="bg-white px-3 py-3">
+    <section id="features" className="relative px-3 py-3">
       <div className="mx-auto max-w-[1024px]">
         <div className="px-3 pt-12 pb-6 text-center md:pt-20 md:pb-10">
           <div className="text-[var(--lp-ink-muted)] text-[21px] leading-[1.19] font-semibold">
@@ -68,16 +68,19 @@ function TileCard({
   delay: number;
 }) {
   const isDark = tone === "dark";
-  const bg =
-    tone === "dark"
-      ? "bg-black"
-      : tone === "gray"
-        ? "bg-[#f5f5f7]"
-        : tone === "tint"
-          ? "bg-[#fbfbfd]"
-          : "bg-white border border-[var(--lp-line)]";
-  const text = isDark ? "#f5f5f7" : "var(--lp-ink)";
-  const muted = isDark ? "#a1a1a6" : "var(--lp-ink-muted)";
+  const text = isDark ? "#f3f3f3" : "var(--lp-ink)";
+  const muted = isDark ? "#a6a6aa" : "var(--lp-ink-muted)";
+  // All tiles use the win11-card acrylic recipe; the dark tile gets a
+  // gradient + halo overlay to stand out the way a Settings page hero
+  // card does on a Win11 dark wallpaper.
+  const baseStyle: React.CSSProperties | undefined = isDark
+    ? {
+        background: "linear-gradient(180deg, #1b1b1f 0%, #0f0f12 100%)",
+        boxShadow:
+          "0 1px 0 rgba(255,255,255,0.05) inset, 0 24px 60px -24px rgba(0,0,0,0.5)",
+        border: "1px solid rgba(255,255,255,0.06)",
+      }
+    : undefined;
 
   return (
     <motion.article
@@ -85,12 +88,24 @@ function TileCard({
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true, amount: 0.3 }}
       transition={{ delay, duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
-      className={`relative overflow-hidden rounded-[18px] p-8 md:p-12 ${bg}`}
+      className={`relative overflow-hidden p-8 md:p-12 ${isDark ? "rounded-[16px]" : "win11-card"}`}
+      style={baseStyle}
     >
+      {isDark ? (
+        <div
+          aria-hidden
+          className="pointer-events-none absolute inset-0"
+          style={{
+            background:
+              "radial-gradient(50% 60% at 100% 0%, rgba(37,211,102,0.18), transparent 70%), radial-gradient(40% 50% at 0% 100%, rgba(201,169,110,0.14), transparent 70%)",
+          }}
+        />
+      ) : null}
+      <div className="relative">
       <div className="mb-6 md:mb-10">{badge}</div>
       <div
         className="text-[13px] font-semibold tracking-[0.04em] uppercase"
-        style={{ color: isDark ? "#2997ff" : "#0066cc" }}
+        style={{ color: isDark ? "#5fea91" : "#128c7e" }}
       >
         {kicker}
       </div>
@@ -103,6 +118,7 @@ function TileCard({
       <p className="mt-3 max-w-md text-[17px] leading-[1.45]" style={{ color: muted }}>
         {body}
       </p>
+      </div>
     </motion.article>
   );
 }
@@ -124,7 +140,7 @@ function BellBadge() {
   return (
     <div
       className="inline-flex h-12 w-12 items-center justify-center rounded-2xl text-white"
-      style={{ background: "linear-gradient(135deg, #0071e3, #0066cc)" }}
+      style={{ background: "linear-gradient(135deg, #c9a96e, #9c7d49)" }}
     >
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden>
         <path strokeLinecap="round" strokeLinejoin="round" d="M15 17h5l-1.4-1.4A2 2 0 0118 14.2V11a6 6 0 10-12 0v3.2a2 2 0 01-.6 1.4L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />

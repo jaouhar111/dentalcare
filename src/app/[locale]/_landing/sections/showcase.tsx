@@ -5,14 +5,21 @@ import { motion } from "motion/react";
 import { useTranslations } from "next-intl";
 
 /**
- * Full-bleed photograph showcase card with translated overlay copy.
+ * Win11 Fluent showcase — full-bleed cabinet photograph framed by the
+ * win11-card recipe, with an acrylic chip floating on top to anchor the
+ * Mica vocabulary. The gradient overlay now leans on the brand greens
+ * and golds instead of pure black so the photo bridges into the rest of
+ * the landing's palette.
  */
 export function Showcase() {
   const t = useTranslations("Landing.showcase");
 
   return (
-    <section className="bg-white px-3 py-3">
-      <div className="relative mx-auto h-[480px] max-w-[1024px] overflow-hidden rounded-[18px] md:h-[640px]">
+    <section className="px-3 py-3">
+      <div
+        className="win11-card-elevated relative mx-auto h-[480px] max-w-[1024px] overflow-hidden md:h-[640px]"
+        style={{ borderRadius: 24 }}
+      >
         <Image
           src="/landing/cabinet-interior.jpg"
           alt=""
@@ -20,12 +27,23 @@ export function Showcase() {
           sizes="(min-width: 1024px) 1024px, 100vw"
           className="object-cover"
         />
+        {/* Top tint — keeps the kicker readable on bright photos. */}
         <div
           aria-hidden
           className="pointer-events-none absolute inset-0"
           style={{
             background:
-              "linear-gradient(180deg, rgba(0,0,0,0.45) 0%, rgba(0,0,0,0.05) 35%, rgba(0,0,0,0) 70%)",
+              "linear-gradient(180deg, rgba(15, 15, 18, 0.55) 0%, rgba(15, 15, 18, 0.18) 30%, transparent 60%)",
+          }}
+        />
+        {/* Brand halo — Mica vibe extended onto the photo edges. */}
+        <div
+          aria-hidden
+          className="pointer-events-none absolute inset-0"
+          style={{
+            background:
+              "radial-gradient(35% 50% at 0% 100%, rgba(37,211,102,0.20), transparent 70%), radial-gradient(40% 50% at 100% 100%, rgba(201,169,110,0.18), transparent 70%)",
+            mixBlendMode: "screen",
           }}
         />
         <div className="absolute inset-0 flex flex-col items-center justify-start px-6 pt-12 text-center md:pt-20">
@@ -34,8 +52,14 @@ export function Showcase() {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true, amount: 0.3 }}
             transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
-            className="text-[13px] font-semibold tracking-[0.12em] text-white/90 uppercase"
+            /* Acrylic chip — sits on the photo, mimics Win11's contextual
+               "scene" labels on the Settings background-picker. */
+            className="inline-flex items-center gap-2 rounded-full border border-white/30 bg-white/15 px-3 py-1.5 text-[11px] font-semibold tracking-[0.10em] text-white uppercase backdrop-blur-md"
           >
+            <span
+              className="size-1.5 rounded-full bg-[#25d366]"
+              aria-hidden
+            />
             {t("kicker")}
           </motion.div>
           <motion.h2
