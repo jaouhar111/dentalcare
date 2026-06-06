@@ -52,26 +52,24 @@ async function main() {
     console.log(`\n━━━ TURN ${i + 1} ━━━`);
     console.log(`👤 ${turn}`);
 
-    // Build a Meta-shaped payload so parseTextMessages is in the loop.
+    // Build an OpenWA-shaped webhook envelope so parseTextMessages is
+    // in the loop end-to-end (mirrors what the gateway POSTs).
     const payload = {
-      entry: [
-        {
-          changes: [
-            {
-              value: {
-                messages: [
-                  {
-                    from: patient.phone.replace(/^\+/, ""),
-                    id: `wamid.test-${Date.now()}-${i}`,
-                    type: "text",
-                    text: { body: turn },
-                  },
-                ],
-              },
-            },
-          ],
-        },
-      ],
+      event: "message.received",
+      timestamp: new Date().toISOString(),
+      sessionId: "test-session",
+      idempotencyKey: `test-${Date.now()}-${i}`,
+      data: {
+        id: `wamid.test-${Date.now()}-${i}`,
+        from: `${patient.phone.replace(/^\+/, "")}@c.us`,
+        to: "212600000000@c.us",
+        chatId: `${patient.phone.replace(/^\+/, "")}@c.us`,
+        body: turn,
+        type: "chat" as const,
+        timestamp: Math.floor(Date.now() / 1000),
+        fromMe: false,
+        isGroup: false,
+      },
     };
 
     const parsed = parseTextMessages(payload);
@@ -83,6 +81,7 @@ async function main() {
       fromPhone: parsed[0]!.from,
       body: parsed[0]!.body,
       messageId: parsed[0]!.messageId,
+      sessionId: parsed[0]!.sessionId,
     });
 
     if (result.status === "replied") {
