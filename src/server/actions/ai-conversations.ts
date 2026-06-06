@@ -141,6 +141,7 @@ export async function getAIConversation(
       lastActivityAt: true,
       createdAt: true,
       handedOffAt: true,
+      lastHumanReplyAt: true,
       historyJson: true,
       patient: { select: { firstName: true, lastName: true } },
       handedOffBy: { select: { fullName: true } },
@@ -163,6 +164,7 @@ export async function getAIConversation(
     createdAt: row.createdAt,
     handedOffAt: row.handedOffAt,
     handedOffByName: row.handedOffBy?.fullName ?? null,
+    lastHumanReplyAt: row.lastHumanReplyAt,
     history: Array.isArray(row.historyJson) ? (row.historyJson as unknown as ChatMessage[]) : [],
   });
 }

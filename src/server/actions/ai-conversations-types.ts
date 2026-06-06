@@ -36,5 +36,9 @@ export interface AIConversationDetail {
   createdAt: Date;
   handedOffAt: Date | null;
   handedOffByName: string | null;
+  /// Coexistence Mode — timestamp of the most recent mobile-app reply
+  /// from the cabinet owner. The UI uses this to show the "bot muted"
+  /// banner; null means the bot is the only voice on this thread.
+  lastHumanReplyAt: Date | null;
   history: ChatMessage[];
 }

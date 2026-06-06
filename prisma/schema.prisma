@@ -1333,6 +1333,13 @@ model AIConversation {
   /// HANDED_OFF. Null otherwise.
   handedOffAt     DateTime?
   handedOffById   String?
+  /// Coexistence Mode — set every time the cabinet owner sends a message
+  /// from their mobile WhatsApp Business app. The webhook detects these
+  /// (sender === WABA's own number) and the AI handler suppresses bot
+  /// replies for `HUMAN_HANDOFF_WINDOW_MS` after this timestamp so the
+  /// dentist and the bot don't double-reply to the patient. Null until
+  /// the first owner-mobile message lands.
+  lastHumanReplyAt DateTime?
   createdAt       DateTime             @default(now())
   updatedAt       DateTime             @updatedAt
 

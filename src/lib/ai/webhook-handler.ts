@@ -27,6 +27,7 @@ import { runBookingConversation } from "./engine";
 import { buildDentalSystemPrompt } from "./prompts/dental";
 import { synthesizeSpeech } from "./synthesize";
 import {
+  appendOwnerOutboundTurn,
   loadOrCreateConversation,
   persistConversationTurn,
   shouldAutoReply,
@@ -53,7 +54,15 @@ export interface InboundMessage {
 
 export type HandleInboundResult =
   | { status: "replied"; conversationId: string; replyText: string; provider: string; tokens: number }
-  | { status: "dropped"; reason: "no_clinic" | "handed_off" | "closed" | "empty_message" }
+  | {
+      status: "dropped";
+      reason:
+        | "no_clinic"
+        | "handed_off"
+        | "closed"
+        | "empty_message"
+        | "human_suppressed";
+    }
   | { status: "error"; reason: string };
 
 /**
@@ -130,19 +139,32 @@ export async function handleInboundTextMessage(
   }
 
   if (!shouldAutoReply(conversation)) {
-    // Don't reply when an admin owns the conversation. We still audit
-    // the message so it shows up in the admin's inbox (future UI).
+    // Don't reply when an admin owns the conversation (HANDED_OFF /
+    // CLOSED) or when the cabinet owner just typed from their mobile
+    // WhatsApp Business app (Coexistence suppression window). We still
+    // audit the message so the conversation history in the admin UI
+    // stays complete.
+    const isHumanSuppressed =
+      conversation.status === "ACTIVE" && !!conversation.lastHumanReplyAt;
+    const reason: "handed_off" | "closed" | "human_suppressed" =
+      conversation.status === "HANDED_OFF"
+        ? "handed_off"
+        : isHumanSuppressed
+          ? "human_suppressed"
+          : "closed";
     await audit({
       clinicId: clinic.id,
       action: "ai.conversation.dropped",
       entity: "AIConversation",
       entityId: conversation.id,
-      payload: { reason: conversation.status, messageId: msg.messageId, body: trimmed },
+      payload: {
+        reason,
+        messageId: msg.messageId,
+        body: trimmed,
+        lastHumanReplyAt: conversation.lastHumanReplyAt?.toISOString() ?? null,
+      },
     });
-    return {
-      status: "dropped",
-      reason: conversation.status === "HANDED_OFF" ? "handed_off" : "closed",
-    };
+    return { status: "dropped", reason };
   }
 
   // Need an admin user id to attribute create_appointment calls to.
@@ -280,6 +302,82 @@ export async function handleInboundTextMessage(
     }).catch(() => undefined);
     return { status: "error", reason: message };
   }
+}
+
+/**
+ * Coexistence Mode — called for every owner-outbound text echo Meta
+ * delivers when the cabinet's WhatsApp Business mobile app sends a
+ * message on the shared number.
+ *
+ * What it does:
+ *   1. Resolves the clinic that owns the WABA (via Meta phone id)
+ *   2. Appends the dentist's message to the AIConversation history with
+ *      a `human_mobile` provenance tag
+ *   3. Stamps `lastHumanReplyAt` so the bot stays muted for the next
+ *      `HUMAN_HANDOFF_WINDOW_MS`
+ *   4. Audits the event for /insights + /conversations UI
+ *
+ * Idempotent: if Meta re-delivers the same echo (rare but possible),
+ * `appendOwnerOutboundTurn` deduplicates by Meta wamid.
+ */
+export async function handleOwnerOutboundMessage(args: {
+  patientPhone: string;
+  body: string;
+  messageId: string;
+  sentAt: Date;
+  metaPhoneNumberId?: string | null;
+}): Promise<
+  | { status: "appended"; conversationId: string }
+  | { status: "skipped"; reason: "no_clinic" | "no_conversation" | "duplicate" }
+> {
+  const trimmed = args.body.trim();
+  if (trimmed.length === 0) {
+    return { status: "skipped", reason: "duplicate" };
+  }
+  const patientPhone = normalizePhone(args.patientPhone);
+  const clinic = await resolveClinic(args.metaPhoneNumberId);
+  if (!clinic) {
+    return { status: "skipped", reason: "no_clinic" };
+  }
+
+  // Only attach to a conversation that already exists — if the dentist
+  // is messaging a patient that never wrote to the bot before, there's
+  // nothing to attach to and we drop silently. Future iteration could
+  // create the conversation on the fly so the /conversations inbox
+  // shows owner-initiated threads too.
+  const existing = await db.aIConversation.findUnique({
+    where: {
+      clinicId_patientPhone: { clinicId: clinic.id, patientPhone },
+    },
+    select: { id: true },
+  });
+  if (!existing) {
+    return { status: "skipped", reason: "no_conversation" };
+  }
+
+  const { duplicate } = await appendOwnerOutboundTurn({
+    id: existing.id,
+    text: trimmed,
+    sentAt: args.sentAt,
+    messageId: args.messageId,
+  });
+  if (duplicate) {
+    return { status: "skipped", reason: "duplicate" };
+  }
+
+  await audit({
+    clinicId: clinic.id,
+    action: "ai.conversation.owner_reply",
+    entity: "AIConversation",
+    entityId: existing.id,
+    payload: {
+      messageId: args.messageId,
+      body: trimmed,
+      sentAt: args.sentAt.toISOString(),
+    },
+  });
+
+  return { status: "appended", conversationId: existing.id };
 }
 
 // ────────────────────────────────────────────────────────────────────────

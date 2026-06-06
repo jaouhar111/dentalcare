@@ -175,6 +175,8 @@ export default async function ConversationsPage({
                 adminSend: t("admin.send"),
                 adminHint: t("admin.hint"),
                 adminMarker: t("admin.marker"),
+                adminMobileMarker: t("admin.mobileMarker"),
+                adminSuppressedHint: t("admin.suppressedHint"),
               }}
             />
           ) : (

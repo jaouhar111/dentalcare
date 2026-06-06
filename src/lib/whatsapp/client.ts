@@ -413,6 +413,90 @@ export async function downloadMedia(mediaId: string): Promise<
   return { ok: true, buffer: Buffer.from(arr), mimeType: meta.mime_type ?? "audio/ogg" };
 }
 
+/**
+ * Coexistence Mode — when the cabinet owner sends a message from the
+ * mobile WhatsApp Business app on a number that's also linked to our
+ * Cloud API, Meta echoes the outbound message into the same webhook so
+ * we can keep the conversation history in sync.
+ *
+ * Detection: the message's `from` equals `metadata.display_phone_number`
+ * (the WABA's own number). The patient's number lives in `to` — most
+ * recent Cloud API versions include it on the message; if it's absent
+ * the row is skipped (we audit upstream so the gap is visible).
+ *
+ * Returns one entry per text message authored from the mobile app.
+ */
+export function parseOwnerOutboundMessages(
+  body: unknown,
+): Array<{
+  ownerNumber: string;
+  patientPhone: string;
+  body: string;
+  messageId: string;
+  sentAt: Date;
+}> {
+  const out: Array<{
+    ownerNumber: string;
+    patientPhone: string;
+    body: string;
+    messageId: string;
+    sentAt: Date;
+  }> = [];
+  if (!body || typeof body !== "object") return out;
+  const entries = (body as { entry?: unknown[] }).entry;
+  if (!Array.isArray(entries)) return out;
+  for (const entry of entries) {
+    const changes = (entry as { changes?: unknown[] }).changes;
+    if (!Array.isArray(changes)) continue;
+    for (const change of changes) {
+      const value = (change as {
+        value?: {
+          metadata?: { display_phone_number?: string };
+          messages?: unknown[];
+        };
+      }).value;
+      const owner = value?.metadata?.display_phone_number;
+      const messages = value?.messages;
+      if (!owner || !Array.isArray(messages)) continue;
+      for (const msg of messages) {
+        const m = msg as {
+          from?: string;
+          to?: string;
+          id?: string;
+          type?: string;
+          timestamp?: string;
+          text?: { body?: string };
+        };
+        // Owner-outbound iff `from` matches the WABA's own number. The
+        // patient-inbound branch (parseTextMessages) drops these because
+        // it doesn't filter on the sender — but the handler routes by
+        // checking equality first so they never double-process.
+        if (
+          m.type !== "text" ||
+          !m.from ||
+          !m.id ||
+          !m.text?.body ||
+          !m.to
+        ) {
+          continue;
+        }
+        if (m.from !== owner) continue;
+        const ts = m.timestamp
+          ? new Date(Number(m.timestamp) * 1000)
+          : new Date();
+        out.push({
+          ownerNumber: m.from,
+          patientPhone: m.to,
+          body: m.text.body,
+          messageId: m.id,
+          sentAt: Number.isNaN(ts.getTime()) ? new Date() : ts,
+        });
+      }
+    }
+  }
+  return out;
+}
+
 export function parseQuickReplies(
   body: unknown,
 ): Array<{ from: string; payload: string; messageId: string }> {

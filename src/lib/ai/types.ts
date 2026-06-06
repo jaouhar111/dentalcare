@@ -21,6 +21,12 @@ export interface ChatMessage {
   toolCallId?: string;
   /// Optional name on `role === "tool"` — some providers (Groq) require it.
   name?: string;
+  /// Provenance tag used only by the admin UI for rendering. Set to
+  /// `"human_mobile"` when the bubble comes from the cabinet owner's
+  /// WhatsApp Business app (Coexistence Mode). Stripped before the
+  /// history is sent to the LLM — providers see a plain assistant turn
+  /// so the model treats it as context for what was already said.
+  meta?: { source?: "human_mobile" };
 }
 
 export interface ChatToolCall {

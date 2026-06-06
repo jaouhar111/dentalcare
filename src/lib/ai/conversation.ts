@@ -30,6 +30,16 @@ import { db } from "@/lib/db/client";
 import type { ChatMessage } from "./types";
 import type { BookingConversationResult } from "./engine";
 
+/**
+ * Coexistence Mode — how long the AI stays muted after the cabinet owner
+ * answers from their mobile WhatsApp Business app. 30 minutes is the
+ * sweet spot in support-bot literature : long enough that the owner can
+ * step into a consultation and let the bot resume once they're back,
+ * short enough that a single drive-by reply doesn't permanently lock
+ * the bot out.
+ */
+export const HUMAN_HANDOFF_WINDOW_MS = 30 * 60 * 1000;
+
 export interface ConversationRecord {
   id: string;
   clinicId: string;
@@ -41,6 +51,7 @@ export interface ConversationRecord {
   totalTokens: number;
   lastInboundAt: Date | null;
   lastReadAt: Date | null;
+  lastHumanReplyAt: Date | null;
 }
 
 export interface LoadConversationArgs {
@@ -139,9 +150,83 @@ export async function persistConversationTurn({
  * a HANDED_OFF conversation is owned by a human admin, and CLOSED is a
  * read-only archive. Returning false here lets the webhook drop the
  * inbound message silently (or notify the admin via the in-app inbox).
+ *
+ * Coexistence Mode addition: even on an ACTIVE conversation, if the
+ * cabinet owner just replied from their mobile WhatsApp Business app in
+ * the last `HUMAN_HANDOFF_WINDOW_MS`, the bot stays muted. The window
+ * auto-expires so the bot resumes on its own when the dentist goes back
+ * to consultations.
  */
-export function shouldAutoReply(record: ConversationRecord): boolean {
-  return record.status === AIConversationStatus.ACTIVE;
+export function shouldAutoReply(
+  record: ConversationRecord,
+  now: Date = new Date(),
+): boolean {
+  if (record.status !== AIConversationStatus.ACTIVE) return false;
+  if (record.lastHumanReplyAt) {
+    const elapsed = now.getTime() - record.lastHumanReplyAt.getTime();
+    if (elapsed < HUMAN_HANDOFF_WINDOW_MS) return false;
+  }
+  return true;
+}
+
+/**
+ * Coexistence Mode — appends the owner's mobile-app reply to the
+ * conversation history (so the admin UI shows it and a future bot turn
+ * sees it as context) and stamps `lastHumanReplyAt` so the suppression
+ * window kicks in. Idempotent on the messageId : if Meta re-delivers
+ * the same echo, the bubble is added only once.
+ */
+export async function appendOwnerOutboundTurn({
+  id,
+  text,
+  sentAt,
+  messageId,
+}: {
+  id: string;
+  text: string;
+  sentAt: Date;
+  messageId: string;
+}): Promise<{ duplicate: boolean }> {
+  const current = await db.aIConversation.findUnique({
+    where: { id },
+    select: { historyJson: true },
+  });
+  const history = (current?.historyJson as unknown as ChatMessage[]) ?? [];
+  // Idempotence guard — we tag each owner-outbound turn with the Meta
+  // message id in `meta.source` extension. If the same id is already in
+  // history we skip the write.
+  const duplicate = history.some(
+    (m) =>
+      m.role === "assistant" &&
+      m.meta?.source === "human_mobile" &&
+      m.toolCallId === messageId,
+  );
+  if (duplicate) return { duplicate: true };
+
+  const next: ChatMessage[] = [
+    ...history,
+    {
+      role: "assistant",
+      content: text,
+      // We reuse `toolCallId` as a stable pointer to Meta's wamid so the
+      // idempotence check has something to compare. The LLM sees it as
+      // a regular assistant turn (with the `meta` tag dropped during
+      // serialisation by the providers) — desirable, because it means a
+      // future bot turn knows what the dentist already said and won't
+      // contradict it.
+      toolCallId: messageId,
+      meta: { source: "human_mobile" },
+    },
+  ];
+  await db.aIConversation.update({
+    where: { id },
+    data: {
+      historyJson: next as unknown as Prisma.InputJsonValue,
+      lastHumanReplyAt: sentAt,
+      lastActivityAt: sentAt,
+    },
+  });
+  return { duplicate: false };
 }
 
 /**
@@ -197,5 +282,6 @@ function toRecord(row: AIConversationRow): ConversationRecord {
     totalTokens: row.totalTokens,
     lastInboundAt: row.lastInboundAt,
     lastReadAt: row.lastReadAt,
+    lastHumanReplyAt: row.lastHumanReplyAt,
   };
 }

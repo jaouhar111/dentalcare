@@ -30,6 +30,12 @@ interface Labels {
   adminSend: string;
   adminHint: string;
   adminMarker: string;
+  /// Coexistence Mode — label rendered above bubbles that came in via
+  /// the cabinet owner's mobile WhatsApp Business app.
+  adminMobileMarker: string;
+  /// Inline hint shown when the AI is currently muted because the
+  /// owner just replied from mobile.
+  adminSuppressedHint: string;
 }
 
 export function ConversationThread({
@@ -84,6 +90,17 @@ export function ConversationThread({
 
   const isHandedOff = conversation.status === AIConversationStatus.HANDED_OFF;
   const isClosed = conversation.status === AIConversationStatus.CLOSED;
+  // Coexistence Mode — the bot is auto-muted for 30 min after the cabinet
+  // owner sends from their mobile. We surface that state explicitly so the
+  // admin understands why the bot isn't replying right now without having
+  // to ask. 30 min === HUMAN_HANDOFF_WINDOW_MS on the server.
+  const HANDOFF_WINDOW_MS = 30 * 60 * 1000;
+  const isHumanSuppressed =
+    !isHandedOff &&
+    !isClosed &&
+    conversation.lastHumanReplyAt !== null &&
+    Date.now() - new Date(conversation.lastHumanReplyAt).getTime() <
+      HANDOFF_WINDOW_MS;
 
   const [replyBody, setReplyBody] = useState("");
   const [isSending, setSending] = useState(false);
@@ -150,6 +167,12 @@ export function ConversationThread({
           conversation.history.map((m, i) => renderMessage(m, i, labels))
         )}
       </div>
+
+      {isHumanSuppressed ? (
+        <div className="border-border/60 border-t bg-amber-50/60 px-3 py-2 text-center text-[11px] font-medium text-amber-800 dark:bg-amber-900/20 dark:text-amber-300">
+          {labels.adminSuppressedHint}
+        </div>
+      ) : null}
 
       {isHandedOff ? (
         <form onSubmit={onSendReply} className="chat-input-bar flex gap-2 border-t border-[var(--border)] bg-white/50 p-3 dark:bg-slate-900/40">
@@ -218,6 +241,30 @@ function renderMessage(m: ChatMessage, idx: number, labels: Labels) {
     );
   }
   if (m.role === "assistant") {
+    // Coexistence Mode — owner mobile-app replies carry meta.source
+    // = "human_mobile". Render them on the right side with an amber
+    // gradient + WhatsApp icon to make the channel obvious.
+    if (m.meta?.source === "human_mobile") {
+      return (
+        <div key={idx} className="flex w-full flex-col items-end gap-0.5">
+          <span className="flex items-center gap-1 text-[9px] font-semibold tracking-wide uppercase text-amber-700 dark:text-amber-300">
+            <svg width="9" height="9" viewBox="0 0 24 24" fill="currentColor" aria-hidden>
+              <path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448L.057 24z" />
+            </svg>
+            {labels.adminMobileMarker}
+          </span>
+          <div
+            className="chat-msg user"
+            style={{
+              background: "linear-gradient(135deg, #f59e0b, #d97706)",
+              boxShadow: "0 4px 14px rgba(245,158,11,0.35), inset 0 1px 0 rgba(255,255,255,0.2)",
+            }}
+          >
+            {m.content}
+          </div>
+        </div>
+      );
+    }
     // Admin manual replies carry `name: "admin:<id>"` — render them on
     // the right side (like the user did) but with a distinct gradient
     // + a tiny "admin" marker so the audit story is unambiguous.

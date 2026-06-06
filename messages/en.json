@@ -985,7 +985,9 @@
       "inputPlaceholder": "Type your reply to the patient…",
       "send": "Send",
       "hint": "Take over to reply manually.",
-      "marker": "You"
+      "marker": "You",
+      "mobileMarker": "You (mobile)",
+      "suppressedHint": "You replied from your mobile — the bot will stay quiet on this conversation for the next 30 minutes."
     },
     "searchPlaceholder": "Search (phone or name)…",
     "unreadDot": "New message"

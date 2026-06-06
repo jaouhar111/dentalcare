@@ -5,13 +5,17 @@ import { audit } from "@/lib/audit";
 import {
   downloadMedia,
   parseAudioMessages,
+  parseOwnerOutboundMessages,
   parseQuickReplies,
   parseTextMessages,
   sendText,
   verifyWebhookChallenge,
   verifyWebhookSignature,
 } from "@/lib/whatsapp/client";
-import { handleInboundTextMessage } from "@/lib/ai/webhook-handler";
+import {
+  handleInboundTextMessage,
+  handleOwnerOutboundMessage,
+} from "@/lib/ai/webhook-handler";
 import { transcribeAudio } from "@/lib/ai/transcribe";
 
 export const runtime = "nodejs";
@@ -64,12 +68,38 @@ export async function POST(req: NextRequest) {
   // the per-message handlers can route by cabinet without re-parsing.
   const metaPhoneNumberId = extractMetaPhoneNumberId(payload);
 
+  // Coexistence Mode — when the cabinet owner answers from their mobile
+  // WhatsApp Business app, Meta echoes the outbound message into this
+  // webhook so we can stay in sync. Process those FIRST so the
+  // suppression window is updated before any concurrent inbound from
+  // the same patient is evaluated.
+  const ownerOutbound = parseOwnerOutboundMessages(payload);
+  const ownerOutboundIds = new Set(ownerOutbound.map((m) => m.messageId));
+  for (const o of ownerOutbound) {
+    await handleOwnerOutboundMessage({
+      patientPhone: o.patientPhone,
+      body: o.body,
+      messageId: o.messageId,
+      sentAt: o.sentAt,
+      metaPhoneNumberId,
+    }).catch((err) => {
+      console.error("[whatsapp:webhook] owner-outbound handler failed", {
+        patient: o.patientPhone,
+        err,
+      });
+    });
+  }
+
   // Plain-text messages → AI booking engine. Run sequentially so a
   // patient who sends two messages in rapid succession gets a coherent
   // history (no interleaved persistence). Failures are caught so one
-  // bad message doesn't poison the whole batch.
+  // bad message doesn't poison the whole batch. We skip messages whose
+  // id was already processed as an owner-outbound echo above — the
+  // generic `parseTextMessages` doesn't filter by sender, so the same
+  // wamid would be replayed against the AI engine.
   const texts = parseTextMessages(payload);
   for (const t of texts) {
+    if (ownerOutboundIds.has(t.messageId)) continue;
     await handleInboundTextMessage({
       fromPhone: t.from,
       body: t.body,
