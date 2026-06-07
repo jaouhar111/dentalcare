@@ -34,6 +34,7 @@ export type RecallSendResult =
         | "ALREADY_PROCESSED"
         | "NOT_DUE_YET"
         | "APPOINTMENT_ALREADY_BOOKED"
+        | "PLAN_DISALLOWED"
         | "SEND_FAILED";
       detail?: string;
     };
@@ -49,10 +50,32 @@ export async function sendRecallReminderById(
       patient: {
         select: { id: true, firstName: true, phone: true, preferredLocale: true },
       },
-      clinic: { select: { name: true, phone: true, openwaSessionId: true } },
+      clinic: {
+        select: {
+          name: true,
+          phone: true,
+          openwaSessionId: true,
+          plan: true,
+          subscriptionStatus: true,
+        },
+      },
     },
   });
   if (!r) return { ok: false, reason: "NOT_FOUND" };
+
+  // Plan gate — auto recalls are a Pro+ feature. Starter cabinets get
+  // the reminders created in the DB but never delivered, so a future
+  // upgrade can backfill (or the operator can dismiss them).
+  const { capabilitiesFor } = await import(
+    "@/lib/billing/plan-capabilities"
+  );
+  const caps = capabilitiesFor({
+    plan: r.clinic.plan,
+    subscriptionStatus: r.clinic.subscriptionStatus,
+  });
+  if (!caps.recalls) {
+    return { ok: false, reason: "PLAN_DISALLOWED", detail: r.clinic.plan };
+  }
 
   if (r.status !== RecallStatus.PENDING) {
     return { ok: false, reason: "ALREADY_PROCESSED", detail: r.status };

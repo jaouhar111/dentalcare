@@ -62,6 +62,30 @@ export async function createUser(raw: CreateUserInput): Promise<Result<{ id: str
   const dup = await db.user.findUnique({ where: { email: data.email }, select: { id: true } });
   if (dup) return fail("DUPLICATE_EMAIL", "Email already in use", { email: ["DUPLICATE"] });
 
+  // Plan cap — Starter = 1 user, Pro = 5, Cabinet+ = unlimited.
+  const [clinic, currentCount] = await Promise.all([
+    db.clinic.findUnique({
+      where: { id: me.clinicId },
+      select: { plan: true, subscriptionStatus: true },
+    }),
+    db.user.count({ where: { clinicId: me.clinicId } }),
+  ]);
+  if (clinic) {
+    const { capabilitiesFor, planLabel } = await import(
+      "@/lib/billing/plan-capabilities"
+    );
+    const caps = capabilitiesFor({
+      plan: clinic.plan,
+      subscriptionStatus: clinic.subscriptionStatus,
+    });
+    if (currentCount >= caps.users) {
+      return fail(
+        "PLAN_LIMIT",
+        `Votre plan ${planLabel(clinic.plan)} est limité à ${caps.users} utilisateur${caps.users > 1 ? "s" : ""}. Passez à un plan supérieur pour en inviter davantage.`,
+      );
+    }
+  }
+
   const passwordHash = await hashPassword(data.password);
   const created = await db.user.create({
     data: {

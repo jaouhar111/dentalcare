@@ -70,13 +70,13 @@
       "starterCta": "Start free",
       "proName": "Pro",
       "proSub": "Most popular",
-      "proPrice": "200",
+      "proPrice": "300",
       "proSuffix": "MAD / month",
       "proCta": "Start 14-day trial",
       "plusName": "Cabinet+",
       "plusSub": "For larger teams",
-      "plusPrice": "500",
-      "plusSuffix": "MAD / month",
+      "plusPrice": "2000",
+      "plusSuffix": "MAD / year",
       "plusCta": "Start 14-day trial"
     },
     "closing": {

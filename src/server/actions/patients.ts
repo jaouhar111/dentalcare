@@ -260,6 +260,30 @@ export async function createPatient(raw: CreatePatientInput): Promise<Result<{ i
   }
   const data = parsed.data;
 
+  // Plan cap — Starter = 100 patients, Pro + Cabinet+ = unlimited.
+  const [clinic, currentCount] = await Promise.all([
+    db.clinic.findUnique({
+      where: { id: user.clinicId },
+      select: { plan: true, subscriptionStatus: true },
+    }),
+    db.patient.count({ where: { clinicId: user.clinicId, deletedAt: null } }),
+  ]);
+  if (clinic) {
+    const { capabilitiesFor, planLabel } = await import(
+      "@/lib/billing/plan-capabilities"
+    );
+    const caps = capabilitiesFor({
+      plan: clinic.plan,
+      subscriptionStatus: clinic.subscriptionStatus,
+    });
+    if (Number.isFinite(caps.patients) && currentCount >= caps.patients) {
+      return fail(
+        "PLAN_LIMIT",
+        `Votre plan ${planLabel(clinic.plan)} est limité à ${caps.patients} patients. Passez à un plan supérieur pour en enregistrer davantage.`,
+      );
+    }
+  }
+
   try {
     const created = await db.patient.create({
       data: {

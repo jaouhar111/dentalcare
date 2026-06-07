@@ -49,7 +49,14 @@ export async function POST(req: NextRequest) {
         include: {
           patient: { select: { firstName: true, phone: true, preferredLocale: true } },
           invoice: { select: { number: true } },
-          clinic: { select: { name: true, openwaSessionId: true } },
+          clinic: {
+            select: {
+              name: true,
+              openwaSessionId: true,
+              plan: true,
+              subscriptionStatus: true,
+            },
+          },
         },
       },
     },
@@ -68,7 +75,14 @@ export async function POST(req: NextRequest) {
         include: {
           patient: { select: { firstName: true, phone: true, preferredLocale: true } },
           invoice: { select: { number: true } },
-          clinic: { select: { name: true, openwaSessionId: true } },
+          clinic: {
+            select: {
+              name: true,
+              openwaSessionId: true,
+              plan: true,
+              subscriptionStatus: true,
+            },
+          },
         },
       },
     },
@@ -76,7 +90,13 @@ export async function POST(req: NextRequest) {
 
   let sentJ3 = 0;
   let sentJ1 = 0;
+  let skippedByPlan = 0;
   const errors: Array<{ installmentId: string; error: string }> = [];
+
+  const { capabilitiesFor } = await import("@/lib/billing/plan-capabilities");
+  function clinicAllowed(c: { plan: import("@prisma/client").SubscriptionPlan; subscriptionStatus: import("@prisma/client").SubscriptionStatus }): boolean {
+    return capabilitiesFor({ plan: c.plan, subscriptionStatus: c.subscriptionStatus }).paymentPlans;
+  }
 
   function paymentDueBody(inst: typeof j3[number] | typeof j1[number]) {
     const loc = (inst.plan.patient.preferredLocale ?? "fr") as Locale;
@@ -96,6 +116,10 @@ export async function POST(req: NextRequest) {
   }
 
   for (const inst of j3) {
+    if (!clinicAllowed(inst.plan.clinic)) {
+      skippedByPlan++;
+      continue;
+    }
     try {
       await sendText({
         to: inst.plan.patient.phone,
@@ -113,6 +137,10 @@ export async function POST(req: NextRequest) {
   }
 
   for (const inst of j1) {
+    if (!clinicAllowed(inst.plan.clinic)) {
+      skippedByPlan++;
+      continue;
+    }
     try {
       await sendText({
         to: inst.plan.patient.phone,
@@ -134,13 +162,14 @@ export async function POST(req: NextRequest) {
     clinicId: "*",
     action: "cron",
     entity: "PaymentPlanInstallment",
-    payload: { sentJ3, sentJ1, errors: errors.length },
+    payload: { sentJ3, sentJ1, skippedByPlan, errors: errors.length },
   });
 
   return NextResponse.json({
     ok: true,
     sentJ3,
     sentJ1,
+    skippedByPlan,
     errors,
   });
 }

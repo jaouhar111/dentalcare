@@ -91,6 +91,30 @@ export async function createDentist(raw: CreateDentistInput): Promise<Result<{ i
   }
   const d = parsed.data;
 
+  // Plan cap — Starter = 1 dentist, Pro = 3, Cabinet+ = unlimited.
+  const [clinic, currentCount] = await Promise.all([
+    db.clinic.findUnique({
+      where: { id: user.clinicId },
+      select: { plan: true, subscriptionStatus: true },
+    }),
+    db.dentist.count({ where: { clinicId: user.clinicId } }),
+  ]);
+  if (clinic) {
+    const { capabilitiesFor, planLabel } = await import(
+      "@/lib/billing/plan-capabilities"
+    );
+    const caps = capabilitiesFor({
+      plan: clinic.plan,
+      subscriptionStatus: clinic.subscriptionStatus,
+    });
+    if (currentCount >= caps.dentists) {
+      return fail(
+        "PLAN_LIMIT",
+        `Votre plan ${planLabel(clinic.plan)} est limité à ${caps.dentists} dentiste${caps.dentists > 1 ? "s" : ""}. Passez à un plan supérieur pour en ajouter davantage.`,
+      );
+    }
+  }
+
   const created = await db.dentist.create({
     data: {
       clinicId: user.clinicId,

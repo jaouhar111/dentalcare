@@ -91,7 +91,17 @@ export async function handleInboundTextMessage(
   // receptionist, the bot doesn't run at all. It replies "transferring
   // you" + auto-promotes the conversation to HANDED_OFF so the admin
   // UI shows it as needing human attention.
-  if (!clinic.aiEnabled && conversation.status !== "HANDED_OFF") {
+  // Plan gate — treat a Starter (or expired/canceled) clinic the same
+  // as `aiEnabled = false` so a downgrade silently flips the bot off
+  // without admin action.
+  const { capabilitiesFor } = await import("@/lib/billing/plan-capabilities");
+  const caps = capabilitiesFor({
+    plan: clinic.plan,
+    subscriptionStatus: clinic.subscriptionStatus,
+  });
+  const aiAllowedByPlan = caps.aiReceptionist;
+
+  if ((!clinic.aiEnabled || !aiAllowedByPlan) && conversation.status !== "HANDED_OFF") {
     const handoffText =
       "Un instant, je transfère votre message à un membre du cabinet 🙏";
     const sent = await sendText({
@@ -204,7 +214,10 @@ export async function handleInboundTextMessage(
     // text version is sent too so the admin UI sees the words, not just
     // a media link.
     let voiceDelivered = false;
-    if (msg.replyInVoice) {
+    // Voice-note replies are a Cabinet+ feature. Below that plan the
+    // user gets the text-only reply (we still transcribed their note so
+    // the AI could read it, just won't TTS-reply).
+    if (msg.replyInVoice && caps.voiceNotes) {
       const tts = await synthesizeSpeech({ text: stripEmojis(result.text) });
       if (tts.ok) {
         const audio = await sendAudio({
@@ -378,6 +391,8 @@ async function resolveClinic(
   aiStyle: import("@prisma/client").AIReceptionistStyle;
   aiSignature: string | null;
   aiTemplatesJson: unknown;
+  plan: import("@prisma/client").SubscriptionPlan;
+  subscriptionStatus: import("@prisma/client").SubscriptionStatus;
 } | null> {
   const select = {
     id: true,
@@ -386,6 +401,8 @@ async function resolveClinic(
     aiStyle: true,
     aiSignature: true,
     aiTemplatesJson: true,
+    plan: true,
+    subscriptionStatus: true,
   } as const;
   if (sessionId) {
     const bySession = await db.clinic.findUnique({

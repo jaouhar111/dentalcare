@@ -114,9 +114,31 @@ export async function updateAIReceptionistSettings(
       aiEnabled: true,
       aiStyle: true,
       aiSignature: true,
+      plan: true,
+      subscriptionStatus: true,
     },
   });
   if (!before) return fail("NOT_FOUND", "Cabinet introuvable");
+
+  // Plan gate — Starter cannot use the AI Receptionist. Block any
+  // attempt to flip `enabled = true` from a Starter cabinet so the
+  // sales pitch on the pricing page stays honest.
+  if (data.enabled === true) {
+    const { capabilitiesFor, minimumPlanFor, planLabel } = await import(
+      "@/lib/billing/plan-capabilities"
+    );
+    const caps = capabilitiesFor({
+      plan: before.plan,
+      subscriptionStatus: before.subscriptionStatus,
+    });
+    if (!caps.aiReceptionist) {
+      const required = minimumPlanFor("aiReceptionist");
+      return fail(
+        "PLAN_LIMIT",
+        `La réceptionniste IA est disponible à partir du plan ${planLabel(required)}.`,
+      );
+    }
+  }
 
   await db.clinic.update({
     where: { id: me.clinicId },
