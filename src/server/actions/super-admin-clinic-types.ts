@@ -20,6 +20,8 @@ export interface ClinicDetail {
   plan: SubscriptionPlan;
   trialEndsAt: Date | null;
   trialDaysRemaining: number | null;
+  suspendedAt: Date | null;
+  suspendedReason: string | null;
   openwaSessionId: string | null;
   createdAt: Date;
   totals: {

@@ -9,6 +9,7 @@ import { Link } from "@/i18n/navigation";
 import { requireRole } from "@/lib/auth/rbac";
 import { getClinicDetail } from "@/server/actions/super-admin-clinic";
 import { ClinicRowActions } from "../../_components/clinic-row-actions";
+import { ClinicSuspendControl } from "../../_components/clinic-suspend-control";
 import { PlanPicker } from "../../_components/plan-picker";
 
 export const dynamic = "force-dynamic";
@@ -59,6 +60,17 @@ export default async function ClinicDetailPage({
         <span className="text-foreground">{c.name}</span>
       </nav>
 
+      {/* Suspension banner */}
+      {c.suspendedAt ? (
+        <div className="flex flex-wrap items-center gap-3 rounded-xl border border-rose-300/60 bg-rose-50 p-4 text-sm text-rose-800 dark:border-rose-500/30 dark:bg-rose-950/30 dark:text-rose-200">
+          <span className="font-semibold">⛔ Cabinet suspendu</span>
+          <span className="text-rose-700/80 dark:text-rose-200/80">
+            depuis le {dateFmt.format(c.suspendedAt)}
+            {c.suspendedReason ? ` · ${c.suspendedReason}` : ""}
+          </span>
+        </div>
+      ) : null}
+
       {/* Header card */}
       <section className="apple-card">
         <div className="flex flex-wrap items-start justify-between gap-4">
@@ -108,7 +120,10 @@ export default async function ClinicDetailPage({
               </div>
             </div>
           </div>
-          <ClinicRowActions clinicId={c.id} status={c.subscriptionStatus} />
+          <div className="flex flex-col items-end gap-2">
+            <ClinicRowActions clinicId={c.id} status={c.subscriptionStatus} />
+            <ClinicSuspendControl clinicId={c.id} isSuspended={c.suspendedAt !== null} />
+          </div>
         </div>
       </section>
 

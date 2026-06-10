@@ -339,3 +339,46 @@ export async function setClinicPlan(args: {
   revalidatePath(`/super-admin/clinics/${clinic.id}`);
   return ok({ id: clinic.id });
 }
+
+/**
+ * Suspend or reactivate a cabinet — a platform-owner lock that is
+ * INDEPENDENT of billing status. While suspended, every non-SUPER_ADMIN
+ * user of the cabinet is bounced to /suspended by the dashboard layout,
+ * regardless of subscription state. Reactivating clears the flag.
+ * Audited; idempotent.
+ */
+export async function setClinicSuspended(args: {
+  clinicId: string;
+  suspended: boolean;
+  reason?: string;
+}): Promise<Result<{ id: string }>> {
+  const user = await requireRole([UserRole.SUPER_ADMIN]);
+  const clinic = await db.clinic.findUnique({
+    where: { id: args.clinicId },
+    select: { id: true, suspendedAt: true },
+  });
+  if (!clinic) return fail("NOT_FOUND", "Cabinet introuvable");
+  const isSuspended = clinic.suspendedAt !== null;
+  if (isSuspended === args.suspended) return ok({ id: clinic.id });
+
+  await db.clinic.update({
+    where: { id: clinic.id },
+    data: args.suspended
+      ? { suspendedAt: new Date(), suspendedReason: args.reason?.trim() || null }
+      : { suspendedAt: null, suspendedReason: null },
+  });
+  await audit({
+    clinicId: clinic.id,
+    userId: user.id,
+    action: args.suspended
+      ? "superadmin.clinic.suspend"
+      : "superadmin.clinic.reactivate",
+    entity: "Clinic",
+    entityId: clinic.id,
+    payload: args.suspended ? { reason: args.reason ?? null } : {},
+  });
+  revalidatePath("/super-admin");
+  revalidatePath("/super-admin/clinics");
+  revalidatePath(`/super-admin/clinics/${clinic.id}`);
+  return ok({ id: clinic.id });
+}

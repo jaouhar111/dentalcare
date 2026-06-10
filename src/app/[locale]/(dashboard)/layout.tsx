@@ -48,9 +48,15 @@ export default async function DashboardLayout({
       select: {
         subscriptionStatus: true,
         trialEndsAt: true,
+        suspendedAt: true,
       },
     });
     if (clinic) {
+      // Platform-owner suspension takes precedence over billing — a
+      // suspended cabinet is fully locked out, not just paywalled.
+      if (clinic.suspendedAt) {
+        redirect(`/${locale}/suspended` as never);
+      }
       const trialExpired =
         clinic.subscriptionStatus === SubscriptionStatus.TRIAL &&
         clinic.trialEndsAt !== null &&

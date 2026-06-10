@@ -105,6 +105,11 @@ model Clinic {
   /// `null` = wizard never completed → /onboarding page blocks all other
   /// routes until the cabinet finishes setup (or explicitly skips).
   onboardingCompletedAt DateTime?
+  /// Platform-owner suspension — independent of billing status. When set,
+  /// every non-SUPER_ADMIN user of the cabinet is locked out (redirected
+  /// to /suspended) regardless of subscription state. Cleared on reactivate.
+  suspendedAt           DateTime?
+  suspendedReason       String?
   /// AI Receptionist kill switch. `true` = bot answers WhatsApp inbound.
   /// `false` = bot replies with a "transferring you" message and creates
   /// a handover ticket so the cabinet team picks up manually. Defaults

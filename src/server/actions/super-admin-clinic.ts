@@ -39,6 +39,8 @@ export async function getClinicDetail(
       subscriptionStatus: true,
       plan: true,
       trialEndsAt: true,
+      suspendedAt: true,
+      suspendedReason: true,
       openwaSessionId: true,
       createdAt: true,
     },
@@ -127,6 +129,8 @@ export async function getClinicDetail(
     plan: clinic.plan,
     trialEndsAt: clinic.trialEndsAt,
     trialDaysRemaining,
+    suspendedAt: clinic.suspendedAt,
+    suspendedReason: clinic.suspendedReason,
     openwaSessionId: clinic.openwaSessionId,
     createdAt: clinic.createdAt,
     totals: {
