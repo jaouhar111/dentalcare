@@ -242,7 +242,7 @@ export function OdontogramClient({
 
       {/* ─── Two-column layout ─── */}
       <div className="grid grid-cols-1 gap-5 lg:grid-cols-3">
-        <div className="bg-card rounded-2xl p-6 shadow-[0_1px_2px_rgba(0,0,0,0.04),0_8px_24px_-12px_rgba(0,0,0,0.06)] ring-1 ring-black/[0.04] lg:col-span-2">
+        <div className="bg-card rounded-2xl p-3 shadow-[0_1px_2px_rgba(0,0,0,0.04),0_8px_24px_-12px_rgba(0,0,0,0.06)] ring-1 ring-black/[0.04] sm:p-6 lg:col-span-2">
           <ChartSVG
             state={chart}
             selected={selected}

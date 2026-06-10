@@ -74,10 +74,10 @@ export default async function PatientDetailPage({
       </Link>
 
       {/* ─── Header card ─────────────────────────────────────────────────── */}
-      <div className="bg-card border-border/60 mb-6 rounded-xl border p-6">
-        <div className="flex items-start gap-5">
+      <div className="bg-card border-border/60 mb-6 rounded-xl border p-4 sm:p-6">
+        <div className="flex items-start gap-4 sm:gap-5">
           <div
-            className={`grid size-24 shrink-0 place-items-center rounded-2xl text-3xl font-bold ${color.bg} ${color.text}`}
+            className={`grid size-16 shrink-0 place-items-center rounded-2xl text-2xl font-bold sm:size-24 sm:text-3xl ${color.bg} ${color.text}`}
             aria-hidden
           >
             {initialsOf(patient.firstName, patient.lastName)}
@@ -98,7 +98,7 @@ export default async function PatientDetailPage({
                   )}
                 </p>
               </div>
-              <div className="flex items-center gap-2">
+              <div className="flex flex-wrap items-center gap-2">
                 <Link
                   href={`/patients/${patient.id}/edit` as never}
                   className="border-input hover:bg-muted bg-background inline-flex items-center gap-1.5 rounded-lg border px-3 py-1.5 text-sm font-medium transition"
@@ -226,7 +226,7 @@ export default async function PatientDetailPage({
           })}
         </nav>
 
-        <div className="p-6">
+        <div className="p-4 sm:p-6">
           {activeTab === "info" ? (
             <InfoTabContent patient={patient} locale={locale as Locale} />
           ) : activeTab === "records" ? (

@@ -145,21 +145,43 @@ export function ChartSVG({
 
 const EMPTY_SET: ReadonlySet<ToothSurface> = new Set();
 
+// ─── Circular surface-map geometry ──────────────────────────────────────────
+// Each tooth is a clean "surface wheel": a centre disc (occlusal / incisal)
+// ringed by 4 annular sectors (vestibular, lingual, mesial, distal). White
+// separators keep the surfaces legible without the old graph-paper grid.
+const R_OUT = 15;
+const R_IN = 6;
+
+function polar(cx: number, cy: number, r: number, deg: number): [number, number] {
+  const a = (deg * Math.PI) / 180;
+  return [cx + r * Math.cos(a), cy + r * Math.sin(a)];
+}
+
+/** Annular-sector (ring segment) path between two radii and two angles. */
+function ringSegment(
+  cx: number,
+  cy: number,
+  rIn: number,
+  rOut: number,
+  a1: number,
+  a2: number,
+): string {
+  const [x1o, y1o] = polar(cx, cy, rOut, a1);
+  const [x2o, y2o] = polar(cx, cy, rOut, a2);
+  const [x2i, y2i] = polar(cx, cy, rIn, a2);
+  const [x1i, y1i] = polar(cx, cy, rIn, a1);
+  const large = a2 - a1 > 180 ? 1 : 0;
+  return `M ${x1o} ${y1o} A ${rOut} ${rOut} 0 ${large} 1 ${x2o} ${y2o} L ${x2i} ${y2i} A ${rIn} ${rIn} 0 ${large} 0 ${x1i} ${y1i} Z`;
+}
+
 /**
- * One tooth = 5 anatomical zones laid out as a cross:
+ * One tooth = a circular surface map. SVG angles are clockwise from +x:
+ *   top (vestibular) = 225°→315°, right = -45°→45°,
+ *   bottom (lingual) = 45°→135°, left = 135°→225°, centre disc = occlusal.
  *
- *   ┌────────────────────────┐
- *   │           N (V)        │
- *   ├────┬──────────────┬────┤
- *   │ W  │              │ E  │
- *   │ M/D│      C       │ D/M│
- *   │    │  (O or I)    │    │
- *   ├────┴──────────────┴────┤
- *   │           S (L)        │
- *   └────────────────────────┘
- *
- * Click on a zone calls `onClickSurface(n, surface)`. Click anywhere else
- * (outside the inner rects) only triggers the tooth selection.
+ * Surface-scoped conditions paint the relevant sector(s); whole-tooth
+ * conditions fill the whole disc with a centred glyph. Clicking a sector
+ * calls `onClickSurface(n, surface)`; the FDI number selects the tooth.
  */
 function Tooth({
   n,
@@ -189,18 +211,15 @@ function Tooth({
   onClickSurface: (n: number, s: ToothSurface) => void;
 }) {
   const zones = zoneSurfaces(n);
+  const cx = w / 2;
+  const cy = h / 2;
 
   // Saved (committed) colour for a given surface — derived from `state`.
   function savedColorFor(surface: ToothSurface): string {
     if (!state) return EMPTY_TOOTH_COLOR;
     const style = CONDITION_STYLE[state.condition];
-    // Whole-tooth conditions paint every zone.
     if (WHOLE_TOOTH_CONDITIONS.has(state.condition)) return style.bg;
-    // Surface-scoped condition but with no surfaces listed → fall back to
-    // whole-tooth fill (covers legacy entries where the schema was looser).
     if (state.surfaces.length === 0) return style.bg;
-    // For OCCLUSAL/INCISAL we treat them as the centre zone regardless of
-    // which one was stored — the schema offers both, dentists may pick either.
     const centreSurfaces = new Set<ToothSurface>(["OCCLUSAL", "INCISAL"]);
     if (surface === zones.center) {
       return state.surfaces.some((s) => centreSurfaces.has(s)) ? style.bg : EMPTY_TOOTH_COLOR;
@@ -208,9 +227,8 @@ function Tooth({
     return state.surfaces.includes(surface) ? style.bg : EMPTY_TOOTH_COLOR;
   }
 
-  // Draft overlay — light tint of the chosen condition over surfaces the
-  // dentist has checked but not yet saved. Only shown when this tooth is
-  // selected and the draft condition is surface-scoped.
+  // Draft overlay — dashed tint of the chosen condition over checked-but-not-
+  // yet-saved surfaces. Only when this tooth is selected + surface-scoped.
   const draftStyle = draftCondition ? CONDITION_STYLE[draftCondition] : null;
   const draftIsWholeTooth = draftCondition
     ? WHOLE_TOOTH_CONDITIONS.has(draftCondition)
@@ -218,28 +236,23 @@ function Tooth({
   function draftOverlayFor(surface: ToothSurface): string | null {
     if (!draftStyle || draftIsWholeTooth) return null;
     if (surface === zones.center) {
-      // Same OCCLUSAL/INCISAL equivalence as savedColorFor.
-      const hasCentre =
-        draftSurfaces.has("OCCLUSAL") || draftSurfaces.has("INCISAL");
+      const hasCentre = draftSurfaces.has("OCCLUSAL") || draftSurfaces.has("INCISAL");
       return hasCentre ? draftStyle.bg : null;
     }
     return draftSurfaces.has(surface) ? draftStyle.bg : null;
   }
 
-  // Glyph painted at the centre when a saved condition exists.
-  const savedStyle = state ? CONDITION_STYLE[state.condition] : null;
-  const glyph = savedStyle?.glyph;
-  const glyphColor =
-    state && WHOLE_TOOTH_CONDITIONS.has(state.condition) ? "white" : "#64748b";
+  const isWhole = state ? WHOLE_TOOTH_CONDITIONS.has(state.condition) : false;
+  const wholeFill = state ? CONDITION_STYLE[state.condition].bg : null;
+  const glyph = state ? CONDITION_STYLE[state.condition].glyph : undefined;
 
-  // Zone rects.
-  const z = {
-    n: { x: 0, y: 0, w, h: h / 4, surface: zones.north },
-    s: { x: 0, y: (3 * h) / 4, w, h: h / 4, surface: zones.south },
-    w: { x: 0, y: h / 4, w: w / 4, h: h / 2, surface: zones.west },
-    e: { x: (3 * w) / 4, y: h / 4, w: w / 4, h: h / 2, surface: zones.east },
-    c: { x: w / 4, y: h / 4, w: w / 2, h: h / 2, surface: zones.center },
-  };
+  // The 4 outer sectors (surface + sector path).
+  const sectors: Array<{ key: string; surface: ToothSurface; d: string }> = [
+    { key: "top", surface: zones.north, d: ringSegment(cx, cy, R_IN, R_OUT, 225, 315) },
+    { key: "right", surface: zones.east, d: ringSegment(cx, cy, R_IN, R_OUT, -45, 45) },
+    { key: "bottom", surface: zones.south, d: ringSegment(cx, cy, R_IN, R_OUT, 45, 135) },
+    { key: "left", surface: zones.west, d: ringSegment(cx, cy, R_IN, R_OUT, 135, 225) },
+  ];
 
   return (
     <g
@@ -247,93 +260,129 @@ function Tooth({
       role="group"
       aria-label={`Tooth ${n}${state ? `, ${state.condition}` : ""}`}
     >
+      {/* Selection / multi-select ring */}
       {(isSelected || isMultiSelected) && (
-        <rect
-          x={-3}
-          y={-3}
-          width={w + 6}
-          height={h + 6}
-          rx={8}
+        <circle
+          cx={cx}
+          cy={cy}
+          r={R_OUT + 3}
           fill="none"
           stroke={isSelected ? "#0891b2" : "#22d3ee"}
-          strokeWidth={isSelected ? 3 : 2}
+          strokeWidth={isSelected ? 2.5 : 2}
           strokeDasharray={isMultiSelected && !isSelected ? "3 2" : undefined}
         />
       )}
 
-      {/* Background fill — gives the tooth a "frame" even before any zone is filled */}
-      <rect x={0} y={0} width={w} height={h} rx={6} fill="#f8fafc" />
-
-      {/* Zones — each one is independently clickable */}
-      {(["n", "s", "w", "e", "c"] as const).map((key) => {
-        const zone = z[key];
-        const fill = savedColorFor(zone.surface);
-        const draftFill = draftOverlayFor(zone.surface);
-        return (
-          <g key={key}>
-            <rect
-              x={zone.x}
-              y={zone.y}
-              width={zone.w}
-              height={zone.h}
-              fill={fill}
-              stroke="#cbd5e1"
-              strokeWidth={0.5}
+      {isWhole && wholeFill ? (
+        /* Whole-tooth condition — a single filled disc */
+        <circle
+          cx={cx}
+          cy={cy}
+          r={R_OUT}
+          fill={wholeFill}
+          stroke="white"
+          strokeWidth={1.5}
+          className="cursor-pointer transition hover:brightness-95"
+          onClick={(e) => {
+            e.stopPropagation();
+            onClickTooth(n);
+          }}
+        >
+          <title>{`${n} · ${state?.condition ?? ""}`}</title>
+        </circle>
+      ) : (
+        <>
+          {/* Outer sectors */}
+          {sectors.map((s) => (
+            <path
+              key={s.key}
+              d={s.d}
+              fill={savedColorFor(s.surface)}
+              stroke="white"
+              strokeWidth={1}
               className="cursor-pointer transition hover:brightness-95"
               onClick={(e) => {
                 e.stopPropagation();
-                onClickSurface(n, zone.surface);
-              }}
-              onKeyDown={(e) => {
-                if (e.key === "Enter" || e.key === " ") {
-                  e.preventDefault();
-                  onClickSurface(n, zone.surface);
-                }
+                onClickSurface(n, s.surface);
               }}
               role="button"
               tabIndex={0}
-              aria-label={`Tooth ${n} ${zone.surface}`}
+              aria-label={`Tooth ${n} ${s.surface}`}
             >
-              <title>{`${n} · ${zone.surface}`}</title>
-            </rect>
-            {draftFill && (
-              <rect
-                x={zone.x + 1}
-                y={zone.y + 1}
-                width={zone.w - 2}
-                height={zone.h - 2}
+              <title>{`${n} · ${s.surface}`}</title>
+            </path>
+          ))}
+          {/* Centre disc */}
+          <circle
+            cx={cx}
+            cy={cy}
+            r={R_IN}
+            fill={savedColorFor(zones.center)}
+            stroke="white"
+            strokeWidth={1}
+            className="cursor-pointer transition hover:brightness-95"
+            onClick={(e) => {
+              e.stopPropagation();
+              onClickSurface(n, zones.center);
+            }}
+            role="button"
+            tabIndex={0}
+            aria-label={`Tooth ${n} ${zones.center}`}
+          >
+            <title>{`${n} · ${zones.center}`}</title>
+          </circle>
+          {/* Draft overlays (dashed) */}
+          {sectors.map((s) => {
+            const d = draftOverlayFor(s.surface);
+            return d ? (
+              <path
+                key={`draft-${s.key}`}
+                d={s.d}
                 fill="none"
-                stroke={draftFill}
+                stroke={d}
                 strokeWidth={1.5}
                 strokeDasharray="2 1.5"
                 pointerEvents="none"
               />
-            )}
-          </g>
-        );
-      })}
+            ) : null;
+          })}
+          {(() => {
+            const dc = draftOverlayFor(zones.center);
+            return dc ? (
+              <circle
+                cx={cx}
+                cy={cy}
+                r={R_IN}
+                fill="none"
+                stroke={dc}
+                strokeWidth={1.5}
+                strokeDasharray="2 1.5"
+                pointerEvents="none"
+              />
+            ) : null;
+          })()}
+        </>
+      )}
 
-      {/* Rounded corners — overlay a thin frame for the outer rect */}
-      <rect
-        x={0}
-        y={0}
-        width={w}
-        height={h}
-        rx={6}
+      {/* Outer outline */}
+      <circle
+        cx={cx}
+        cy={cy}
+        r={R_OUT}
         fill="none"
         stroke="#94a3b8"
         strokeWidth={0.8}
         pointerEvents="none"
       />
 
-      {/* Centre glyph */}
-      {glyph && (
+      {/* Whole-tooth glyph */}
+      {isWhole && glyph && (
         <text
-          x={w / 2}
-          y={h / 2 + 5}
+          x={cx}
+          y={cy + 5}
           textAnchor="middle"
           fontSize="14"
-          fill={glyphColor}
+          fill="white"
           fontWeight="bold"
           pointerEvents="none"
         >
@@ -341,10 +390,10 @@ function Tooth({
         </text>
       )}
 
-      {/* FDI number — clickable as a fallback for tooth-level selection */}
+      {/* FDI number — selects the tooth */}
       <text
-        x={w / 2}
-        y={h + 14}
+        x={cx}
+        y={cy + R_OUT + 13}
         textAnchor="middle"
         fontSize="10"
         fontWeight={isSelected ? 700 : 600}
