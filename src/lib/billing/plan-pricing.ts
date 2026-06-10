@@ -45,3 +45,14 @@ export function planPricePartsFr(plan: PlanKey): { amount: string; suffix: strin
   if (amount === 0) return { amount: "0", suffix: `/ ${per}` };
   return { amount: String(amount), suffix: `MAD / ${per}` };
 }
+
+/**
+ * Monthly-normalised MAD figure for MRR / revenue maths — annual plans
+ * are divided by 12 so a yearly Cabinet+ contributes its monthly share.
+ * Used by the super-admin BI + subscriptions revenue aggregates so they
+ * never drift from the published prices.
+ */
+export function planMonthlyMad(plan: PlanKey): number {
+  const { amount, period } = PLAN_PRICING[plan];
+  return period === "year" ? amount / 12 : amount;
+}

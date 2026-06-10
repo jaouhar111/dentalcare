@@ -8,6 +8,7 @@ import {
 } from "@prisma/client";
 import { db } from "@/lib/db/client";
 import { requireRole } from "@/lib/auth/rbac";
+import { planMonthlyMad } from "@/lib/billing/plan-pricing";
 import { ok, type Result } from "@/lib/utils/result";
 
 /**
@@ -26,12 +27,6 @@ import { ok, type Result } from "@/lib/utils/result";
  *
  * All computations are read-only.
  */
-
-const MAD_PER_PLAN: Record<SubscriptionPlan, number> = {
-  STARTER: 0,
-  PRO: 499,
-  CABINET_PLUS: 999,
-};
 
 export interface ChurnCohort {
   /// Signup month label, "2026-04".
@@ -96,7 +91,7 @@ export async function getPlatformBI(): Promise<Result<PlatformBI>> {
       c.subscriptionStatus === SubscriptionStatus.ACTIVE ||
       c.subscriptionStatus === SubscriptionStatus.PAST_DUE
     ) {
-      const planMrr = MAD_PER_PLAN[c.plan];
+      const planMrr = planMonthlyMad(c.plan);
       mrrByPlan[c.plan] += planMrr;
       mrr += planMrr;
     }

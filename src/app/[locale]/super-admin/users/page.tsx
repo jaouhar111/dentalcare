@@ -2,6 +2,7 @@ import { setRequestLocale } from "next-intl/server";
 import { UserRole } from "@prisma/client";
 import { requireRole } from "@/lib/auth/rbac";
 import { getPlatformUsers } from "@/server/actions/super-admin-users";
+import { UserRowActions } from "../_components/user-row-actions";
 
 export const dynamic = "force-dynamic";
 
@@ -12,7 +13,7 @@ export default async function SuperAdminUsersPage({
 }) {
   const { locale } = await params;
   setRequestLocale(locale);
-  await requireRole([UserRole.SUPER_ADMIN]);
+  const me = await requireRole([UserRole.SUPER_ADMIN]);
 
   const result = await getPlatformUsers();
   if (!result.ok) {
@@ -68,6 +69,7 @@ export default async function SuperAdminUsersPage({
                 <th className="py-2 pr-3">Statut</th>
                 <th className="py-2 pr-3">Dernier login</th>
                 <th className="py-2 pr-3">Créé</th>
+                <th className="py-2 pr-3 text-end">Actions</th>
               </tr>
             </thead>
             <tbody>
@@ -100,6 +102,15 @@ export default async function SuperAdminUsersPage({
                   </td>
                   <td className="text-muted-foreground py-2 pr-3 text-[11px]">
                     {dateFmt.format(u.createdAt)}
+                  </td>
+                  <td className="py-2 pr-3">
+                    <div className="flex justify-end">
+                      <UserRowActions
+                        userId={u.id}
+                        isActive={u.isActive}
+                        canManage={u.role !== "SUPER_ADMIN" && u.id !== me.id}
+                      />
+                    </div>
                   </td>
                 </tr>
               ))}

@@ -106,9 +106,9 @@ export default async function PlatformBIPage({
             const planMrr = data.mrrByPlan[plan];
             const pct = data.mrr > 0 ? Math.round((planMrr / data.mrr) * 100) : 0;
             const label = {
-              STARTER: "Starter (0)",
-              PRO: "Pro (499)",
-              CABINET_PLUS: "Cabinet+ (999)",
+              STARTER: "Starter",
+              PRO: "Pro",
+              CABINET_PLUS: "Cabinet+",
             }[plan];
             return (
               <div

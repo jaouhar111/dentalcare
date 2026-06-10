@@ -12,10 +12,10 @@ import { setClinicPlan } from "@/server/actions/super-admin";
  * change with optimistic UI (toast on success, router.refresh).
  */
 
-const OPTIONS: Array<{ value: SubscriptionPlan; label: string; price: string }> = [
-  { value: "STARTER", label: "Starter", price: "0" },
-  { value: "PRO", label: "Pro", price: "499" },
-  { value: "CABINET_PLUS", label: "Cabinet+", price: "999" },
+const OPTIONS: Array<{ value: SubscriptionPlan; label: string }> = [
+  { value: "STARTER", label: "Starter" },
+  { value: "PRO", label: "Pro" },
+  { value: "CABINET_PLUS", label: "Cabinet+" },
 ];
 
 export function InlinePlanSwitch({

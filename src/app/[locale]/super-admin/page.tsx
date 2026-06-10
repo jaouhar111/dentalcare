@@ -181,9 +181,9 @@ export default async function SuperAdminHome({
         {subs
           ? (["STARTER", "PRO", "CABINET_PLUS"] as const).map((plan) => {
               const meta = {
-                STARTER: { label: "Starter", price: "0" },
-                PRO: { label: "Pro", price: "499" },
-                CABINET_PLUS: { label: "Cabinet+", price: "999" },
+                STARTER: { label: "Starter" },
+                PRO: { label: "Pro" },
+                CABINET_PLUS: { label: "Cabinet+" },
               }[plan];
               return (
                 <Link

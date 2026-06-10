@@ -7,17 +7,8 @@ import {
 } from "@prisma/client";
 import { db } from "@/lib/db/client";
 import { requireRole } from "@/lib/auth/rbac";
+import { planMonthlyMad } from "@/lib/billing/plan-pricing";
 import { ok, type Result } from "@/lib/utils/result";
-
-/**
- * Per-plan monthly MAD revenue mapping. Mirrors the landing page
- * pricing cards — keep in sync with `plan-picker.tsx`.
- */
-const PLAN_MAD: Record<SubscriptionPlan, number> = {
-  STARTER: 0,
-  PRO: 499,
-  CABINET_PLUS: 999,
-};
 
 export interface SubscriptionRow {
   id: string;
@@ -85,7 +76,7 @@ export async function getSubscriptionsOverview(): Promise<
   });
 
   const rows: SubscriptionRow[] = clinics.map((c) => {
-    const monthlyAmount = PLAN_MAD[c.plan];
+    const monthlyAmount = planMonthlyMad(c.plan);
     const trialDaysRemaining =
       c.subscriptionStatus === SubscriptionStatus.TRIAL && c.trialEndsAt
         ? Math.max(
