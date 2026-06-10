@@ -174,6 +174,10 @@ model User {
   fullName     String
   isActive     Boolean   @default(true)
   lastLoginAt  DateTime?
+  /// Set only on a SUPER_ADMIN row while they impersonate a cabinet user
+  /// (support). The session callback reads it to swap the effective
+  /// identity; cleared when impersonation stops.
+  impersonatedUserId String?
   createdAt    DateTime  @default(now())
   updatedAt    DateTime  @updatedAt
 

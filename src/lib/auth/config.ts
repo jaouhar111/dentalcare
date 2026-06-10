@@ -97,6 +97,43 @@ export const authConfig = {
         session.user.role = token.role as typeof session.user.role;
         session.user.clinicId = token.clinicId as typeof session.user.clinicId;
         session.user.dentistId = token.dentistId as typeof session.user.dentistId;
+
+        // ── Impersonation (support) ───────────────────────────────
+        // Only a SUPER_ADMIN can impersonate, so every other account
+        // skips this block entirely (no extra cost). Wrapped in
+        // try/catch: a DB hiccup must never lock anyone out — we just
+        // fall back to the real identity.
+        if (token.role === "SUPER_ADMIN" && token.sub) {
+          try {
+            const sa = await db.user.findUnique({
+              where: { id: token.sub },
+              select: { impersonatedUserId: true, fullName: true },
+            });
+            if (sa?.impersonatedUserId) {
+              const target = await db.user.findUnique({
+                where: { id: sa.impersonatedUserId },
+                select: {
+                  id: true,
+                  role: true,
+                  clinicId: true,
+                  fullName: true,
+                  isActive: true,
+                  dentist: { select: { id: true } },
+                },
+              });
+              if (target && target.isActive && target.role !== "SUPER_ADMIN") {
+                session.user.id = target.id;
+                session.user.role = target.role;
+                session.user.clinicId = target.clinicId;
+                session.user.dentistId = target.dentist?.id ?? undefined;
+                session.user.name = target.fullName;
+                session.impersonator = { id: token.sub, name: sa.fullName };
+              }
+            }
+          } catch {
+            // fall back to the real super-admin identity
+          }
+        }
       }
       return session;
     },

@@ -10,6 +10,7 @@ import { NAV_SECTIONS } from "@/components/nav-data";
 import { Toaster } from "@/components/ui/sonner";
 import { ConfirmDialogProvider } from "@/components/confirm-dialog";
 import { LegalFooter } from "@/components/legal-footer";
+import { ImpersonationBanner } from "@/components/impersonation-banner";
 import { isRtl } from "@/i18n/routing";
 
 /**
@@ -42,7 +43,10 @@ export default async function DashboardLayout({
   //   - status is TRIAL and trialEndsAt is in the past (expired)
   // We DON'T gate the /billing page itself, otherwise the user couldn't
   // ever fix the situation.
-  if (session.user.role !== UserRole.SUPER_ADMIN) {
+  // Impersonators (a super-admin acting as a cabinet user) bypass the
+  // billing + suspension gates so support is never locked out of the
+  // cabinet they came to inspect.
+  if (session.user.role !== UserRole.SUPER_ADMIN && !session.impersonator) {
     const clinic = await db.clinic.findUnique({
       where: { id: session.user.clinicId },
       select: {
@@ -94,6 +98,13 @@ export default async function DashboardLayout({
 
   return (
     <ConfirmDialogProvider>
+      {session.impersonator ? (
+        <ImpersonationBanner
+          userName={session.user.name ?? null}
+          clinicName={clinic?.name ?? null}
+          impersonatorName={session.impersonator.name}
+        />
+      ) : null}
       <div className="md:grid md:grid-cols-[260px_1fr] md:gap-4 md:p-4 min-h-screen">
         <AppSidebar role={session.user.role} />
         <MobileSidebarDrawer

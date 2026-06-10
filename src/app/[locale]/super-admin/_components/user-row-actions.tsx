@@ -1,9 +1,11 @@
 "use client";
 
 import { useTransition } from "react";
+import { useLocale } from "next-intl";
 import { toast } from "sonner";
 import { useRouter } from "@/i18n/navigation";
 import { useConfirm } from "@/components/confirm-dialog";
+import { startImpersonation } from "@/server/actions/super-admin-impersonation";
 import {
   sendUserPasswordReset,
   setUserActive,
@@ -25,11 +27,24 @@ export function UserRowActions({
   canManage: boolean;
 }) {
   const router = useRouter();
+  const locale = useLocale();
   const confirm = useConfirm();
   const [isPending, startTransition] = useTransition();
 
   if (!canManage) {
     return <span className="text-muted-foreground text-[11px]">—</span>;
+  }
+
+  function impersonate() {
+    startTransition(async () => {
+      const res = await startImpersonation({ userId });
+      if (!res.ok) {
+        toast.error(res.error.message);
+        return;
+      }
+      // Full navigation so middleware + layout pick up the new session.
+      window.location.assign(`/${locale}${res.data.redirectTo}`);
+    });
   }
 
   function toggleActive() {
@@ -67,6 +82,17 @@ export function UserRowActions({
 
   return (
     <div className="flex items-center gap-1.5">
+      {isActive ? (
+        <button
+          type="button"
+          onClick={impersonate}
+          disabled={isPending}
+          className="text-primary ring-primary/30 hover:bg-primary/5 rounded-md px-2 py-1 text-[11px] font-medium ring-1 transition disabled:opacity-50"
+          title="Se connecter en tant que cet utilisateur (support)"
+        >
+          Connexion en tant que
+        </button>
+      ) : null}
       <button
         type="button"
         onClick={toggleActive}

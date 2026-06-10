@@ -16,6 +16,16 @@ declare module "next-auth" {
       clinicId: string;
       dentistId?: string;
     };
+    /**
+     * Present only while a SUPER_ADMIN is impersonating a cabinet user.
+     * `user.*` then reflects the IMPERSONATED identity; `impersonator`
+     * carries the real platform owner so the UI can show a banner and
+     * the "stop" action can restore the original session.
+     */
+    impersonator?: {
+      id: string;
+      name: string | null;
+    };
   }
 }
 
