@@ -179,9 +179,9 @@ export async function signupAction(
 
     // Best-effort welcome email — the signup itself already succeeded,
     // so a Resend outage / dev-mode mock just logs and moves on. The
-    // recipient is the new admin, the deep link points at /onboarding
-    // so they land on step 1 (WhatsApp connection) the moment they sign
-    // in.
+    // recipient is the new admin; the deep link drops them on /dashboard
+    // (they're already signed in), where they can finish setup from
+    // Paramètres.
     const baseUrl = env.NEXTAUTH_URL ?? "http://localhost:3000";
     const adminFirstName = data.fullName.split(" ")[0] ?? data.fullName;
     const trialEndsAtLabel = trialEndsAt.toLocaleDateString(data.locale, {
@@ -193,7 +193,7 @@ export async function signupAction(
       to: data.email,
       adminFirstName,
       clinicName: data.clinicName,
-      onboardingUrl: `${baseUrl}/${data.locale}/onboarding`,
+      dashboardUrl: `${baseUrl}/${data.locale}/dashboard`,
       trialEndsAtLabel,
     }).catch((err) => {
       // eslint-disable-next-line no-console

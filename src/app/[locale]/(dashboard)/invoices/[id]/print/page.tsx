@@ -82,7 +82,16 @@ export default async function InvoicePrintPage({
         {/* Header */}
         <header className="border-b-2 border-slate-300 pb-4">
           <div className="flex items-start justify-between gap-6">
-            <div>
+            <div className="flex items-start gap-3">
+              {inv.clinicLogoUrl && (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img
+                  src={inv.clinicLogoUrl}
+                  alt=""
+                  className="h-14 w-14 shrink-0 object-contain"
+                />
+              )}
+              <div>
               <div className="text-2xl font-bold tracking-tight text-slate-900">
                 {inv.clinicName}
               </div>
@@ -97,6 +106,7 @@ export default async function InvoicePrintPage({
               {inv.clinicVatNumber && (
                 <div className="num text-xs text-slate-500">N° TVA {inv.clinicVatNumber}</div>
               )}
+              </div>
             </div>
             <div className="text-end">
               <div className="text-xs font-medium tracking-widest text-cyan-700 uppercase">

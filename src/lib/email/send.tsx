@@ -44,7 +44,7 @@ export async function sendWelcomeEmail(input: {
   to: string;
   adminFirstName: string;
   clinicName: string;
-  onboardingUrl: string;
+  dashboardUrl: string;
   trialEndsAtLabel: string;
 }): Promise<Result<{ id: string }>> {
   return sendEmail({
@@ -54,7 +54,7 @@ export async function sendWelcomeEmail(input: {
       <WelcomeEmail
         adminFirstName={input.adminFirstName}
         clinicName={input.clinicName}
-        onboardingUrl={input.onboardingUrl}
+        dashboardUrl={input.dashboardUrl}
         trialEndsAtLabel={input.trialEndsAtLabel}
       />
     ),

@@ -1,4 +1,6 @@
 import { SubscriptionPlan, SubscriptionStatus } from "@prisma/client";
+import { planLabel } from "@/lib/billing/plan-capabilities";
+import { planPricePartsFr } from "@/lib/billing/plan-pricing";
 
 /**
  * Subscription card displayed at the top of the cabinet's
@@ -15,15 +17,6 @@ import { SubscriptionPlan, SubscriptionStatus } from "@prisma/client";
  * plan before contacting support.
  */
 
-const PLAN_META: Record<
-  SubscriptionPlan,
-  { name: string; price: string; suffix: string }
-> = {
-  STARTER: { name: "Starter", price: "0", suffix: "MAD / mois" },
-  PRO: { name: "Pro", price: "499", suffix: "MAD / mois" },
-  CABINET_PLUS: { name: "Cabinet+", price: "999", suffix: "MAD / mois" },
-};
-
 export function SubscriptionCard({
   status,
   plan,
@@ -37,7 +30,7 @@ export function SubscriptionCard({
   createdAt: Date;
   locale: string;
 }) {
-  const planMeta = PLAN_META[plan];
+  const planMeta = { name: planLabel(plan), ...planPricePartsFr(plan) };
   const dateFmt = new Intl.DateTimeFormat(locale, {
     day: "2-digit",
     month: "long",
@@ -78,7 +71,7 @@ export function SubscriptionCard({
             </div>
             <div className="text-foreground mt-0.5 flex items-baseline gap-1.5">
               <span className="text-[28px] leading-none font-bold tracking-tight tabular-nums">
-                {planMeta.price}
+                {planMeta.amount}
               </span>
               <span className="text-muted-foreground text-[12px]">{planMeta.suffix}</span>
             </div>

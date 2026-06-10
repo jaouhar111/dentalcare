@@ -124,7 +124,7 @@ export default async function ConversationsPage({
                     <span className="flex min-w-0 items-center gap-1.5">
                       {c.unread ? (
                         <span
-                          className="size-2 shrink-0 rounded-full bg-[var(--accent-2)] shadow-[0_0_8px_var(--accent-glow)]"
+                          className="size-2 shrink-0 rounded-full bg-(--accent-2) shadow-[0_0_8px_var(--accent-glow)]"
                           aria-label={t("unreadDot")}
                         />
                       ) : null}

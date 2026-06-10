@@ -188,18 +188,18 @@ export function PinnedDemo() {
   );
 
   return (
-    <section id="demo" ref={wrapRef} className="relative h-screen overflow-hidden bg-[#faf7f2] px-3">
+    <section id="demo" ref={wrapRef} className="relative h-screen overflow-hidden px-3">
       <div className="relative mx-auto grid h-full max-w-[1024px] grid-cols-1 items-center gap-12 px-6 md:grid-cols-[1fr_1.1fr] md:gap-16">
         <div className="relative order-2 md:order-1">
-          <div className="mb-3 text-[13px] font-semibold tracking-[0.04em] text-[#128c7e] uppercase">
+          <div className="mb-3 text-[13px] font-semibold tracking-[0.04em] text-[#0e7490] uppercase">
             {t("kicker")}
           </div>
           <h2
-            className="text-[var(--lp-ink)] text-[clamp(40px,5.5vw,72px)] leading-[1.07] font-semibold tracking-[-0.012em]"
+            className="text-(--lp-ink) text-[clamp(40px,5.5vw,72px)] leading-[1.07] font-semibold tracking-[-0.012em]"
             style={{ fontFamily: "var(--lp-font-system)" }}
           >
             {t("headlineA")}{" "}
-            <span className="text-[var(--lp-ink-muted)]">{t("headlineB")}</span>
+            <span className="text-(--lp-ink-muted)">{t("headlineB")}</span>
           </h2>
           <div className="relative mt-10 h-[200px]">
             {TURNS.map((tt, i) => (
@@ -210,10 +210,10 @@ export function PinnedDemo() {
                 }}
                 className="absolute inset-0"
               >
-                <div className="text-[12px] font-semibold tracking-[0.04em] text-[#128c7e] uppercase">
+                <div className="text-xs font-semibold tracking-[0.04em] text-[#0e7490] uppercase">
                   {tt.caption.label}
                 </div>
-                <p className="text-[var(--lp-ink)] mt-3 text-[19px] leading-[1.4]">
+                <p className="text-(--lp-ink) mt-3 text-[19px] leading-[1.4]">
                   {tt.caption.detail}
                 </p>
               </div>
@@ -227,18 +227,18 @@ export function PinnedDemo() {
             style={{ padding: 16, borderRadius: 36 }}
           >
             <div className="absolute top-3 left-1/2 z-10 h-5 w-24 -translate-x-1/2 rounded-full bg-[#1a1d20]" />
-            <div className="mt-8 flex items-center gap-3 border-b border-[var(--lp-line)] px-1 pb-3">
+            <div className="mt-8 flex items-center gap-3 border-b border-(--lp-line) px-1 pb-3">
               <span
                 className="grid size-8 place-items-center rounded-full text-white"
-                style={{ background: "linear-gradient(135deg, #25D366, #128C7E)" }}
+                style={{ background: "linear-gradient(135deg, #06b6d4, #0891b2)" }}
               >
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" aria-hidden>
                   <path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448L.057 24z" />
                 </svg>
               </span>
               <div className="leading-tight">
-                <div className="text-[var(--lp-ink)] text-[13px] font-semibold">DentalCare</div>
-                <div className="text-[var(--lp-ink-dim)] text-[10px]">
+                <div className="text-(--lp-ink) text-[13px] font-semibold">DentalCare</div>
+                <div className="text-(--lp-ink-dim) text-[10px]">
                   {locale === "en" ? "online" : "en ligne"}
                 </div>
               </div>
@@ -253,8 +253,8 @@ export function PinnedDemo() {
                   }}
                   className={
                     tt.side === "patient"
-                      ? "ml-auto max-w-[80%] rounded-2xl rounded-br-md bg-[#dcf8c6] px-3.5 py-2 text-[13px] leading-snug text-[#0c3927]"
-                      : "mr-auto max-w-[85%] rounded-2xl rounded-bl-md border border-[var(--lp-line)] bg-[#faf7f2] px-3.5 py-2 text-[13px] leading-snug text-[var(--lp-ink)]"
+                      ? "ml-auto max-w-[80%] rounded-2xl rounded-br-md bg-[#cffafe] px-3.5 py-2 text-[13px] leading-snug text-[#0e3a47]"
+                      : "mr-auto max-w-[85%] rounded-2xl rounded-bl-md border border-(--lp-line) bg-black/[0.03] px-3.5 py-2 text-[13px] leading-snug text-(--lp-ink)"
                   }
                 >
                   {tt.text}

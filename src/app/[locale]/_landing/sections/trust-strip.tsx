@@ -32,12 +32,16 @@ function Stat({ big, caption, delay }: { big: string; caption: string; delay: nu
       transition={{ delay, duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
     >
       <div
-        className="text-[var(--lp-ink)] text-[64px] leading-[1] font-semibold tracking-[-0.02em] md:text-[80px]"
-        style={{ fontFamily: "var(--lp-font-system)" }}
+        className="bg-clip-text text-[64px] leading-none font-semibold tracking-[-0.02em] text-transparent md:text-[80px]"
+        style={{
+          fontFamily: "var(--lp-font-system)",
+          backgroundImage:
+            "linear-gradient(135deg, #155e75 0%, #0891b2 60%, #06b6d4 120%)",
+        }}
       >
         {big}
       </div>
-      <p className="text-[var(--lp-ink-muted)] mx-auto mt-3 max-w-[14rem] text-[15px] leading-[1.4]">
+      <p className="text-(--lp-ink-muted) mx-auto mt-3 max-w-[14rem] text-[15px] leading-[1.4]">
         {caption}
       </p>
     </motion.div>

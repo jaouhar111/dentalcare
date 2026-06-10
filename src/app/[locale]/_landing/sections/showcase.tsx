@@ -42,7 +42,7 @@ export function Showcase() {
           className="pointer-events-none absolute inset-0"
           style={{
             background:
-              "radial-gradient(35% 50% at 0% 100%, rgba(37,211,102,0.20), transparent 70%), radial-gradient(40% 50% at 100% 100%, rgba(201,169,110,0.18), transparent 70%)",
+              "radial-gradient(35% 50% at 0% 100%, rgba(8,145,178,0.28), transparent 70%), radial-gradient(40% 50% at 100% 100%, rgba(2,132,199,0.24), transparent 70%)",
             mixBlendMode: "screen",
           }}
         />
@@ -54,10 +54,10 @@ export function Showcase() {
             transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
             /* Acrylic chip — sits on the photo, mimics Win11's contextual
                "scene" labels on the Settings background-picker. */
-            className="inline-flex items-center gap-2 rounded-full border border-white/30 bg-white/15 px-3 py-1.5 text-[11px] font-semibold tracking-[0.10em] text-white uppercase backdrop-blur-md"
+            className="inline-flex items-center gap-2 rounded-full border border-white/30 bg-white/15 px-3 py-1.5 text-[11px] font-semibold tracking-[0.10em] text-white uppercase"
           >
             <span
-              className="size-1.5 rounded-full bg-[#25d366]"
+              className="size-1.5 rounded-full bg-[#06b6d4]"
               aria-hidden
             />
             {t("kicker")}

@@ -5,6 +5,7 @@ import { toast } from "sonner";
 import { SubscriptionPlan } from "@prisma/client";
 import { useRouter } from "@/i18n/navigation";
 import { setClinicPlan } from "@/server/actions/super-admin";
+import { planPricePartsFr } from "@/lib/billing/plan-pricing";
 
 /**
  * Plan picker — three cards (Starter / Pro / Cabinet+) matching the
@@ -25,12 +26,14 @@ type PlanSpec = {
   features: string[];
 };
 
+// Prices come from the single pricing source (`plan-pricing.ts`) so the
+// super-admin picker can never drift from the public landing / settings.
 const PLANS: PlanSpec[] = [
   {
     plan: "STARTER",
     name: "Starter",
-    price: "0",
-    priceSuffix: "MAD / mois",
+    price: planPricePartsFr("STARTER").amount,
+    priceSuffix: planPricePartsFr("STARTER").suffix,
     tagline: "Découverte",
     features: [
       "1 dentiste",
@@ -43,8 +46,8 @@ const PLANS: PlanSpec[] = [
   {
     plan: "PRO",
     name: "Pro",
-    price: "499",
-    priceSuffix: "MAD / mois",
+    price: planPricePartsFr("PRO").amount,
+    priceSuffix: planPricePartsFr("PRO").suffix,
     tagline: "Le plus populaire",
     features: [
       "3 dentistes",
@@ -58,8 +61,8 @@ const PLANS: PlanSpec[] = [
   {
     plan: "CABINET_PLUS",
     name: "Cabinet+",
-    price: "999",
-    priceSuffix: "MAD / mois",
+    price: planPricePartsFr("CABINET_PLUS").amount,
+    priceSuffix: planPricePartsFr("CABINET_PLUS").suffix,
     tagline: "Grandes équipes",
     features: [
       "Dentistes illimités",

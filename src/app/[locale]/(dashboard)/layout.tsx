@@ -48,7 +48,6 @@ export default async function DashboardLayout({
       select: {
         subscriptionStatus: true,
         trialEndsAt: true,
-        onboardingCompletedAt: true,
       },
     });
     if (clinic) {
@@ -63,17 +62,6 @@ export default async function DashboardLayout({
       // (The /billing page lives at /billing — see below.)
       if (blocked) {
         redirect(`/${locale}/billing` as never);
-      }
-
-      // Phase 10 onboarding gate — admins of a fresh cabinet are bounced
-      // to `/onboarding` (which lives OUTSIDE this dashboard group, so
-      // it doesn't loop back through this layout). Other roles pass
-      // through — they can't configure the wizard themselves anyway.
-      if (
-        !clinic.onboardingCompletedAt &&
-        session.user.role === UserRole.ADMIN
-      ) {
-        redirect(`/${locale}/onboarding` as never);
       }
     }
   }

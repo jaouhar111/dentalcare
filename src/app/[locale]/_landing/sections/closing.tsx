@@ -15,12 +15,12 @@ export function Closing() {
     <>
       <section className="px-3 py-3">
         <div
-          className="relative mx-auto max-w-[1024px] overflow-hidden rounded-[16px] px-6 py-24 text-center md:py-32"
+          className="relative mx-auto max-w-[1024px] overflow-hidden rounded-2xl px-6 py-24 text-center md:py-32"
           style={{
             background:
-              "linear-gradient(180deg, #1b1b1f 0%, #0f0f12 100%)",
+              "linear-gradient(160deg, #ffffff 0%, #f0fbff 55%, #e2f6fe 100%)",
             boxShadow:
-              "0 1px 0 rgba(255,255,255,0.05) inset, 0 24px 60px -24px rgba(0,0,0,0.5)",
+              "0 0 0 1px rgba(8,145,178,0.12) inset, 0 1px 2px rgba(15,23,42,0.04), 0 28px 64px -30px rgba(15,23,42,0.16)",
           }}
         >
           <div
@@ -28,7 +28,7 @@ export function Closing() {
             className="pointer-events-none absolute inset-0"
             style={{
               background:
-                "radial-gradient(45% 60% at 50% 0%, rgba(37,211,102,0.22), transparent 70%), radial-gradient(40% 50% at 50% 100%, rgba(201,169,110,0.16), transparent 70%)",
+                "radial-gradient(50% 60% at 50% 0%, rgba(8,145,178,0.14), transparent 70%), radial-gradient(45% 55% at 50% 100%, rgba(2,132,199,0.12), transparent 70%)",
             }}
           />
           <motion.h2
@@ -36,7 +36,7 @@ export function Closing() {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true, amount: 0.4 }}
             transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
-            className="relative mx-auto max-w-3xl text-[clamp(40px,5.5vw,72px)] leading-[1.07] font-semibold tracking-[-0.012em] text-[#f3f3f3]"
+            className="relative mx-auto max-w-3xl text-[clamp(40px,5.5vw,72px)] leading-[1.07] font-semibold tracking-[-0.012em] text-(--lp-ink)"
             style={{ fontFamily: "var(--lp-font-system)" }}
           >
             {t("headline")}
@@ -46,7 +46,7 @@ export function Closing() {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true, amount: 0.4 }}
             transition={{ delay: 0.15, duration: 0.6 }}
-            className="relative mx-auto mt-5 max-w-xl text-[19px] leading-[1.4] text-[#a6a6aa]"
+            className="relative mx-auto mt-5 max-w-xl text-[19px] leading-[1.4] text-(--lp-ink-muted)"
           >
             {t("sub")}
           </motion.p>
@@ -65,7 +65,7 @@ export function Closing() {
             </Link>
             <Link
               href={"/login" as never}
-              className="inline-flex h-11 items-center rounded-md border border-white/10 bg-white/[0.06] px-5 text-[15px] font-medium text-[#f3f3f3] backdrop-blur transition-colors hover:bg-white/[0.12]"
+              className="win11-btn-subtle inline-flex h-11 items-center px-5 text-[15px]"
             >
               {t("ctaSecondary")} <span aria-hidden className="ml-1">›</span>
             </Link>
@@ -75,30 +75,30 @@ export function Closing() {
 
       <footer className="bg-transparent">
         <div className="mx-auto max-w-[1024px] px-6 pt-12 pb-10">
-          <p className="text-[var(--lp-ink-dim)] mb-6 text-[12px] leading-[1.5]">
+          <p className="text-(--lp-ink-dim) mb-6 text-xs leading-[1.5]">
             {t("compliance")}
           </p>
-          <div className="border-t border-[var(--lp-line)] pt-6">
+          <div className="border-t border-(--lp-line) pt-6">
             <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-              <div className="text-[var(--lp-ink-dim)] text-[12px]">
+              <div className="text-(--lp-ink-dim) text-xs">
                 Copyright © {year} DentalCare. {t("copyright")}
               </div>
-              <div className="text-[var(--lp-ink-dim)] flex flex-wrap gap-5 text-[12px]">
+              <div className="text-(--lp-ink-dim) flex flex-wrap gap-5 text-xs">
                 <Link
                   href={"/legal/terms" as never}
-                  className="hover:text-[var(--lp-ink)] transition-colors"
+                  className="hover:text-(--lp-ink) transition-colors"
                 >
                   {t("terms")}
                 </Link>
                 <Link
                   href={"/legal/privacy" as never}
-                  className="hover:text-[var(--lp-ink)] transition-colors"
+                  className="hover:text-(--lp-ink) transition-colors"
                 >
                   {t("privacy")}
                 </Link>
                 <a
                   href="mailto:support@dentalcare.ma"
-                  className="hover:text-[var(--lp-ink)] transition-colors"
+                  className="hover:text-(--lp-ink) transition-colors"
                 >
                   {t("contact")}
                 </a>

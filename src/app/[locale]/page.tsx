@@ -14,24 +14,26 @@ import { Closing } from "./_landing/sections/closing";
 export const dynamic = "force-dynamic";
 
 /**
- * Public marketing landing page — apple.com vocabulary.
+ * Public marketing landing page — light theme, mirrors the dashboard.
  *
- * Structure: a stack of rounded "story cards" alternating between
- * white, Apple gray (#f5f5f7), black, and very-soft cyan tint, the
- * way apple.com/iphone presents its product narrative. Each card is
- * inset by 12px so the dividing gap reads as part of the rhythm.
+ * The whole page sits on the `.lp-premium` theme: the dashboard's own
+ * Liquid-Glass mesh (near-white base with soft cyan/blue corner blobs)
+ * and white cards (`win11-card`, the Apple-card recipe) with soft
+ * shadows, hairline borders and DentalCare cyan accents — no black, no
+ * green. Each section is inset by 12px so the gap reads as rhythm.
  *
  * Section order:
- *   - Hero       (white)  — wordmark, tagline, two CTAs, phone visual
- *   - TrustStrip (gray)   — three big numbers in a single card
- *   - Problem    (black)  — "Vous avez signé pour soigner."
- *   - Features   (white)  — 2×2 grid of tinted tiles, one dark
- *   - Demo       (gray)   — pinned chat scrub with caption column
- *   - Pricing    (white)  — three plan cards, middle one bordered blue
- *   - Closing    (black)  — final CTA, then thin compliance footer
+ *   - Hero       — wordmark, tagline, two CTAs, mock dashboard preview
+ *   - TrustStrip — three gradient numbers in one card
+ *   - Problem    — navy story panel with cyan halos
+ *   - Features   — 2×2 card grid, one elevated dark tile
+ *   - Showcase   — full-bleed cabinet photo in a card frame
+ *   - Demo       — pinned chat scrub with caption column
+ *   - Pricing    — three plan cards, middle one cyan-bordered
+ *   - Closing    — final CTA panel, then thin compliance footer
  *
  * Logged-in users see the page too (no redirect) — useful as a
- * brochure to share with peers; the nav swaps "Essai gratuit" for
+ * brochure to share with peers; the nav swaps the signup CTA for
  * "Mon dashboard" when a session exists.
  */
 export default async function MarketingHome({
@@ -50,7 +52,7 @@ export default async function MarketingHome({
     : null;
 
   return (
-    <div className="lp-light min-h-screen">
+    <div className="lp-premium min-h-screen">
       <SmoothScroll />
       <LandingNav dashboardHref={dashboardHref} locale={locale} />
       <main className="pt-16">

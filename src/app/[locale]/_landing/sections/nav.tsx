@@ -38,27 +38,21 @@ export function LandingNav({
       style={{ fontFamily: "var(--lp-font-system)" }}
     >
       <div
-        className="win11-card flex h-14 w-full max-w-[1100px] items-center gap-2 px-2 transition-all md:gap-4 md:px-3"
-        style={{
-          borderRadius: 14,
-          boxShadow: scrolled
-            ? "0 1px 0 rgba(255,255,255,0.8) inset, 0 -1px 0 rgba(0,0,0,0.04) inset, 0 18px 40px -16px rgba(0,0,0,0.24), 0 6px 12px rgba(0,0,0,0.06)"
-            : "0 1px 0 rgba(255,255,255,0.8) inset, 0 -1px 0 rgba(0,0,0,0.04) inset, 0 12px 32px -16px rgba(0,0,0,0.18), 0 2px 6px rgba(0,0,0,0.05)",
-        }}
+        className={`${scrolled ? "glass-regular" : "glass-thin"} flex h-14 w-full max-w-[1100px] items-center gap-2 rounded-2xl px-2 transition-all md:gap-4 md:rounded-3xl md:px-3`}
       >
         {/* ── Brand cluster ─────────────────────────────────────── */}
         <Link
           href={"/" as never}
-          className="text-[var(--lp-ink)] group flex items-center gap-2.5 rounded-lg px-2 py-1.5 transition-colors hover:bg-black/[0.04]"
+          className="text-(--lp-ink) group flex items-center gap-2.5 rounded-lg px-2 py-1.5 transition-colors hover:bg-black/5"
           aria-label="DentalCare"
         >
           <span
             className="relative grid size-9 place-items-center rounded-[10px] text-white"
             style={{
               background:
-                "linear-gradient(135deg, #2fe675 0%, #128c7e 100%)",
+                "linear-gradient(135deg, #22d3ee 0%, #0891b2 100%)",
               boxShadow:
-                "0 1px 0 rgba(255,255,255,0.4) inset, 0 -1px 0 rgba(0,0,0,0.18) inset, 0 6px 14px -4px rgba(37,211,102,0.45)",
+                "0 1px 0 rgba(255,255,255,0.4) inset, 0 -1px 0 rgba(0,0,0,0.18) inset, 0 6px 14px -4px rgba(34,211,238,0.5)",
             }}
             aria-hidden
           >
@@ -68,15 +62,15 @@ export function LandingNav({
             <span
               className="pointer-events-none absolute -right-0.5 -top-0.5 size-2 rounded-full"
               style={{
-                background: "#34d399",
-                boxShadow: "0 0 0 2px rgba(255,255,255,0.9), 0 0 8px rgba(52,211,153,0.6)",
+                background: "#22d3ee",
+                boxShadow: "0 0 0 2px rgba(255,255,255,0.9), 0 0 8px rgba(34,211,238,0.7)",
               }}
               aria-hidden
             />
           </span>
           <span className="flex flex-col leading-tight">
             <span className="text-[15px] font-semibold tracking-tight">DentalCare</span>
-            <span className="text-[10px] font-medium tracking-[0.06em] text-[#128c7e] uppercase">
+            <span className="text-[10px] font-medium tracking-[0.06em] text-[#0e7490] uppercase">
               Receptionist IA
             </span>
           </span>
@@ -84,12 +78,12 @@ export function LandingNav({
 
         {/* ── Center vertical divider ───────────────────────────── */}
         <span
-          className="mx-1 hidden h-7 w-px bg-black/[0.08] md:block"
+          className="mx-1 hidden h-7 w-px bg-black/10 md:block"
           aria-hidden
         />
 
         {/* ── Center navigation links ───────────────────────────── */}
-        <ul className="text-[var(--lp-ink-muted)] hidden flex-1 items-center gap-0.5 text-[13px] md:flex">
+        <ul className="text-(--lp-ink-muted) hidden flex-1 items-center gap-0.5 text-[13px] md:flex">
           <NavLink href="#story" label={t("overview")} />
           <NavLink href="#features" label={t("features")} />
           <NavLink href="#demo" label={t("demo")} />
@@ -97,7 +91,7 @@ export function LandingNav({
           <li>
             <a
               href="mailto:support@dentalcare.ma"
-              className="text-[var(--lp-ink-muted)] hover:text-[var(--lp-ink)] hover:bg-black/[0.04] inline-block rounded-md px-3 py-1.5 transition-colors"
+              className="text-(--lp-ink-muted) hover:text-(--lp-ink) hover:bg-black/5 inline-block rounded-md px-3 py-1.5 transition-colors"
             >
               {t("contact")}
             </a>
@@ -109,12 +103,12 @@ export function LandingNav({
           {/* Trial chip — broadcasts the value-prop right in the nav */}
           {dashboardHref ? null : (
             <span
-              className="hidden items-center gap-1.5 rounded-full border border-[#25d366]/30 bg-[#25d366]/[0.08] px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.06em] text-[#128c7e] sm:inline-flex"
+              className="hidden items-center gap-1.5 rounded-full border border-[#06b6d4]/30 bg-[#06b6d4]/8 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.06em] text-[#0e7490] sm:inline-flex"
               aria-hidden
             >
               <span
-                className="size-1.5 rounded-full bg-[#25d366]"
-                style={{ boxShadow: "0 0 8px rgba(37,211,102,0.7)" }}
+                className="size-1.5 rounded-full bg-[#06b6d4]"
+                style={{ boxShadow: "0 0 8px rgba(8,145,178,0.5)" }}
               />
               14 j gratuits
             </span>
@@ -124,7 +118,7 @@ export function LandingNav({
           <Link
             href={"/" as never}
             locale={otherLocale}
-            className="text-[var(--lp-ink-muted)] hover:bg-black/[0.04] hover:text-[var(--lp-ink)] hidden rounded-md px-2.5 py-1.5 font-medium tracking-[0.04em] uppercase transition-colors sm:inline-block"
+            className="text-(--lp-ink-muted) hover:bg-black/5 hover:text-(--lp-ink) hidden rounded-md px-2.5 py-1.5 font-medium tracking-[0.04em] uppercase transition-colors sm:inline-block"
             aria-label={`Switch to ${otherLocale.toUpperCase()}`}
           >
             {otherLocale.toUpperCase()}
@@ -142,7 +136,7 @@ export function LandingNav({
             <>
               <Link
                 href={"/login" as never}
-                className="text-[var(--lp-ink)] hidden rounded-md px-3 py-1.5 font-medium transition-colors hover:bg-black/[0.04] sm:inline-block"
+                className="text-(--lp-ink) hidden rounded-md px-3 py-1.5 font-medium transition-colors hover:bg-black/5 sm:inline-block"
               >
                 {t("login")}
               </Link>
@@ -166,12 +160,12 @@ function NavLink({ href, label }: { href: string; label: string }) {
     <li>
       <Link
         href={href as never}
-        className="text-[var(--lp-ink-muted)] hover:text-[var(--lp-ink)] group relative inline-block rounded-md px-3 py-2 font-medium transition-colors"
+        className="text-(--lp-ink-muted) hover:text-(--lp-ink) group relative inline-block rounded-md px-3 py-2 font-medium transition-colors"
       >
         {label}
         <span
           aria-hidden
-          className="absolute inset-x-3 bottom-1 h-0.5 origin-center scale-x-0 rounded-full bg-[#25d366] transition-transform duration-200 group-hover:scale-x-100"
+          className="absolute inset-x-3 bottom-1 h-0.5 origin-center scale-x-0 rounded-full bg-[#06b6d4] transition-transform duration-200 group-hover:scale-x-100"
         />
       </Link>
     </li>

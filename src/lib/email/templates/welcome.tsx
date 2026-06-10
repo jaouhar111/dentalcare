@@ -7,9 +7,9 @@ export interface WelcomeEmailProps {
   adminFirstName: string;
   /// Clinic name as registered. Surfaced in headings and footer.
   clinicName: string;
-  /// Deep link that signs the user in (or just /onboarding when the
-  /// signup flow already redirected them to /login).
-  onboardingUrl: string;
+  /// Deep link to the cabinet dashboard (the recipient is already signed
+  /// in by the signup flow, so this drops them straight into the product).
+  dashboardUrl: string;
   /// Human-readable trial end date ("18 juin 2026") so the recipient
   /// knows when they will need to subscribe.
   trialEndsAtLabel: string;
@@ -23,14 +23,13 @@ export interface WelcomeEmailProps {
  *   2. Hand the recipient a single primary action ("set up your bot").
  *   3. Reassure them about the 14-day trial — no card required.
  *
- * Kept short on purpose: the actual product walkthrough lives inside the
- * onboarding wizard, not here. Anything more would push the CTA below
- * the fold on mobile clients.
+ * Kept short on purpose: the actual setup happens in Paramètres, not here.
+ * Anything more would push the CTA below the fold on mobile clients.
  */
 export function WelcomeEmail({
   adminFirstName,
   clinicName,
-  onboardingUrl,
+  dashboardUrl,
   trialEndsAtLabel,
 }: WelcomeEmailProps) {
   return (
@@ -48,14 +47,14 @@ export function WelcomeEmail({
       </Text>
       <Section className="my-6 text-center">
         <Button
-          href={onboardingUrl}
+          href={dashboardUrl}
           className="inline-block rounded-lg bg-emerald-500 px-6 py-3 text-sm font-semibold text-white"
         >
-          Configurer mon cabinet
+          Accéder à mon tableau de bord
         </Button>
       </Section>
       <Text className="text-base leading-7 text-slate-700">
-        Pour démarrer en 5 minutes :
+        Pour démarrer, rendez-vous dans <strong>Paramètres</strong> :
       </Text>
       <Text className="ml-4 text-sm leading-7 text-slate-700">
         1. <strong>Connecter WhatsApp</strong> en scannant un QR code avec

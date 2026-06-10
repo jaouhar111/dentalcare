@@ -175,7 +175,7 @@ export function ConversationThread({
       ) : null}
 
       {isHandedOff ? (
-        <form onSubmit={onSendReply} className="chat-input-bar flex gap-2 border-t border-[var(--border)] bg-white/50 p-3 dark:bg-slate-900/40">
+        <form onSubmit={onSendReply} className="chat-input-bar flex gap-2 border-t border-(--border) bg-white/50 p-3 dark:bg-slate-900/40">
           <input
             type="text"
             value={replyBody}

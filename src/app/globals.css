@@ -992,52 +992,50 @@ html[data-vertical="dental"] {
    The accent stays WhatsApp green (product story) with Moroccan gold
    reserved for premium signalling (recommended plan, hover sheen).
 */
-.lp-light {
-  /* ── Backdrop (Mica) — a near-cream wash with a barely-visible
-     diagonal gradient that mimics Windows 11's "tinted desktop"
-     effect. Sections sit on top as acrylic panels. */
-  --lp-bg: #f3f3f3;           /* Win11 Mica base */
-  --lp-bg-soft: #ececec;      /* slightly deeper Mica for alt cards */
-  --lp-bg-dark: #1b1b1f;      /* Win11 dark surface (Settings dark) */
-  --lp-bg-tint: #faf9f6;      /* warm white for elevated panels */
-  --lp-bg-elev: rgba(255, 255, 255, 0.72);   /* Acrylic card fill */
-  /* Type — Fluent 2 text on light. */
-  --lp-ink: #1b1b1f;
-  --lp-ink-muted: #5a5a5e;
-  --lp-ink-dim: #8a8a8e;
-  --lp-ink-inverse: #f3f3f3;
-  --lp-ink-inverse-muted: #a6a6aa;
-  /* Strokes — Fluent uses very subtle 1px borders. */
-  --lp-line: rgba(0, 0, 0, 0.08);
-  --lp-line-strong: rgba(0, 0, 0, 0.16);
+.lp-premium {
+  /* ── Backdrop — a deep near-black canvas with a multi-stop gradient
+     mesh (emerald → teal → violet) blooming from the corners. Sections
+     sit on top as frosted-glass panels, so the glow always reads
+     through the translucent cards. */
+  /* Light surfaces — base matches the hero image background so the page
+     reads as one continuous canvas. */
+  --lp-bg: #f1f6f9;           /* = hero image background */
+  --lp-bg-soft: #e9eff4;      /* subtle alt panel */
+  --lp-bg-dark: #e8eef4;      /* deeper alt panel */
+  --lp-bg-tint: #ffffff;      /* elevated white card */
+  --lp-bg-elev: #ffffff;      /* white card fill */
+  /* Type — dark slate on light. */
+  --lp-ink: #0f1b2d;
+  --lp-ink-muted: #56657a;
+  --lp-ink-dim: #8a98a8;
+  --lp-ink-inverse: #ffffff;
+  --lp-ink-inverse-muted: rgba(255, 255, 255, 0.72);
+  /* Strokes — subtle dark hairlines on light. */
+  --lp-line: rgba(15, 23, 42, 0.08);
+  --lp-line-strong: rgba(15, 23, 42, 0.14);
 
-  /* Accent — WhatsApp green dominant + Moroccan gold for premium. */
-  --lp-accent-1: #25d366;
-  --lp-accent-2: #128c7e;
-  --lp-accent-hi: #5fea91;
-  --lp-accent-soft: rgba(37, 211, 102, 0.10);
-  --lp-accent-glow: rgba(37, 211, 102, 0.22);
-  --lp-accent-gold: #c9a96e;
-  --lp-accent-gold-deep: #9c7d49;
-  --lp-accent-gold-soft: rgba(201, 169, 110, 0.16);
+  /* Accent — DentalCare cyan (identical to the dashboard). */
+  --lp-accent-1: #06b6d4;
+  --lp-accent-2: #0891b2;
+  --lp-accent-hi: #0e7490;
+  --lp-accent-soft: rgba(8, 145, 178, 0.10);
+  --lp-accent-glow: rgba(8, 145, 178, 0.30);
+  --lp-accent-blue: #0284c7;
+  --lp-accent-blue-soft: rgba(2, 132, 199, 0.12);
+  --lp-accent-gold: #0e7490;
+  --lp-accent-gold-deep: #155e75;
+  --lp-accent-gold-soft: rgba(8, 145, 178, 0.12);
 
-  /* Acrylic + Mica surface tokens — used by .win11-card / .win11-acrylic
-     utility classes below. */
-  --lp-acrylic-fill: rgba(255, 255, 255, 0.72);
-  --lp-acrylic-stroke: rgba(255, 255, 255, 0.6);
+  /* White card surface tokens (Apple-card recipe from the dashboard). */
+  --lp-acrylic-fill: #ffffff;
+  --lp-acrylic-stroke: rgba(15, 23, 42, 0.06);
   --lp-acrylic-shadow:
-    0 1px 0 rgba(255, 255, 255, 0.7) inset,
-    0 -1px 0 rgba(0, 0, 0, 0.04) inset,
-    0 12px 32px -16px rgba(0, 0, 0, 0.18),
-    0 2px 6px rgba(0, 0, 0, 0.05);
-  --lp-mica-noise:
-    radial-gradient(at 0% 0%, rgba(37, 211, 102, 0.10), transparent 50%),
-    radial-gradient(at 100% 0%, rgba(201, 169, 110, 0.10), transparent 50%),
-    radial-gradient(at 100% 100%, rgba(18, 140, 126, 0.08), transparent 55%),
-    radial-gradient(at 0% 100%, rgba(201, 169, 110, 0.06), transparent 50%);
+    0 1px 2px rgba(15, 23, 42, 0.04),
+    0 8px 24px -12px rgba(15, 23, 42, 0.08);
 
-  background: var(--lp-bg) var(--lp-mica-noise);
-  background-attachment: fixed;
+  /* Flat canvas matching the hero image background — the image's edges
+     dissolve into the page and every section sits on one tone. */
+  background: var(--lp-bg);
   color: var(--lp-ink);
 
   /* Segoe UI Variable stack — Win 11 default. Falls back gracefully off
@@ -1068,12 +1066,18 @@ html[data-vertical="dental"] {
    halos always read through; raise it back to 0.72 if you find the
    text underneath distracting on a busy wallpaper. */
 .win11-card {
-  background: rgba(255, 255, 255, 0.55);
-  -webkit-backdrop-filter: saturate(180%) blur(40px);
-  backdrop-filter: saturate(180%) blur(40px);
+  background: var(--lp-bg-elev);
   border: 1px solid var(--lp-line);
-  border-radius: 12px;
+  border-radius: 18px;
   box-shadow: var(--lp-acrylic-shadow);
+  transition: border-color 200ms ease, box-shadow 200ms ease, transform 200ms ease;
+}
+.win11-card:hover {
+  border-color: rgba(8, 145, 178, 0.32);
+  box-shadow:
+    0 1px 2px rgba(15, 23, 42, 0.04),
+    0 18px 44px -18px rgba(8, 145, 178, 0.22);
+  transform: translateY(-2px);
 }
 
 /* Stronger acrylic — used for hero, pricing recommended plan, and
@@ -1081,64 +1085,68 @@ html[data-vertical="dental"] {
    the Mica wallpaper still bleeds through and the card reads as real
    glass. Extra inner highlight gives the "polished" look. */
 .win11-card-elevated {
-  background: rgba(255, 255, 255, 0.55);
-  -webkit-backdrop-filter: saturate(180%) blur(52px);
-  backdrop-filter: saturate(180%) blur(52px);
-  border: 1px solid rgba(255, 255, 255, 0.65);
-  border-radius: 16px;
+  background: #ffffff;
+  border: 1px solid var(--lp-line);
+  border-radius: 20px;
   box-shadow:
-    0 1.5px 0 rgba(255, 255, 255, 0.9) inset,
-    0 -1px 0 rgba(0, 0, 0, 0.05) inset,
-    0 24px 48px -20px rgba(0, 0, 0, 0.22),
-    0 4px 14px rgba(0, 0, 0, 0.06);
+    0 1px 2px rgba(15, 23, 42, 0.04),
+    0 24px 60px -24px rgba(15, 23, 42, 0.16),
+    0 10px 30px -18px rgba(8, 145, 178, 0.16);
 }
 
-/* Acrylic nav bar — used by the sticky header. Thinner than card-level
-   blur so background text underneath stays readable. */
+/* Light nav bar — used by the sticky header. */
 .win11-acrylic-bar {
-  background: rgba(243, 243, 243, 0.72);
-  -webkit-backdrop-filter: saturate(180%) blur(28px);
-  backdrop-filter: saturate(180%) blur(28px);
+  background: rgba(255, 255, 255, 0.9);
   border-bottom: 1px solid var(--lp-line);
 }
 
-/* Fluent button — primary fill with subtle gradient + 1px stroke. */
+/* Primary CTA — identical recipe to the in-app dashboard Button
+   (`variant="default"`): vertical accent gradient + inset highlight +
+   colored glow shadow, `active` squeeze. */
 .win11-btn-primary {
-  background:
-    linear-gradient(180deg, #2fe675 0%, #25d366 100%);
-  border: 1px solid rgba(0, 0, 0, 0.08);
-  border-bottom-color: rgba(0, 0, 0, 0.2);
-  border-radius: 6px;
+  background: linear-gradient(180deg, var(--accent-1), var(--accent-2));
+  border: 1px solid transparent;
+  border-radius: 10px;
   box-shadow:
-    0 1px 0 rgba(255, 255, 255, 0.35) inset,
-    0 8px 22px -10px rgba(37, 211, 102, 0.5);
-  color: white;
+    inset 0 1px 0 rgba(255, 255, 255, 0.3),
+    0 4px 14px var(--accent-glow);
+  color: #ffffff;
   font-weight: 500;
-  transition: filter 120ms ease, transform 120ms ease;
+  transition:
+    filter 150ms var(--ease-smooth),
+    transform 200ms var(--ease-spring),
+    box-shadow 150ms var(--ease-smooth);
 }
 .win11-btn-primary:hover {
   filter: brightness(1.05);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.3),
+    0 6px 20px var(--accent-glow);
 }
 .win11-btn-primary:active {
   transform: translateY(1px);
-  filter: brightness(0.97);
 }
 
-/* Fluent button — subtle/secondary variant on light surfaces. */
+/* Secondary CTA — the dashboard Button `variant="outline"`: white
+   glass with a hairline border. */
 .win11-btn-subtle {
-  background: rgba(255, 255, 255, 0.6);
-  border: 1px solid var(--lp-line);
-  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.65);
+  -webkit-backdrop-filter: blur(12px);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(15, 23, 42, 0.12);
+  border-radius: 10px;
   color: var(--lp-ink);
   font-weight: 500;
-  transition: background-color 120ms ease;
+  transition:
+    background-color 150ms var(--ease-smooth),
+    border-color 150ms var(--ease-smooth);
 }
 .win11-btn-subtle:hover {
-  background: rgba(255, 255, 255, 0.85);
+  background: rgba(255, 255, 255, 0.9);
+  border-color: rgba(15, 23, 42, 0.18);
 }
 
-/* Fluent chip — rounded-pill micro-label. The gold variant signals
-   "premium / recommended" via the Moroccan-gold accent. */
+/* Pill micro-label (cyan, matching the dashboard). */
 .win11-chip {
   display: inline-flex;
   align-items: center;
@@ -1151,17 +1159,17 @@ html[data-vertical="dental"] {
   text-transform: uppercase;
   background: var(--lp-accent-soft);
   color: var(--lp-accent-2);
-  border: 1px solid rgba(37, 211, 102, 0.25);
+  border: 1px solid rgba(8, 145, 178, 0.3);
 }
 .win11-chip-gold {
   background: var(--lp-accent-gold-soft);
   color: var(--lp-accent-gold-deep);
-  border-color: rgba(201, 169, 110, 0.35);
+  border-color: rgba(8, 145, 178, 0.3);
 }
 
-.lp-light ::selection {
+.lp-premium ::selection {
   background: var(--lp-accent-1);
-  color: #fff;
+  color: #ffffff;
 }
 
 /* Apple-style filled CTA pill — used in hero, pricing, closing. */
