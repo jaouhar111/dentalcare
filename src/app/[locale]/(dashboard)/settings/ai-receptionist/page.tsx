@@ -63,7 +63,7 @@ export default async function AIReceptionistPage({
       </header>
 
       {openwaRes.ok ? (
-        <WhatsAppConnectionPanel initial={openwaRes.data} />
+        <WhatsAppConnectionPanel initial={openwaRes.data} autoStart />
       ) : null}
 
       <AIReceptionistForm initial={settingsRes.data} />

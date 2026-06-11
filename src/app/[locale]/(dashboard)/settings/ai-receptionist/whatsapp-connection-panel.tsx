@@ -70,11 +70,20 @@ export function WhatsAppConnectionPanel({
   // Auto-poll while the connection is in flux. We deliberately stop on
   // terminal states (ready / failed) so a healthy clinic doesn't burn
   // the gateway with permanent polling.
+  //
+  // Cadence is tighter while `connecting` (1.2s): the gateway's Chromium
+  // cold-start takes ~45s to emit the first QR, and we want to surface it
+  // the instant it lands rather than up to 3s later. Once the QR is shown
+  // (`awaiting_scan`) there's no rush, so we relax back to 3s.
   useEffect(() => {
-    const polling =
-      state.state === "connecting" || state.state === "awaiting_scan";
-    if (!polling) return;
-    pollRef.current = setTimeout(refresh, 3000);
+    const interval =
+      state.state === "connecting"
+        ? 1200
+        : state.state === "awaiting_scan"
+          ? 3000
+          : null;
+    if (interval === null) return;
+    pollRef.current = setTimeout(refresh, interval);
     return () => {
       if (pollRef.current) clearTimeout(pollRef.current);
     };
@@ -170,9 +179,15 @@ function ConnectingView() {
   return (
     <div className="flex items-center gap-3 rounded-2xl bg-black/[0.02] p-6 dark:bg-white/[0.02]">
       <div className="size-5 animate-spin rounded-full border-2 border-[#0071e3]/30 border-t-[#0071e3]" />
-      <p className="text-foreground text-[14px]">
-        Démarrage de la session WhatsApp Web — quelques secondes…
-      </p>
+      <div>
+        <p className="text-foreground text-[14px]">
+          Préparation de la session WhatsApp Web…
+        </p>
+        <p className="text-muted-foreground mt-0.5 text-[12px]">
+          La première connexion peut prendre jusqu&apos;à une minute. Préparez
+          votre téléphone : WhatsApp Business → Appareils connectés.
+        </p>
+      </div>
     </div>
   );
 }
