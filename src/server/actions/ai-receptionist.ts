@@ -116,6 +116,10 @@ export async function updateAIReceptionistSettings(
       aiSignature: true,
       plan: true,
       subscriptionStatus: true,
+      featureAiReceptionist: true,
+      featureVoiceNotes: true,
+      featureRecalls: true,
+      featurePaymentPlans: true,
     },
   });
   if (!before) return fail("NOT_FOUND", "Cabinet introuvable");
@@ -124,12 +128,12 @@ export async function updateAIReceptionistSettings(
   // attempt to flip `enabled = true` from a Starter cabinet so the
   // sales pitch on the pricing page stays honest.
   if (data.enabled === true) {
-    const { capabilitiesFor, minimumPlanFor, planLabel } = await import(
-      "@/lib/billing/plan-capabilities"
-    );
+    const { capabilitiesFor, featureOverridesOf, minimumPlanFor, planLabel } =
+      await import("@/lib/billing/plan-capabilities");
     const caps = capabilitiesFor({
       plan: before.plan,
       subscriptionStatus: before.subscriptionStatus,
+      featureOverrides: featureOverridesOf(before),
     });
     if (!caps.aiReceptionist) {
       const required = minimumPlanFor("aiReceptionist");

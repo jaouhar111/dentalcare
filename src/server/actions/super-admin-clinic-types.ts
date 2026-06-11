@@ -22,6 +22,13 @@ export interface ClinicDetail {
   trialDaysRemaining: number | null;
   suspendedAt: Date | null;
   suspendedReason: string | null;
+  /// Per-cabinet feature overrides (P2-10). `null` = use the plan default.
+  featureOverrides: {
+    aiReceptionist: boolean | null;
+    voiceNotes: boolean | null;
+    recalls: boolean | null;
+    paymentPlans: boolean | null;
+  };
   openwaSessionId: string | null;
   createdAt: Date;
   totals: {

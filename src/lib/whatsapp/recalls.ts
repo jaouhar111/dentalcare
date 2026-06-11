@@ -57,6 +57,10 @@ export async function sendRecallReminderById(
           openwaSessionId: true,
           plan: true,
           subscriptionStatus: true,
+          featureAiReceptionist: true,
+          featureVoiceNotes: true,
+          featureRecalls: true,
+          featurePaymentPlans: true,
         },
       },
     },
@@ -66,12 +70,13 @@ export async function sendRecallReminderById(
   // Plan gate — auto recalls are a Pro+ feature. Starter cabinets get
   // the reminders created in the DB but never delivered, so a future
   // upgrade can backfill (or the operator can dismiss them).
-  const { capabilitiesFor } = await import(
+  const { capabilitiesFor, featureOverridesOf } = await import(
     "@/lib/billing/plan-capabilities"
   );
   const caps = capabilitiesFor({
     plan: r.clinic.plan,
     subscriptionStatus: r.clinic.subscriptionStatus,
+    featureOverrides: featureOverridesOf(r.clinic),
   });
   if (!caps.recalls) {
     return { ok: false, reason: "PLAN_DISALLOWED", detail: r.clinic.plan };

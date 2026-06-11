@@ -94,10 +94,11 @@ export async function handleInboundTextMessage(
   // Plan gate — treat a Starter (or expired/canceled) clinic the same
   // as `aiEnabled = false` so a downgrade silently flips the bot off
   // without admin action.
-  const { capabilitiesFor } = await import("@/lib/billing/plan-capabilities");
+  const { capabilitiesFor, featureOverridesOf } = await import("@/lib/billing/plan-capabilities");
   const caps = capabilitiesFor({
     plan: clinic.plan,
     subscriptionStatus: clinic.subscriptionStatus,
+    featureOverrides: featureOverridesOf(clinic),
   });
   const aiAllowedByPlan = caps.aiReceptionist;
 
@@ -393,6 +394,10 @@ async function resolveClinic(
   aiTemplatesJson: unknown;
   plan: import("@prisma/client").SubscriptionPlan;
   subscriptionStatus: import("@prisma/client").SubscriptionStatus;
+  featureAiReceptionist: boolean | null;
+  featureVoiceNotes: boolean | null;
+  featureRecalls: boolean | null;
+  featurePaymentPlans: boolean | null;
 } | null> {
   const select = {
     id: true,
@@ -403,6 +408,10 @@ async function resolveClinic(
     aiTemplatesJson: true,
     plan: true,
     subscriptionStatus: true,
+    featureAiReceptionist: true,
+    featureVoiceNotes: true,
+    featureRecalls: true,
+    featurePaymentPlans: true,
   } as const;
   if (sessionId) {
     const bySession = await db.clinic.findUnique({

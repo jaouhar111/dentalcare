@@ -41,6 +41,10 @@ export async function getClinicDetail(
       trialEndsAt: true,
       suspendedAt: true,
       suspendedReason: true,
+      featureAiReceptionist: true,
+      featureVoiceNotes: true,
+      featureRecalls: true,
+      featurePaymentPlans: true,
       openwaSessionId: true,
       createdAt: true,
     },
@@ -144,6 +148,12 @@ export async function getClinicDetail(
     trialDaysRemaining,
     suspendedAt: clinic.suspendedAt,
     suspendedReason: clinic.suspendedReason,
+    featureOverrides: {
+      aiReceptionist: clinic.featureAiReceptionist,
+      voiceNotes: clinic.featureVoiceNotes,
+      recalls: clinic.featureRecalls,
+      paymentPlans: clinic.featurePaymentPlans,
+    },
     openwaSessionId: clinic.openwaSessionId,
     createdAt: clinic.createdAt,
     totals: {

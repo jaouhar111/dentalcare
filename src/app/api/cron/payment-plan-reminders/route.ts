@@ -55,6 +55,10 @@ export async function POST(req: NextRequest) {
               openwaSessionId: true,
               plan: true,
               subscriptionStatus: true,
+              featureAiReceptionist: true,
+              featureVoiceNotes: true,
+              featureRecalls: true,
+              featurePaymentPlans: true,
             },
           },
         },
@@ -81,6 +85,10 @@ export async function POST(req: NextRequest) {
               openwaSessionId: true,
               plan: true,
               subscriptionStatus: true,
+              featureAiReceptionist: true,
+              featureVoiceNotes: true,
+              featureRecalls: true,
+              featurePaymentPlans: true,
             },
           },
         },
@@ -93,9 +101,20 @@ export async function POST(req: NextRequest) {
   let skippedByPlan = 0;
   const errors: Array<{ installmentId: string; error: string }> = [];
 
-  const { capabilitiesFor } = await import("@/lib/billing/plan-capabilities");
-  function clinicAllowed(c: { plan: import("@prisma/client").SubscriptionPlan; subscriptionStatus: import("@prisma/client").SubscriptionStatus }): boolean {
-    return capabilitiesFor({ plan: c.plan, subscriptionStatus: c.subscriptionStatus }).paymentPlans;
+  const { capabilitiesFor, featureOverridesOf } = await import("@/lib/billing/plan-capabilities");
+  function clinicAllowed(c: {
+    plan: import("@prisma/client").SubscriptionPlan;
+    subscriptionStatus: import("@prisma/client").SubscriptionStatus;
+    featureAiReceptionist?: boolean | null;
+    featureVoiceNotes?: boolean | null;
+    featureRecalls?: boolean | null;
+    featurePaymentPlans?: boolean | null;
+  }): boolean {
+    return capabilitiesFor({
+      plan: c.plan,
+      subscriptionStatus: c.subscriptionStatus,
+      featureOverrides: featureOverridesOf(c),
+    }).paymentPlans;
   }
 
   function paymentDueBody(inst: typeof j3[number] | typeof j1[number]) {

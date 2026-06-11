@@ -99,14 +99,56 @@ const LOOKUP: Record<SubscriptionPlan, PlanCapabilities> = {
  *     grace. (Trial expiration without payment runs through a separate
  *     dunning state machine that ends up setting CANCELLED.)
  */
+/**
+ * Per-cabinet feature overrides (P2-10). `null`/`undefined` for a key =
+ * use the plan default; a boolean forces that feature on/off regardless
+ * of plan. Only feature flags can be overridden — entity caps stay
+ * plan-bound.
+ */
+export interface FeatureOverrides {
+  aiReceptionist?: boolean | null;
+  voiceNotes?: boolean | null;
+  recalls?: boolean | null;
+  paymentPlans?: boolean | null;
+}
+
 export function capabilitiesFor(args: {
   plan: SubscriptionPlan;
   subscriptionStatus: SubscriptionStatus;
+  featureOverrides?: FeatureOverrides | null;
 }): PlanCapabilities {
-  if (args.subscriptionStatus === SubscriptionStatus.CANCELLED) {
-    return STARTER;
-  }
-  return LOOKUP[args.plan];
+  const base =
+    args.subscriptionStatus === SubscriptionStatus.CANCELLED
+      ? STARTER
+      : LOOKUP[args.plan];
+  const ov = args.featureOverrides;
+  if (!ov) return base;
+  return {
+    ...base,
+    aiReceptionist: ov.aiReceptionist ?? base.aiReceptionist,
+    voiceNotes: ov.voiceNotes ?? base.voiceNotes,
+    recalls: ov.recalls ?? base.recalls,
+    paymentPlans: ov.paymentPlans ?? base.paymentPlans,
+  };
+}
+
+/**
+ * Build {@link FeatureOverrides} from a clinic row's `feature*` columns.
+ * Pass the result to `capabilitiesFor({ ..., featureOverrides })` at every
+ * feature gate so per-cabinet overrides take effect consistently.
+ */
+export function featureOverridesOf(c: {
+  featureAiReceptionist?: boolean | null;
+  featureVoiceNotes?: boolean | null;
+  featureRecalls?: boolean | null;
+  featurePaymentPlans?: boolean | null;
+}): FeatureOverrides {
+  return {
+    aiReceptionist: c.featureAiReceptionist ?? null,
+    voiceNotes: c.featureVoiceNotes ?? null,
+    recalls: c.featureRecalls ?? null,
+    paymentPlans: c.featurePaymentPlans ?? null,
+  };
 }
 
 /**

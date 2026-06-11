@@ -382,3 +382,44 @@ export async function setClinicSuspended(args: {
   revalidatePath(`/super-admin/clinics/${clinic.id}`);
   return ok({ id: clinic.id });
 }
+
+/**
+ * Set (or clear) a per-cabinet feature override (P2-10). `value`:
+ *   - `true`  → force the feature ON regardless of plan
+ *   - `false` → force it OFF regardless of plan
+ *   - `null`  → clear the override (use the plan default)
+ * Audited.
+ */
+export async function setClinicFeatureOverride(args: {
+  clinicId: string;
+  feature: "aiReceptionist" | "voiceNotes" | "recalls" | "paymentPlans";
+  value: boolean | null;
+}): Promise<Result<{ id: string }>> {
+  const user = await requireRole([UserRole.SUPER_ADMIN]);
+  const clinic = await db.clinic.findUnique({
+    where: { id: args.clinicId },
+    select: { id: true },
+  });
+  if (!clinic) return fail("NOT_FOUND", "Cabinet introuvable");
+
+  const data =
+    args.feature === "aiReceptionist"
+      ? { featureAiReceptionist: args.value }
+      : args.feature === "voiceNotes"
+        ? { featureVoiceNotes: args.value }
+        : args.feature === "recalls"
+          ? { featureRecalls: args.value }
+          : { featurePaymentPlans: args.value };
+
+  await db.clinic.update({ where: { id: clinic.id }, data });
+  await audit({
+    clinicId: clinic.id,
+    userId: user.id,
+    action: "superadmin.clinic.feature_override",
+    entity: "Clinic",
+    entityId: clinic.id,
+    payload: { feature: args.feature, value: args.value },
+  });
+  revalidatePath(`/super-admin/clinics/${clinic.id}`);
+  return ok({ id: clinic.id });
+}

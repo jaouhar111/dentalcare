@@ -7,10 +7,12 @@ import {
 } from "@prisma/client";
 import { Link } from "@/i18n/navigation";
 import { requireRole } from "@/lib/auth/rbac";
+import { capabilitiesFor } from "@/lib/billing/plan-capabilities";
 import { getClinicDetail } from "@/server/actions/super-admin-clinic";
 import { getClinicSubscriptionInvoices } from "@/server/actions/super-admin-billing";
 import { ClinicRowActions } from "../../_components/clinic-row-actions";
 import { ClinicSuspendControl } from "../../_components/clinic-suspend-control";
+import { ClinicFeatureFlags } from "../../_components/clinic-feature-flags";
 import { SubscriptionInvoices } from "../../_components/subscription-invoices";
 import { PlanPicker } from "../../_components/plan-picker";
 
@@ -134,6 +136,26 @@ export default async function ClinicDetailPage({
 
       {/* ── Plan picker — 3 tiers from landing pricing ──────── */}
       <PlanPicker clinicId={c.id} currentPlan={c.plan} />
+
+      {/* ── Feature overrides (per-cabinet) ─────────────────── */}
+      {(() => {
+        const planCaps = capabilitiesFor({
+          plan: c.plan,
+          subscriptionStatus: c.subscriptionStatus,
+        });
+        return (
+          <ClinicFeatureFlags
+            clinicId={c.id}
+            overrides={c.featureOverrides}
+            defaults={{
+              aiReceptionist: planCaps.aiReceptionist,
+              voiceNotes: planCaps.voiceNotes,
+              recalls: planCaps.recalls,
+              paymentPlans: planCaps.paymentPlans,
+            }}
+          />
+        );
+      })()}
 
       {/* KPI strip */}
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-5">

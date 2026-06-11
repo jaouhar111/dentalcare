@@ -110,6 +110,14 @@ model Clinic {
   /// to /suspended) regardless of subscription state. Cleared on reactivate.
   suspendedAt           DateTime?
   suspendedReason       String?
+  /// Per-cabinet feature overrides set by the super-admin (P2-10). `null`
+  /// = use the plan default; `true`/`false` force the feature on/off
+  /// regardless of plan (e.g. enable AI for a demo cabinet on Starter).
+  /// Applied in `capabilitiesFor` when passed through.
+  featureAiReceptionist Boolean?
+  featureVoiceNotes     Boolean?
+  featureRecalls        Boolean?
+  featurePaymentPlans   Boolean?
   /// AI Receptionist kill switch. `true` = bot answers WhatsApp inbound.
   /// `false` = bot replies with a "transferring you" message and creates
   /// a handover ticket so the cabinet team picks up manually. Defaults
