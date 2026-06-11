@@ -11,6 +11,7 @@ import { Toaster } from "@/components/ui/sonner";
 import { ConfirmDialogProvider } from "@/components/confirm-dialog";
 import { LegalFooter } from "@/components/legal-footer";
 import { ImpersonationBanner } from "@/components/impersonation-banner";
+import { getActiveAnnouncement } from "@/server/actions/super-admin-announcement";
 import { isRtl } from "@/i18n/routing";
 
 /**
@@ -91,13 +92,28 @@ export default async function DashboardLayout({
     navLabels[k] = tNav(k as never);
   }
 
-  const clinic = await db.clinic.findUnique({
-    where: { id: session.user.clinicId },
-    select: { name: true, logoUrl: true },
-  });
+  const [clinic, announcement] = await Promise.all([
+    db.clinic.findUnique({
+      where: { id: session.user.clinicId },
+      select: { name: true, logoUrl: true },
+    }),
+    getActiveAnnouncement(),
+  ]);
 
   return (
     <ConfirmDialogProvider>
+      {announcement ? (
+        <div
+          className={`flex items-center justify-center gap-2 px-4 py-2 text-center text-[13px] font-medium ${
+            announcement.level === "WARNING"
+              ? "bg-amber-500/15 text-amber-900 dark:text-amber-200"
+              : "bg-sky-500/12 text-sky-900 dark:text-sky-200"
+          }`}
+        >
+          <span aria-hidden>{announcement.level === "WARNING" ? "⚠️" : "📣"}</span>
+          <span>{announcement.message}</span>
+        </div>
+      ) : null}
       {session.impersonator ? (
         <ImpersonationBanner
           userName={session.user.name ?? null}

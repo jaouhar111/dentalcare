@@ -1463,3 +1463,26 @@ model SupportTicketReply {
   @@index([ticketId, createdAt])
   @@map("support_ticket_replies")
 }
+
+/// Platform-wide announcement set by the super-admin and shown as a banner
+/// to every cabinet user (maintenance notice, product update…). Only the
+/// most recent `active` row is displayed; publishing a new one deactivates
+/// the rest.
+model PlatformAnnouncement {
+  id          String            @id @default(cuid())
+  message     String
+  level       AnnouncementLevel @default(INFO)
+  active      Boolean           @default(true)
+  createdById String
+  createdAt   DateTime          @default(now())
+
+  @@index([active, createdAt])
+  @@map("platform_announcements")
+}
+
+enum AnnouncementLevel {
+  INFO
+  WARNING
+
+  @@map("announcement_level")
+}
