@@ -125,7 +125,7 @@ Légende priorités : **P0** = bloquant pour opérer un vrai SaaS payant · **P1
 
 | # | Item | Domaine | Prio | Effort | Statut |
 |---|---|---|---|---|---|
-| 1 | Intégration paiement + cycle de vie par webhooks | Revenu | **P0** | L | ⬜ |
+| 1 | Intégration paiement + cycle de vie par webhooks | Revenu | **P0** | L | ⬜ différé (décision propriétaire — conservé au backlog) |
 | 2 | Export & offboarding cabinet conforme (RGPD/CNDP) | Conformité | **P0** | M | ⬜ |
 | 3 | Actions sur utilisateurs (désactiver / reset / rôle) | Cabinets & users | **P1** | S | ✅ |
 | 4 | Suspendre / réactiver un cabinet (lock indépendant du billing) | Cabinets & users | **P1** | S | ✅ |
@@ -136,7 +136,7 @@ Légende priorités : **P0** = bloquant pour opérer un vrai SaaS payant · **P1
 | 9 | Bannière / annonce plateforme → cabinets | Communication | **P2** | S | ✅ |
 | 10 | Feature flags / capacités de plan éditables en UI | Cabinets & users | **P2** | M | ⬜ |
 | 11 | Coupons / tarifs négociés | Revenu | **P2** | M | ⬜ |
-| 12 | Page statut + métriques d'usage par cabinet | Santé plateforme | **P2** | M | ⬜ |
+| 12 | Page statut + métriques d'usage par cabinet | Santé plateforme | **P2** | M | 🟡 usage/cabinet (page statut publique = reste) |
 
 ---
 
