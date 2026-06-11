@@ -48,6 +48,7 @@ export async function getClinicDetail(
   if (!clinic) return fail("NOT_FOUND", "Cabinet introuvable");
 
   const now = new Date();
+  const day30 = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
   const [
     patientsCount,
     employeesCount,
@@ -57,6 +58,10 @@ export async function getClinicDetail(
     recentPatients,
     employees,
     recentAppts,
+    apptsCreated30d,
+    aiConvos30d,
+    aiTurnsAgg,
+    invoices30d,
   ] = await Promise.all([
     db.patient.count({ where: { clinicId, deletedAt: null } }),
     db.user.count({ where: { clinicId, isActive: true } }),
@@ -105,6 +110,14 @@ export async function getClinicDetail(
         dentist: { select: { firstName: true, lastName: true } },
       },
     }),
+    // ── 30-day usage window ──────────────────────────────────────────
+    db.appointment.count({ where: { clinicId, createdAt: { gte: day30 } } }),
+    db.aIConversation.count({ where: { clinicId, lastActivityAt: { gte: day30 } } }),
+    db.aIConversation.aggregate({
+      where: { clinicId, lastActivityAt: { gte: day30 } },
+      _sum: { totalTurns: true },
+    }),
+    db.invoice.count({ where: { clinicId, emittedAt: { gte: day30 } } }),
   ]);
 
   const trialDaysRemaining =
@@ -139,6 +152,12 @@ export async function getClinicDetail(
       upcomingAppointments: upcomingApptsCount,
       aiConversations: aiConvosCount,
       pendingRecalls: pendingRecallsCount,
+    },
+    usage30d: {
+      appointmentsCreated: apptsCreated30d,
+      aiConversations: aiConvos30d,
+      aiTurns: aiTurnsAgg._sum.totalTurns ?? 0,
+      invoicesEmitted: invoices30d,
     },
     recentPatients: recentPatients.map((p) => ({
       id: p.id,

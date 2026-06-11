@@ -31,6 +31,13 @@ export interface ClinicDetail {
     aiConversations: number;
     pendingRecalls: number;
   };
+  /// Rolling 30-day activity (created/active in the window), not totals.
+  usage30d: {
+    appointmentsCreated: number;
+    aiConversations: number;
+    aiTurns: number;
+    invoicesEmitted: number;
+  };
   recentPatients: Array<{
     id: string;
     name: string;

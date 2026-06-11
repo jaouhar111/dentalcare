@@ -139,6 +139,17 @@ export default async function ClinicDetailPage({
         <Kpi label="Rappels en attente" value={c.totals.pendingRecalls} />
       </div>
 
+      {/* ── Activity (rolling 30 days) ──────────────────────── */}
+      <section className="apple-card">
+        <div className="apple-kpi-label mb-3">Activité · 30 derniers jours</div>
+        <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+          <Kpi label="RDV créés" value={c.usage30d.appointmentsCreated} />
+          <Kpi label="Conversations IA" value={c.usage30d.aiConversations} />
+          <Kpi label="Échanges IA" value={c.usage30d.aiTurns} />
+          <Kpi label="Factures émises" value={c.usage30d.invoicesEmitted} />
+        </div>
+      </section>
+
       {/* 2-col: employees + recent RDV */}
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
         <section className="apple-card">
