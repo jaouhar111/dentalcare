@@ -135,7 +135,7 @@ Légende priorités : **P0** = bloquant pour opérer un vrai SaaS payant · **P1
 | 8 | Alerte impayé > N jours + factures d'abonnement | Revenu | **P1** | S | ✅ alerte impayé + ledger factures d'abonnement (PDF = reste) |
 | 9 | Bannière / annonce plateforme → cabinets | Communication | **P2** | S | ✅ |
 | 10 | Feature flags / capacités de plan éditables en UI | Cabinets & users | **P2** | M | ✅ overrides de fonctionnalités par cabinet (4 gates câblées) |
-| 11 | Coupons / tarifs négociés | Revenu | **P2** | M | ⬜ |
+| 11 | Coupons / tarifs négociés | Revenu | **P2** | M | ✅ CRUD coupons (redemption = avec le paiement) |
 | 12 | Page statut + métriques d'usage par cabinet | Santé plateforme | **P2** | M | 🟡 usage/cabinet (page statut publique = reste) |
 
 ---

@@ -1520,3 +1520,28 @@ enum SubInvoiceStatus {
 
   @@map("sub_invoice_status")
 }
+
+/// Discount coupon managed by the super-admin (P2-11). Codes are stored
+/// ready for redemption once online billing is wired; the `redemptions`
+/// counter + `maxRedemptions` cap and `expiresAt` already model validity.
+model Coupon {
+  id             String     @id @default(cuid())
+  code           String     @unique
+  type           CouponType
+  value          Int
+  maxRedemptions Int?
+  redemptions    Int        @default(0)
+  active         Boolean    @default(true)
+  expiresAt      DateTime?
+  createdById    String
+  createdAt      DateTime   @default(now())
+
+  @@map("coupons")
+}
+
+enum CouponType {
+  PERCENT
+  FIXED
+
+  @@map("coupon_type")
+}
