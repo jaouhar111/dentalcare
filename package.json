@@ -18,6 +18,10 @@
     "db:studio": "prisma studio",
     "db:reset": "prisma migrate reset",
     "db:seed": "tsx prisma/seed.ts",
+    "openwa:up": "node scripts/openwa.mjs up",
+    "openwa:down": "node scripts/openwa.mjs down",
+    "openwa:logs": "node scripts/openwa.mjs logs",
+    "openwa:status": "node scripts/openwa.mjs status",
     "postinstall": "prisma generate"
   },
   "dependencies": {
