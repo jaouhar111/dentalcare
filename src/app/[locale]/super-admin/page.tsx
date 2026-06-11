@@ -6,6 +6,8 @@ import { requireRole } from "@/lib/auth/rbac";
 import { getPlatformOverview } from "@/server/actions/super-admin";
 import { getSubscriptionsOverview } from "@/server/actions/super-admin-subscriptions";
 import { getInboxCounts } from "@/server/actions/super-admin-support";
+import { getPlatformAlerts } from "@/server/actions/super-admin-alerts";
+import type { PlatformAlert } from "@/server/actions/super-admin-alerts-types";
 import { MetricSparkline } from "./_components/metric-sparkline";
 
 export const dynamic = "force-dynamic";
@@ -26,10 +28,11 @@ export default async function SuperAdminHome({
   await requireRole([UserRole.SUPER_ADMIN]);
 
   const session = await auth();
-  const [overviewRes, subsRes, countsRes] = await Promise.all([
+  const [overviewRes, subsRes, countsRes, alertsRes] = await Promise.all([
     getPlatformOverview(),
     getSubscriptionsOverview(),
     getInboxCounts(),
+    getPlatformAlerts(),
   ]);
 
   if (!overviewRes.ok) {
@@ -46,6 +49,7 @@ export default async function SuperAdminHome({
   const counts = countsRes.ok
     ? countsRes.data
     : { OPEN: 0, IN_PROGRESS: 0, WAITING_USER: 0, RESOLVED: 0, TOTAL: 0 };
+  const alerts = alertsRes.ok ? alertsRes.data : [];
 
   const firstName = session?.user?.name?.split(" ")[0] ?? "Mehdi";
   const dateTimeFmt = new Intl.DateTimeFormat(locale, {
@@ -84,6 +88,9 @@ export default async function SuperAdminHome({
           </Link>
         ) : null}
       </header>
+
+      {/* ── Alerts (platform health + billing) ───────────── */}
+      <AlertsPanel alerts={alerts} />
 
       {/* ── 4 KPIs, Apple flat ──────────────────────────── */}
       <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
@@ -217,6 +224,53 @@ export default async function SuperAdminHome({
             })
           : null}
       </div>
+    </div>
+  );
+}
+
+function AlertsPanel({ alerts }: { alerts: PlatformAlert[] }) {
+  if (alerts.length === 0) {
+    return (
+      <div className="flex items-center gap-2 rounded-2xl bg-emerald-500/[0.06] px-4 py-2.5 text-[13px] text-emerald-700 ring-1 ring-emerald-500/15 dark:text-emerald-300">
+        <span className="size-1.5 rounded-full bg-emerald-500" aria-hidden />
+        Aucune alerte — plateforme saine.
+      </div>
+    );
+  }
+  return (
+    <div className="grid grid-cols-1 gap-2.5 sm:grid-cols-2">
+      {alerts.map((a) => {
+        const critical = a.severity === "critical";
+        return (
+          <Link
+            key={a.id}
+            href={a.href as never}
+            className={`group flex items-start gap-3 rounded-2xl p-4 ring-1 transition hover:-translate-y-0.5 ${
+              critical
+                ? "bg-rose-500/[0.06] ring-rose-500/20 hover:ring-rose-500/35"
+                : "bg-amber-500/[0.06] ring-amber-500/20 hover:ring-amber-500/35"
+            }`}
+          >
+            <span
+              className={`mt-0.5 size-2 shrink-0 rounded-full ${critical ? "bg-rose-500" : "bg-amber-500"}`}
+              aria-hidden
+            />
+            <div className="min-w-0 flex-1">
+              <div
+                className={`text-[13px] font-semibold ${critical ? "text-rose-800 dark:text-rose-200" : "text-amber-800 dark:text-amber-200"}`}
+              >
+                {a.title}
+              </div>
+              <div className="text-muted-foreground mt-0.5 text-[12px] leading-[1.45]">
+                {a.detail}
+              </div>
+            </div>
+            <span className="text-muted-foreground/60 group-hover:text-foreground mt-0.5 transition-colors" aria-hidden>
+              ›
+            </span>
+          </Link>
+        );
+      })}
     </div>
   );
 }
