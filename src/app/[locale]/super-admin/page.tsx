@@ -133,10 +133,10 @@ export default async function SuperAdminHome({
               </div>
             </div>
             <Link
-              href={"/super-admin/clinics" as never}
+              href={"/super-admin/subscriptions" as never}
               className="text-[13px] font-medium text-[#0066cc] hover:underline dark:text-[#2997ff]"
             >
-              Voir cabinets ›
+              Voir abonnements ›
             </Link>
           </div>
           <MetricSparkline

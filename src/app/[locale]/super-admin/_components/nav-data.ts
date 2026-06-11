@@ -17,11 +17,6 @@ export const SA_NAV: SaNavItem[] = [
     icon: "M3 7v10a2 2 0 002 2h14a2 2 0 002-2V7M3 7l9-4 9 4M3 7h18",
   },
   {
-    label: "Cabinets",
-    href: "/super-admin/clinics",
-    icon: "M3 21h18M5 21V7l7-4 7 4v14M9 21V12h6v9",
-  },
-  {
     label: "Abonnements",
     href: "/super-admin/subscriptions",
     icon: "M2.25 8.25h19.5M2.25 9h19.5m-16.5 5.25h6m-6 2.25h3m-3.75 3h15a2.25 2.25 0 002.25-2.25V6.75A2.25 2.25 0 0019.5 4.5h-15a2.25 2.25 0 00-2.25 2.25v10.5A2.25 2.25 0 004.5 19.5z",

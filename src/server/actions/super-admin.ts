@@ -263,6 +263,10 @@ export async function setClinicSubscription(args: {
   status: SubscriptionStatus;
   /// When set on a TRIAL, extend the trial by N days from now.
   extendDays?: number;
+  /// When set on a TRIAL, pin the trial deadline to this exact calendar
+  /// day (ISO `yyyy-mm-dd`). Takes precedence over `extendDays`. The end
+  /// is anchored to 23:59:59 local so "fin le X" includes the whole day X.
+  trialEndsOn?: string;
 }): Promise<Result<{ id: string }>> {
   const user = await requireRole([UserRole.SUPER_ADMIN]);
   const clinic = await db.clinic.findUnique({
@@ -271,12 +275,20 @@ export async function setClinicSubscription(args: {
   });
   if (!clinic) return fail("NOT_FOUND", "Cabinet introuvable");
 
-  const trialEndsAt =
-    args.status === SubscriptionStatus.TRIAL && args.extendDays
-      ? new Date(Date.now() + args.extendDays * 86_400_000)
-      : args.status === SubscriptionStatus.ACTIVE
-        ? null
-        : clinic.trialEndsAt;
+  // Resolve the new trial deadline. Explicit date wins over a day offset;
+  // ACTIVE clears it; anything else leaves the current deadline untouched.
+  let trialEndsAt = clinic.trialEndsAt;
+  if (args.status === SubscriptionStatus.ACTIVE) {
+    trialEndsAt = null;
+  } else if (args.status === SubscriptionStatus.TRIAL && args.trialEndsOn) {
+    const parsed = new Date(`${args.trialEndsOn}T23:59:59`);
+    if (Number.isNaN(parsed.getTime())) {
+      return fail("INVALID", "Date de fin d'essai invalide.");
+    }
+    trialEndsAt = parsed;
+  } else if (args.status === SubscriptionStatus.TRIAL && args.extendDays) {
+    trialEndsAt = new Date(Date.now() + args.extendDays * 86_400_000);
+  }
 
   await db.clinic.update({
     where: { id: clinic.id },
@@ -293,10 +305,13 @@ export async function setClinicSubscription(args: {
       from: clinic.subscriptionStatus,
       to: args.status,
       extendDays: args.extendDays ?? null,
+      trialEndsOn: args.trialEndsOn ?? null,
     },
   });
 
   revalidatePath("/super-admin");
+  revalidatePath("/super-admin/subscriptions");
+  revalidatePath(`/super-admin/clinics/${clinic.id}`);
   return ok({ id: clinic.id });
 }
 
@@ -378,7 +393,7 @@ export async function setClinicSuspended(args: {
     payload: args.suspended ? { reason: args.reason ?? null } : {},
   });
   revalidatePath("/super-admin");
-  revalidatePath("/super-admin/clinics");
+  revalidatePath("/super-admin/subscriptions");
   revalidatePath(`/super-admin/clinics/${clinic.id}`);
   return ok({ id: clinic.id });
 }

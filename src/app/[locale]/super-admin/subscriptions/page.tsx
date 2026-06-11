@@ -245,6 +245,9 @@ export default async function SubscriptionsOverviewPage({
                           <ExtendTrialPopover
                             clinicId={r.id}
                             currentStatus={r.status}
+                            currentTrialEndsAt={
+                              r.trialEndsAt ? r.trialEndsAt.toISOString() : null
+                            }
                           />
                           <ClinicRowActions
                             clinicId={r.id}

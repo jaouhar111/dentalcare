@@ -27,7 +27,7 @@ export interface PlanPrice {
 export const PLAN_PRICING: Record<PlanKey, PlanPrice> = {
   STARTER: { amount: 0, period: "month" },
   PRO: { amount: 300, period: "month" },
-  CABINET_PLUS: { amount: 2000, period: "year" },
+  CABINET_PLUS: { amount: 3600, period: "year" },
 };
 
 /**
@@ -37,7 +37,7 @@ export const PLAN_PRICING: Record<PlanKey, PlanPrice> = {
  *
  *   STARTER       → { amount: "0",    suffix: "/ mois" }
  *   PRO           → { amount: "300",  suffix: "MAD / mois" }
- *   CABINET_PLUS  → { amount: "2000", suffix: "MAD / an" }
+ *   CABINET_PLUS  → { amount: "3600", suffix: "MAD / an" }
  */
 export function planPricePartsFr(plan: PlanKey): { amount: string; suffix: string } {
   const { amount, period } = PLAN_PRICING[plan];

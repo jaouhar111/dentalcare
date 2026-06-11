@@ -58,10 +58,10 @@ export default async function ClinicDetailPage({
       {/* Breadcrumb */}
       <nav className="text-muted-foreground flex items-center gap-2 text-[12px]">
         <Link
-          href={"/super-admin/clinics" as never}
+          href={"/super-admin/subscriptions" as never}
           className="hover:text-foreground"
         >
-          ← Cabinets
+          ← Abonnements
         </Link>
         <span>·</span>
         <span className="text-foreground">{c.name}</span>
@@ -111,7 +111,7 @@ export default async function ClinicDetailPage({
                         : ""
                     }
                   >
-                    {c.trialDaysRemaining} j d'essai restants
+                    {c.trialDaysRemaining} j d&apos;essai restants
                   </span>
                 ) : null}
                 <span>Créé le {dateFmt.format(c.createdAt)}</span>
