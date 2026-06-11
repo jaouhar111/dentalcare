@@ -37,7 +37,7 @@ const PLANS: PlanSpec[] = [
     tagline: "Découverte",
     features: [
       "1 dentiste",
-      "100 patients max",
+      "10 patients max",
       "Rappels J-1",
       "Factures PDF",
       "1 utilisateur",

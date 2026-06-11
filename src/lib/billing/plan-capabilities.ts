@@ -49,7 +49,7 @@ export interface PlanCapabilities extends PlanLimits, PlanFeatures {}
 const STARTER: PlanCapabilities = {
   dentists: 1,
   users: 1,
-  patients: 100,
+  patients: 10,
   aiReceptionist: false,
   voiceNotes: false,
   recalls: false,
@@ -86,9 +86,9 @@ const LOOKUP: Record<SubscriptionPlan, PlanCapabilities> = {
  * Return the capabilities the clinic is currently allowed to use.
  *
  * The lookup respects the lifecycle:
- *   - `subscriptionStatus = TRIAL`  → full capabilities of `plan` (the
- *     point of a trial is to taste the product). Default `plan = PRO`
- *     means a fresh signup gets Pro features for 14 days.
+ *   - `subscriptionStatus = TRIAL`  → full capabilities of `plan`. A
+ *     fresh signup lands on `plan = STARTER` (10 patients) for a 30-day
+ *     free window, then must pick a paid plan to keep writing.
  *   - `subscriptionStatus = ACTIVE` → full capabilities of `plan`.
  *   - `subscriptionStatus = PAST_DUE` → still allowed, with a UI nag.
  *     We don't lock revenue-generating features on a missed payment;

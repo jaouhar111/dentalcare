@@ -27,7 +27,7 @@ export function Pricing() {
       highlighted: false,
       features: [
         "1 dentiste",
-        "Jusqu'à 100 patients",
+        "Jusqu'à 10 patients",
         "Rappels J-1 WhatsApp",
         "Factures + ordonnances PDF",
         "1 utilisateur",

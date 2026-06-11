@@ -22,7 +22,7 @@ const notoArabic = Noto_Sans_Arabic({
 export const metadata: Metadata = {
   title: "DentalCare — Le cabinet dentaire, géré tout seul.",
   description:
-    "Un bot WhatsApp IA prend les RDV (FR / EN / Darija), envoie les rappels J-1 et les recalls détartrage. 14 jours gratuits. Hébergé au Maroc.",
+    "Un bot WhatsApp IA prend les RDV (FR / EN / Darija), envoie les rappels J-1 et les recalls détartrage. 30 jours gratuits. Hébergé au Maroc.",
   manifest: "/manifest.webmanifest",
   appleWebApp: {
     capable: true,
@@ -45,7 +45,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: "DentalCare — Le cabinet dentaire, géré tout seul.",
     description:
-      "Un bot WhatsApp IA prend les RDV à votre place. Rappels et recalls automatiques. 14 jours gratuits.",
+      "Un bot WhatsApp IA prend les RDV à votre place. Rappels et recalls automatiques. 30 jours gratuits.",
     url: "/",
     siteName: "DentalCare",
     images: [
@@ -58,7 +58,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "DentalCare — Le cabinet dentaire, géré tout seul.",
     description:
-      "Un bot WhatsApp IA prend les RDV à votre place. Rappels et recalls automatiques. 14 jours gratuits.",
+      "Un bot WhatsApp IA prend les RDV à votre place. Rappels et recalls automatiques. 30 jours gratuits.",
     images: ["/landing/og-image.jpg"],
   },
 };

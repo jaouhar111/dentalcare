@@ -61,7 +61,7 @@
     "pricing": {
       "kicker": "Tarifs",
       "headline": "Simple. Sans engagement.",
-      "sub": "14 jours gratuits sur tous les plans. Annulation en 1 clic. Tarifs HT en MAD / mois.",
+      "sub": "30 jours gratuits pour démarrer. Annulation en 1 clic. Tarifs HT en MAD / mois.",
       "recommended": "Recommandé",
       "starterName": "Starter",
       "starterSub": "Pour découvrir DentalCare",
@@ -70,15 +70,15 @@
       "proName": "Pro",
       "proSub": "Le plus populaire",
       "proSuffix": "MAD / mois",
-      "proCta": "Démarrer 14 j. gratuits",
+      "proCta": "Démarrer 30 j. gratuits",
       "plusName": "Cabinet+",
       "plusSub": "Pour les grandes équipes",
       "plusSuffix": "MAD / an",
-      "plusCta": "Démarrer 14 j. gratuits"
+      "plusCta": "Démarrer 30 j. gratuits"
     },
     "closing": {
       "headline": "Laissez l'IA parler. Vous, soignez.",
-      "sub": "Créez votre cabinet en 2 minutes. 14 jours gratuits. Sans carte bancaire.",
+      "sub": "Créez votre cabinet en 2 minutes. 30 jours gratuits. Sans carte bancaire.",
       "ctaPrimary": "Démarrer l'essai",
       "ctaSecondary": "J'ai déjà un compte",
       "compliance": "DentalCare est une plateforme de gestion de cabinet dentaire conçue au Maroc, hébergée au Maroc, conforme à la loi 09-08 sur la protection des données personnelles.",
@@ -132,7 +132,7 @@
   "Signup": {
     "tagline": "Lancez votre cabinet en 2 minutes",
     "taglineDesc": "DentalCare s'occupe des rendez-vous, des relances et de l'IA WhatsApp. Vous, vous soignez.",
-    "bullet1": "Essai gratuit 14 jours, sans carte bancaire",
+    "bullet1": "Essai gratuit 30 jours, sans carte bancaire",
     "bullet2": "Bot WhatsApp IA inclus (FR / AR / Darija)",
     "bullet3": "Rappels J-1, recalls détartrage automatiques",
     "bullet4": "Multi-utilisateurs : admin, dentiste, secrétaire",

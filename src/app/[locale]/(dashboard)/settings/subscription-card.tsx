@@ -38,7 +38,7 @@ export function SubscriptionCard({
   });
 
   // For the TRIAL progress bar — we assume the trial started at
-  // `createdAt` (signup flow sets trialEndsAt = createdAt + 14 days).
+  // `createdAt` (signup flow sets trialEndsAt = createdAt + 30 days).
   let trialDaysRemaining: number | null = null;
   let trialProgressPct = 0;
   if (status === SubscriptionStatus.TRIAL && trialEndsAt) {

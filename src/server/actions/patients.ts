@@ -260,7 +260,7 @@ export async function createPatient(raw: CreatePatientInput): Promise<Result<{ i
   }
   const data = parsed.data;
 
-  // Plan cap — Starter = 100 patients, Pro + Cabinet+ = unlimited.
+  // Plan cap — Starter = 10 patients, Pro + Cabinet+ = unlimited.
   const [clinic, currentCount] = await Promise.all([
     db.clinic.findUnique({
       where: { id: user.clinicId },

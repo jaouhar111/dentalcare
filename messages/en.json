@@ -61,7 +61,7 @@
     "pricing": {
       "kicker": "Pricing",
       "headline": "Simple. No lock-in.",
-      "sub": "14 days free on all plans. Cancel in one click. Prices excl. tax, in MAD / month.",
+      "sub": "30 days free to get started. Cancel in one click. Prices excl. tax, in MAD / month.",
       "recommended": "Recommended",
       "starterName": "Starter",
       "starterSub": "Try DentalCare out",
@@ -70,15 +70,15 @@
       "proName": "Pro",
       "proSub": "Most popular",
       "proSuffix": "MAD / month",
-      "proCta": "Start 14-day trial",
+      "proCta": "Start 30-day trial",
       "plusName": "Cabinet+",
       "plusSub": "For larger teams",
       "plusSuffix": "MAD / year",
-      "plusCta": "Start 14-day trial"
+      "plusCta": "Start 30-day trial"
     },
     "closing": {
       "headline": "Let the AI talk. You treat patients.",
-      "sub": "Set up your practice in 2 minutes. 14 days free. No credit card.",
+      "sub": "Set up your practice in 2 minutes. 30 days free. No credit card.",
       "ctaPrimary": "Start trial",
       "ctaSecondary": "I already have an account",
       "compliance": "DentalCare is a dental practice management platform designed in Morocco, hosted in Morocco, compliant with law 09-08 on personal data protection.",
@@ -132,7 +132,7 @@
   "Signup": {
     "tagline": "Launch your clinic in 2 minutes",
     "taglineDesc": "DentalCare handles appointments, reminders and the WhatsApp AI bot. You focus on patients.",
-    "bullet1": "14-day free trial, no credit card",
+    "bullet1": "30-day free trial, no credit card",
     "bullet2": "WhatsApp AI booking included (FR / AR / Darija)",
     "bullet3": "Automatic J-1 reminders and scaling recalls",
     "bullet4": "Multi-user: admin, dentist, receptionist",

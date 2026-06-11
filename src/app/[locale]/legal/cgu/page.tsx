@@ -104,7 +104,7 @@ export default function CguPage() {
 
       <h2>6. Tarification et facturation</h2>
       <p>
-        Le Service est proposé en <strong>essai gratuit de 14 jours</strong>, puis sur la
+        Le Service est proposé en <strong>essai gratuit de 30 jours</strong>, puis sur la
         base d'un abonnement mensuel ou annuel à régler d'avance. Les tarifs en vigueur
         sont publiés sur le site et révisables avec un préavis de 30 jours. Toute somme
         impayée à 30 jours peut entraîner la suspension de l'accès, puis la résiliation

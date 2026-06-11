@@ -21,7 +21,7 @@ export interface WelcomeEmailProps {
  * Goals:
  *   1. Confirm the account was created (deliverability check).
  *   2. Hand the recipient a single primary action ("set up your bot").
- *   3. Reassure them about the 14-day trial — no card required.
+ *   3. Reassure them about the 30-day trial — no card required.
  *
  * Kept short on purpose: the actual setup happens in Paramètres, not here.
  * Anything more would push the CTA below the fold on mobile clients.
@@ -34,7 +34,7 @@ export function WelcomeEmail({
 }: WelcomeEmailProps) {
   return (
     <BaseLayout
-      preview={`Bienvenue sur DentalCare, ${adminFirstName} — votre essai gratuit de 14 jours est actif.`}
+      preview={`Bienvenue sur DentalCare, ${adminFirstName} — votre essai gratuit de 30 jours est actif.`}
       clinicName={clinicName}
     >
       <Heading className="text-xl font-semibold text-slate-900">
@@ -42,7 +42,7 @@ export function WelcomeEmail({
       </Heading>
       <Text className="text-base leading-7 text-slate-700">
         Votre cabinet <strong>{clinicName}</strong> est créé sur DentalCare.
-        Votre essai gratuit de 14 jours est actif jusqu&apos;au{" "}
+        Votre essai gratuit de 30 jours est actif jusqu&apos;au{" "}
         <strong>{trialEndsAtLabel}</strong> — aucune carte bancaire requise.
       </Text>
       <Section className="my-6 text-center">

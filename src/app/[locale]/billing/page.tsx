@@ -165,7 +165,7 @@ function pickCopy(status: SubscriptionStatus, trialExpired: boolean) {
     return {
       title: "Essai gratuit terminé",
       subtitle:
-        "Votre période d'essai de 14 jours est arrivée à terme. Souscrivez à un plan pour continuer à utiliser DentalCare.",
+        "Votre période d'essai de 30 jours est arrivée à terme. Souscrivez à un plan pour continuer à utiliser DentalCare.",
       accent: {
         icon: "text-amber-700 dark:text-amber-300",
         iconBg: "bg-amber-500/15",

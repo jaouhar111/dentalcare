@@ -2,7 +2,7 @@
 
 import { z } from "zod";
 import { headers } from "next/headers";
-import { Prisma, UserRole } from "@prisma/client";
+import { Prisma, SubscriptionPlan, UserRole } from "@prisma/client";
 import { isRedirectError } from "next/dist/client/components/redirect-error";
 import { signIn, signOut } from "@/lib/auth";
 import { isAllowed } from "@/lib/auth/rate-limit";
@@ -63,7 +63,9 @@ export async function logoutAction(): Promise<void> {
 // Self-service signup — Option B multi-tenant onboarding
 // ─────────────────────────────────────────────────────────────────────
 
-const TRIAL_DAYS = 14;
+// New cabinets start on the free STARTER plan (10 patients) for a 30-day
+// window, after which they must pick a paid plan to keep writing.
+const TRIAL_DAYS = 30;
 
 const signupSchema = z.object({
   clinicName: z
@@ -96,7 +98,8 @@ export type SignupInput = z.infer<typeof signupSchema>;
  *      Hdoud" → "cabinet-hdoud" then "cabinet-hdoud-2" on collision).
  *   5. Create Clinic + ADMIN User in one transaction so we never end
  *      up with an orphan clinic if the user insert fails.
- *   6. Stamp `trialEndsAt = now + 14 days`. After Stripe is wired the
+ *   6. Stamp `trialEndsAt = now + 30 days` on the STARTER plan. After
+ *      Stripe is wired the
  *      paywall will check this against `Date.now()`.
  *   7. Sign the new admin in immediately so they land on /dashboard.
  */
@@ -153,6 +156,8 @@ export async function signupAction(
           // dead giveaway of "we're a brand-new cabinet, you're the
           // first patient".
           invoiceStartingNumber: 1000 + Math.floor(Math.random() * 9000),
+          // Free entry tier; the 30-day window is enforced via trialEndsAt.
+          plan: SubscriptionPlan.STARTER,
           trialEndsAt,
         },
         select: { id: true, slug: true, name: true },
