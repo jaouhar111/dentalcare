@@ -130,9 +130,9 @@ Légende priorités : **P0** = bloquant pour opérer un vrai SaaS payant · **P1
 | 3 | Actions sur utilisateurs (désactiver / reset / rôle) | Cabinets & users | **P1** | S | ✅ |
 | 4 | Suspendre / réactiver un cabinet (lock indépendant du billing) | Cabinets & users | **P1** | S | ✅ |
 | 5 | Impersonation sécurisée + audit (support) | Conformité/Support | **P1** | M | ✅ |
-| 6 | Alertes proactives (WhatsApp HS, jobs, quota IA) + capture d'erreurs | Santé plateforme | **P1** | M | 🟡 visibilité dashboard (push = reste) |
+| 6 | Alertes proactives (WhatsApp HS, jobs, quota IA) + capture d'erreurs | Santé plateforme | **P1** | M | ✅ dashboard + digest email quotidien (paging temps-réel = reste) |
 | 7 | 2FA super-admin + restriction d'accès | Sécurité | **P1** | S | ⬜ écarté |
-| 8 | Alerte impayé > N jours + factures d'abonnement | Revenu | **P1** | S | 🟡 alerte impayé (factures = reste) |
+| 8 | Alerte impayé > N jours + factures d'abonnement | Revenu | **P1** | S | ✅ alerte impayé + ledger factures d'abonnement (PDF = reste) |
 | 9 | Bannière / annonce plateforme → cabinets | Communication | **P2** | S | ✅ |
 | 10 | Feature flags / capacités de plan éditables en UI | Cabinets & users | **P2** | M | ⬜ |
 | 11 | Coupons / tarifs négociés | Revenu | **P2** | M | ⬜ |

@@ -8,8 +8,10 @@ import {
 import { Link } from "@/i18n/navigation";
 import { requireRole } from "@/lib/auth/rbac";
 import { getClinicDetail } from "@/server/actions/super-admin-clinic";
+import { getClinicSubscriptionInvoices } from "@/server/actions/super-admin-billing";
 import { ClinicRowActions } from "../../_components/clinic-row-actions";
 import { ClinicSuspendControl } from "../../_components/clinic-suspend-control";
+import { SubscriptionInvoices } from "../../_components/subscription-invoices";
 import { PlanPicker } from "../../_components/plan-picker";
 
 export const dynamic = "force-dynamic";
@@ -23,7 +25,10 @@ export default async function ClinicDetailPage({
   setRequestLocale(locale);
   await requireRole([UserRole.SUPER_ADMIN]);
 
-  const result = await getClinicDetail(id);
+  const [result, subscriptionInvoices] = await Promise.all([
+    getClinicDetail(id),
+    getClinicSubscriptionInvoices(id),
+  ]);
   if (!result.ok) {
     if (result.error.code === "NOT_FOUND") notFound();
     return (
@@ -149,6 +154,13 @@ export default async function ClinicDetailPage({
           <Kpi label="Factures émises" value={c.usage30d.invoicesEmitted} />
         </div>
       </section>
+
+      {/* ── Subscription invoices (platform → cabinet) ──────── */}
+      <SubscriptionInvoices
+        clinicId={c.id}
+        invoices={subscriptionInvoices}
+        locale={locale}
+      />
 
       {/* 2-col: employees + recent RDV */}
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">

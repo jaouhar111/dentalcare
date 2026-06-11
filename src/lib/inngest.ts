@@ -475,6 +475,27 @@ export const dailyTrialExpiringSweep = inngest.createFunction(
   },
 );
 
+/**
+ * Daily platform-alerts digest (roadmap P1-6 "push"). At 08:30 Casablanca,
+ * compute the active platform alerts and email a digest to every
+ * SUPER_ADMIN if there are any. Idempotent per calendar day.
+ */
+export const dailyPlatformAlertsDigest = inngest.createFunction(
+  {
+    id: "daily-platform-alerts-digest",
+    name: "Platform alerts digest — daily at 08:30 Casablanca",
+    triggers: [{ cron: "TZ=Africa/Casablanca 30 8 * * *" }],
+  },
+  async ({ step, logger }) => {
+    const result = await step.run("send-platform-alerts-digest", async () => {
+      const { sendPlatformAlertsDigest } = await import("./platform/alerts-digest");
+      return sendPlatformAlertsDigest();
+    });
+    logger.info("platform-alerts digest", result);
+    return { ok: true, ...result };
+  },
+);
+
 export const functions = [
   onAppointmentCreated,
   appointmentJ1Reminder,
@@ -484,4 +505,5 @@ export const functions = [
   dailyMorningRemindersSweep,
   monthlyInsightsPdfSweep,
   dailyTrialExpiringSweep,
+  dailyPlatformAlertsDigest,
 ];

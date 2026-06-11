@@ -1486,3 +1486,29 @@ enum AnnouncementLevel {
 
   @@map("announcement_level")
 }
+
+/// Subscription invoice issued BY the platform TO a cabinet for its plan
+/// (a billing ledger; online collection is a separate future concern).
+/// Amount/period snapshot the plan price at issue time so historical rows
+/// stay correct after a tariff change.
+model SubscriptionInvoice {
+  id          String              @id @default(cuid())
+  clinicId    String
+  plan        SubscriptionPlan
+  amount      Int
+  period      String
+  status      SubInvoiceStatus    @default(ISSUED)
+  issuedAt    DateTime            @default(now())
+  paidAt      DateTime?
+  createdById String
+
+  @@index([clinicId, issuedAt])
+  @@map("subscription_invoices")
+}
+
+enum SubInvoiceStatus {
+  ISSUED
+  PAID
+
+  @@map("sub_invoice_status")
+}
